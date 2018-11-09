@@ -1,6 +1,7 @@
 html, body {
 	margin: 0;
 	padding: 0;
+	height: 100%;
 }
 
 #map {
@@ -69,6 +70,7 @@ input[type=text], select, #locationBox {
 	border-radius: 4px;
 	border: 2px solid #BAB3AD;
 	margin: 8px 0;
+	background-color: #FFFFFF;
 	height: 44px;
 }
 
@@ -96,8 +98,9 @@ input[type=text], select, #locationBox {
 }
 
 .side-btn {
-	float: right;
 	display: flex;
+	margin-left: auto;
+	margin-right: 0;
 	justify-content: center;
 	align-items: center;
 	border: none;
@@ -108,7 +111,7 @@ input[type=text], select, #locationBox {
 	padding: .6em 1.2em;
 	font-weight: bold;
 	border-radius: 50px;
-	margin-top: .5em;
+	margin-top: 12em;
 }
 
 .side-btn-img {
@@ -136,6 +139,9 @@ input[type=checkbox] {
 }
 
 .sidebar-header {
+	width: 105%;
+	display: inline-block;
+	background: #840018;
 	background-color: #840018;
 	height: 100px;
 	color: white;
@@ -174,6 +180,16 @@ input[type=checkbox] {
 .add-info-hr {
 	margin-top: 10px;
 	margin-bottom: 15px;
+}
+
+#bs-override .col-sm-4, #bs-override .col-md-4 {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.sidebar-content {
+	padding-right: 15px;
+	padding-left: 15px;
 }
 
 /** Checkbox Styles
@@ -259,16 +275,25 @@ input[type=checkbox] {
 	transition: .2s;
 	background-color: #0f67b9;
 }
+.filter-sidebar {
+	margin-bottom: 6em;	
+}
 
 .row {
 	width: 115%;
-	margin-bottom: 6em;
 }
 
-/** Media Queries
+#locationSidebar .filter-button {
+	margin-top: 3em;
+}
+
+.center {
+	text-align: center;
+}
+
+/** Confirm Location Box
  ---------------------------------------------------------*/
-@media only and screen (max-width: 767px) {
-.footer {
-	margin-top: 10em;
+.ui-dialog-titlebar {
+	background-color: #8b2233;
 }
-}
+

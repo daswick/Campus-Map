@@ -1,9 +1,6 @@
 
 	// Global variables to be used throughout program
 	var map;
-	//var sidewalks;
-	//var connections;
-	//var edges;
 	var polyline;
 	var connLine1;
 	var connLine2;
@@ -20,27 +17,23 @@
 	var locationSidebar;
 	var icons;
 	var activeMarkers;
-	var thisID;
 	
 	// @method initMap()
 	// Called on page load to initialize variables, set up map, and add controls and markers.
 	function initMap()
 	{
-		if (location.protocol != 'https:')
+		if (location.protocol === 'http:')
 		{
 			location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
 		}
 		
 		tryCount = 0;
-		thisID = -1;
 		myLoc = -1;
 		buildLoc = -1;
 		showSat = false;
 		locating = false;
 		initHash();
 		activeMarkers = [];
-		
-		//loadID();
 		
 		map = L.map('map', {
 			center: [35.9738346, -78.8982177],
@@ -76,7 +69,7 @@
 		{
 			setTimeout(function () {
 				sidebar.show();
-			}, 300);				
+			}, 300);
 		}
 		
 		locationSidebar = L.control.sidebar('locationSidebar', {
@@ -115,6 +108,7 @@
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
 				div.innerHTML = "<input class='customButton' id='locateButton' type='image' src='images/locate.png' onclick='attemptLocate();'>";
+				//div.innerHTML = "<input class='customButton' id='locateButton' type='image' src='images/locate.png' onclick='verifyLocation(1);'>";
 				return div;
 			}
 		});
@@ -155,7 +149,7 @@
 	{
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
-			if(activeMarkers[i].index == index)
+			if(activeMarkers[i].index === index)
 			{
 				activeMarkers[i].fire('click');
 				return;
@@ -168,10 +162,10 @@
 	{
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
-			if(activeMarkers[i].index == index)
+			if(activeMarkers[i].index === index)
 			{
 				map.setView(activeMarkers[i].getLatLng());
-				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [40, 46], iconAnchor: [20, 10]}));
+				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [40, 46], iconAnchor: [20, 10], popupAnchor: [0, -10]}));
 				activeMarkers[i].openPopup();
 				return;
 			}
@@ -182,7 +176,7 @@
 	{
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
-			if(activeMarkers[i].index == index)
+			if(activeMarkers[i].index === index)
 			{
 				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [26, 30], iconAnchor: [20, 10]}));
 				activeMarkers[i].closePopup();
@@ -191,61 +185,8 @@
 		}
 	}
 
-	/*
-
-	function getSidewalks()
-	{
-		$.getScript("https://www.nccu.edu/maptest/campusmappingg/sidewalks.js", function() {
-			sidewalks = $(sidewalks);
-			edges = $(edges);
-			connections = $(connections);
-		});
-	}
-	
-	function loadID()
-	{
-		$.getScript("https://www.nccu.edu/maptest/campusmappingg/mapID.js", function() {
-			thisID = $(mapID)[0];
-		});
-		
-		setTimeout(loadLocalStorage, 500);
-	}
-	
-	function loadLocalStorage()
-	{
-		if (typeof (Storage) !== "undefined")
-		{
-			if(!localStorage.mapID)
-			{
-				localStorage.mapID = thisID;
-			}
-			
-			if(thisID == localStorage.mapID)
-			{
-				sidewalks = JSON.parse(localStorage.sidewalks);
-				edges = JSON.parse(localStorage.edges);
-				connections = JSON.parse(localStorage.connections);
-			}
-			else
-			{
-				getSidewalks();
-				setTimeout(function() {
-					localStorage.sidewalks = JSON.stringify(sidewalks);
-					localStorage.edges = JSON.stringify(edges);
-					localStorage.connections = JSON.stringify(connections);
-					localStorage.mapID = thisID;
-				}, 500);
-			}
-		}
-		else
-		{
-			getSidewalks();
-		}
-	}
-	*/
-
 	function clearAll()
-	{
+	{		
 		var types = ["classroom", "dorm", "food", "interest", "office", "parking", "printer"/*,  "bathroom"*/];
 		
 		for(var i = 0; i < types.length; i++)
@@ -276,7 +217,7 @@
 	{
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
-			if(activeMarkers[i].index == index)
+			if(activeMarkers[i].index === index)
 			{
 				return;	
 			}
@@ -332,7 +273,7 @@
 			{
 				var feature = features[i];
 			
-				if(feature[2] == type)
+				if(feature[2] === type)
 				{
 					addMarker(i, type, false);
 				}
@@ -342,14 +283,14 @@
 		{
 			for(var i = 0; i < activeMarkers.length; i++)
 			{
-				if(activeMarkers[i].mType == type)
+				if(activeMarkers[i].mType === type)
 				{
 					map.removeLayer(activeMarkers[i]);
 				}
 			}
 			
 			activeMarkers = activeMarkers.filter(function(marker) {
-				return marker.mType != type;
+				return marker.mType !== type;
 			});
 		}
 	}
@@ -363,6 +304,7 @@
 			return;
 		}
 		
+		document.getElementById("locateButton").src = "images/spinner.gif";
 		locating = true;
 		
 		map.locate();
@@ -379,7 +321,7 @@
 			map.addLayer(satView);
 			showSat = true;
 			
-			if(polyline != undefined)
+			if(polyline !== undefined)
 			{
 				polyline.setStyle({color: '#d9d900'});	
 			}
@@ -391,7 +333,7 @@
 			map.addLayer(mapView);
 			showSat = false;
 
-			if(polyline != undefined)
+			if(polyline !== undefined)
 			{
 				polyline.setStyle({color: '#005ef7'});	
 			}
@@ -428,14 +370,14 @@
 	// Adds marker to center of campus and allows user to drag marker to location
 	function failedLocation()
 	{
-		if(polyline != undefined)
+		if(polyline !== undefined)
 		{
 			map.removeLayer(polyline);
 			map.removeLayer(connLine1);
 			map.removeLayer(connLine2);
 		}
 
-		if(myMarker != undefined)
+		if(myMarker !== undefined)
 		{
 			map.removeLayer(myMarker);
 		}
@@ -476,7 +418,7 @@
 	// Find closest building to user location and prompt if location is correct, allowing user to correct any mistake.
 	function locateUser(position)
 	{
-		if(myMarker != undefined)
+		if(myMarker !== undefined)
 		{
 			map.removeLayer(myMarker);	
 		}
@@ -532,6 +474,7 @@
 
 	function locationVerified(index)
 	{
+		document.getElementById("locateButton").src = "images/locate.png";
 		myLoc = index;
 		myMarker.dragging.disable();
 		locating = false;
@@ -572,7 +515,7 @@
 	{
 		map.closePopup();
 		
-		if(polyline != undefined)
+		if(polyline !== undefined)
 		{
 			map.removeLayer(polyline);
 			map.removeLayer(connLine1);
@@ -587,7 +530,7 @@
 		cleanMap();
 		
 		var popupMessage = "<p class='location-name'>Directions to: " + features[index][3] + "</p>";
-		popupMessage += "<p class='sidebar-para' style='line-height: 40px;'>Choose your starting point:<br></p>"
+		popupMessage += "<p class='sidebar-para' style='line-height: 40px;'>Choose your starting point:<br></p>";
 		popupMessage += "<input type='radio' onclick='locationSelected();' id='check1' name='choices'>  <span id='myLocation' onclick='locationFocus();'><img src='images/myLoc.png'></img>  Your location</span><br>";
 		popupMessage += "<input type='radio' name='choices' id='check2'>  <img src='images/inside-ico.png'></img><input id='locationBox' onclick='textFocus();' oninput='hashBuild();' style='width: 85%; border-radius: 3px;' placeholder='Enter a location'></input></div><p id='locations'></p><br>";
 		popupMessage += "<input style='height: 18px; width: 18px;' id='accessBox' type='checkbox'>  Accessible routes only?";
@@ -606,7 +549,7 @@
 	// Locates user when "Your location" is selected and location has not been previously found.
 	function locationSelected()
 	{
-		if(document.getElementById("check1").checked && myMarker == undefined)
+		if(document.getElementById("check1").checked && myMarker === undefined)
 		{
 			attemptLocate();
 		}
@@ -640,7 +583,7 @@
 		
 		if(document.getElementById("check1").checked)
 		{
-			if(myMarker == undefined || myLoc == -1)
+			if(myMarker === undefined || myLoc === -1)
 			{
 				return;
 			}
@@ -653,7 +596,7 @@
 		}
 		else if(document.getElementById("check2").checked)
 		{
-			if(buildLoc == end_index)
+			if(buildLoc === end_index)
 			{
 				return;	
 			}
@@ -664,12 +607,12 @@
 			connLoop:
 			for(var i = 0; i < connections.length; i++)
 			{
-				if(i == connections.length - 1 && connections[i][1] != featIndex)
+				if(i === connections.length - 1 && connections[i][1] !== featIndex)
 				{
 					return;
 				}
 				
-				if(connections[i][1] == featIndex)
+				if(connections[i][1] === featIndex)
 				{
 					if(connections[i][2] || canAccess)
 					{
@@ -720,7 +663,7 @@
 		{
 			for(var i = 0; i < connections.length; i++)
 			{
-				if(connections[i][1] == end_index && connections[i][0] == currentNode)
+				if(connections[i][1] === end_index && connections[i][0] === currentNode)
 				{		
 					if(connections[i][2] || canAccess)
 					{
@@ -752,14 +695,14 @@
 
 			for (var i = 0; i < numNodes; i++) 
 			{
-				if (visitedNodes[i] == false && nodeWeights[i] < minDist) 
+				if (visitedNodes[i] === false && nodeWeights[i] < minDist) 
 				{
 					minIndex = i;
 					minDist = nodeWeights[i];
 				}
 			}
 			
-			if(minIndex == -1)
+			if(minIndex === -1)
 			{
 				alert("No possible route");
 				return;
@@ -775,7 +718,7 @@
 		var index = currentNode;
 		var latlngs = [[sidewalks[currentNode][0], sidewalks[currentNode][1]]];
 		
-		while (index != start_index) 
+		while (index !== start_index) 
 		{
 			index = prevNodes[index];
 			latlngs.push([sidewalks[index][0], sidewalks[index][1]]);
@@ -799,14 +742,14 @@
 	}
 	
 	// @method hashStr(String str): <Number> hashed
-	// Given a string, return a hash value based on Rabin–Karp algorithm.
+	// Given a string, return a hash value based on Rabin-Karp algorithm.
 	function hashStr(str)
 	{
 		var hashed = 0;
 		
 		for(var i = 0; i < str.length; i++)
 		{
-			hashed += (str[i].charCodeAt(0) * ( 101 ** i )) % 2847731;
+			hashed += (str[i].charCodeAt(0) * Math.pow(101, i)) % 2847731;
 		}
 		
 		return hashed;
@@ -832,7 +775,7 @@
 					
 					var partial_hash = hashStr(partial);
 					
-					if(hash[partial_hash] == undefined)
+					if(hash[partial_hash] === undefined)
 					{
 						hash[partial_hash] = [i];
 					}
@@ -861,7 +804,7 @@
 		
 		var str_hash = hashStr(str);
 		
-		if(hash[str_hash] == undefined)
+		if(hash[str_hash] === undefined)
 		{
 			document.getElementById("suggestions").innerHTML = "<span class='indented'>No matches found.</span>";
 		}
@@ -872,7 +815,7 @@
 			var freq = {};
 			for(var i = 0; i < results.length; i++)
 			{
-				if(freq[results[i]] == undefined)
+				if(freq[results[i]] === undefined)
 				{
 					freq[results[i]] = 1;
 				}
@@ -883,6 +826,7 @@
 			}
 			
 			var suggestions = [];
+			
 			for(var key in freq)
 			{
 				suggestions.push(key);
@@ -893,12 +837,7 @@
 			
 			for(var i = 0; i < limit; i++)
 			{
-				document.getElementById("suggestions").innerHTML += "<a class='indented' href='#' style='text-decoration: none' onclick='openMarker(" + suggestions[i] + ");'>" + features[suggestions[i]][3] + "</a><hr class='suggestions-hr'>"
-				
-				if(i != limit - 1)
-				{
-					document.getElementById("suggestions").innerHTML;
-				}
+				document.getElementById("suggestions").innerHTML += "<a class='indented' href='#' style='text-decoration: none' onclick='openMarker(" + suggestions[i] + ");'>" + features[suggestions[i]][3] + "</a><hr class='suggestions-hr'>";
 			}
 		}
 	}
@@ -918,7 +857,7 @@
 		
 		var str_hash = hashStr(str);
 		
-		if(hash[str_hash] == undefined)
+		if(hash[str_hash] === undefined)
 		{
 			document.getElementById("locations").innerHTML = "No matches found.";
 		}
