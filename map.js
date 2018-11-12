@@ -132,7 +132,8 @@
 			dorm: 'images/dorm-ico.svg',
 			classroom: 'images/classroom-ico.svg',
 			food: 'images/food-ico.svg',
-			printer: 'images/printer-ico.svg'
+			printer: 'images/printer-ico.svg',
+			bathroom: 'images/inclusive-icon.svg'
 		};
 		
 		for(var i = 0; i < features.length; i++)
@@ -187,7 +188,7 @@
 
 	function clearAll()
 	{		
-		var types = ["classroom", "dorm", "food", "interest", "office", "parking", "printer"/*,  "bathroom"*/];
+		var types = ["classroom", "dorm", "food", "interest", "office", "parking", "printer",  "bathroom"];
 		
 		for(var i = 0; i < types.length; i++)
 		{
@@ -249,6 +250,20 @@
 			map.setView(marker.getLatLng(), 17);
 			
 			locationSidebar.show();
+		});
+		
+		marker.on('mouseover', function() {
+			var icon = marker.options.icon;
+			marker.options.zIndexOffset = 100;
+			icon.options.iconSize = [40, 40];
+			marker.setIcon(icon);
+		});
+			
+		marker.on('mouseout', function() {
+			var icon = marker.options.icon;
+			marker.options.zIndexOffset = 0;
+			icon.options.iconSize = [26, 30];
+			marker.setIcon(icon);
 		});
 		
 		marker.addTo(map);
@@ -592,7 +607,7 @@
 			
 			start_index = myLoc;
 			
-			connLine1 = L.polyline([[myMarker.getLatLng().lat, myMarker.getLatLng().lng], [sidewalks[myLoc][0], sidewalks[myLoc][1]]], {dashArray: '10,10', weight: 5}).addTo(map);
+			connLine1 = L.polyline([[myMarker.getLatLng().lat, myMarker.getLatLng().lng], [sidewalks[myLoc][0], sidewalks[myLoc][1]]], {dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 		}
 		else if(document.getElementById("check2").checked)
 		{
@@ -618,7 +633,7 @@
 					{
 						start_index = connections[i][0];
 						cleanMap();
-						connLine1 = L.polyline([[features[featIndex][0], features[featIndex][1]], [sidewalks[start_index][0], sidewalks[start_index][1]]], {dashArray: '10,10', weight: 5}).addTo(map);
+						connLine1 = L.polyline([[features[featIndex][0], features[featIndex][1]], [sidewalks[start_index][0], sidewalks[start_index][1]]], {dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 						break connLoop;
 					}
 				}
@@ -667,7 +682,7 @@
 				{		
 					if(connections[i][2] || canAccess)
 					{
-						connLine2 = L.polyline([[features[end_index][0], features[end_index][1]], [sidewalks[currentNode][0], sidewalks[currentNode][1]]], {dashArray: '10,10', weight: 5}).addTo(map);
+						connLine2 = L.polyline([[features[end_index][0], features[end_index][1]], [sidewalks[currentNode][0], sidewalks[currentNode][1]]], {dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 						
 						break loop;
 					}
@@ -726,11 +741,11 @@
 		
 		if(!showSat)
 		{
-			polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5});
+			polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5, opacity: 1});
 		}
 		else
 		{
-			polyline = L.polyline(latlngs, {color: '#d9d900', interactive: false, weight: 5});
+			polyline = L.polyline(latlngs, {color: '#d9d900', interactive: false, weight: 5, opacity: 1});
 		}
 		
 		map.addLayer(polyline);
