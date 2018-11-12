@@ -168,6 +168,10 @@
 				map.setView(activeMarkers[i].getLatLng());
 				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [40, 46], iconAnchor: [20, 10], popupAnchor: [0, -10]}));
 				activeMarkers[i].openPopup();
+				var icon = activeMarkers[i].options.icon;
+				activeMarkers[i].options.zIndexOffset = 100;
+				icon.options.iconSize = [40, 40];
+				activeMarkers[i].setIcon(icon);
 				return;
 			}
 		}
@@ -181,6 +185,10 @@
 			{
 				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [26, 30], iconAnchor: [20, 10]}));
 				activeMarkers[i].closePopup();
+				var icon = activeMarkers[i].options.icon;
+				activeMarkers[i].options.zIndexOffset = 0;
+				icon.options.iconSize = [26, 30];
+				activeMarkers[i].setIcon(icon);
 				return;
 			}
 		}
