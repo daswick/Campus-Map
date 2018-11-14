@@ -7,16 +7,16 @@
 	var myMarker;
 	var tryCount;
 	var hash;
-	var myLoc;
-	var buildLoc;
-	var satView;
-	var mapView;
-	var showSat;
 	var locating;
 	var sidebar;
 	var locationSidebar;
 	var icons;
 	var activeMarkers;
+	var markerDragging;
+	var showSat;
+	var satView;
+	var mapView;
+	var buildLoc;
 	
 	// @method initMap()
 	// Called on page load to initialize variables, set up map, and add controls and markers.
@@ -28,10 +28,10 @@
 		}
 		
 		tryCount = 0;
-		myLoc = -1;
 		buildLoc = -1;
 		showSat = false;
 		locating = false;
+		markerDragging = false;
 		initHash();
 		activeMarkers = [];
 		
@@ -60,7 +60,6 @@
 		
 		sidebar = L.control.sidebar('sidebar', {
             closeButton: false,
-			autoPan: false,
             position: 'left'
         });
         map.addControl(sidebar);
@@ -74,7 +73,6 @@
 		
 		locationSidebar = L.control.sidebar('locationSidebar', {
 			closeButton: false,
-			autoPan: false,
 			position: 'left'
 		});
 		map.addControl(locationSidebar);
@@ -89,6 +87,7 @@
 				return div;
 			}
 		});
+		L.control.button = function() { return new L.Control.Button(); };
 		
 		L.Control.View = L.Control.extend({
 			options: {
@@ -100,6 +99,7 @@
 				return div;
 			}
 		});
+		L.control.view = function() { return new L.Control.View(); };
 		
 		L.Control.Locate = L.Control.extend({
 			options: {
@@ -108,14 +108,14 @@
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
 				div.innerHTML = "<input class='customButton' id='locateButton' type='image' src='images/locate.png' onclick='attemptLocate();'>";
-				//div.innerHTML = "<input class='customButton' id='locateButton' type='image' src='images/locate.png' onclick='verifyLocation(1);'>";
 				return div;
 			}
 		});
-
-		var sidebarButton = new L.Control.Button().addTo(map);
-		var viewButton = new L.Control.View().addTo(map);
-		var locateButton = new L.Control.Locate().addTo(map);
+		L.control.locate = function() { return new L.Control.Locate(); };
+		
+		L.control.button().addTo(map);
+		L.control.view().addTo(map);
+		L.control.locate().addTo(map);
 		
 		L.DomEvent.disableClickPropagation(document.getElementById("sidebar"));
 		L.DomEvent.disableClickPropagation(document.getElementById("textField"));
@@ -168,6 +168,7 @@
 				map.setView(activeMarkers[i].getLatLng());
 				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [40, 46], iconAnchor: [20, 10], popupAnchor: [0, -10]}));
 				activeMarkers[i].openPopup();
+				
 				var icon = activeMarkers[i].options.icon;
 				activeMarkers[i].options.zIndexOffset = 100;
 				icon.options.iconSize = [40, 40];
@@ -185,6 +186,7 @@
 			{
 				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [26, 30], iconAnchor: [20, 10]}));
 				activeMarkers[i].closePopup();
+				
 				var icon = activeMarkers[i].options.icon;
 				activeMarkers[i].options.zIndexOffset = 0;
 				icon.options.iconSize = [26, 30];
@@ -213,9 +215,7 @@
 		
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
-			{
-				map.removeLayer(activeMarkers[i]);
-			}
+			map.removeLayer(activeMarkers[i]);
 		}
 		activeMarkers = [];
 		
@@ -261,17 +261,23 @@
 		});
 		
 		marker.on('mouseover', function() {
-			var icon = marker.options.icon;
-			marker.options.zIndexOffset = 100;
-			icon.options.iconSize = [40, 40];
-			marker.setIcon(icon);
+			if(!markerDragging) 
+			{
+				var icon = marker.options.icon;
+				marker.options.zIndexOffset = 100;
+				icon.options.iconSize = [40, 40];
+				marker.setIcon(icon);					
+			}
 		});
 			
 		marker.on('mouseout', function() {
-			var icon = marker.options.icon;
-			marker.options.zIndexOffset = 0;
-			icon.options.iconSize = [26, 30];
-			marker.setIcon(icon);
+			if(!markerDragging) 
+			{
+				var icon = marker.options.icon;
+				marker.options.zIndexOffset = 0;
+				icon.options.iconSize = [26, 30];
+				marker.setIcon(icon);
+			}
 		});
 		
 		marker.addTo(map);
@@ -346,7 +352,9 @@
 			
 			if(polyline !== undefined)
 			{
-				polyline.setStyle({color: '#d9d900'});	
+				polyline.setStyle({color: '#d9d900'});
+				connLine1.setStyle({color: '#d9d900'});
+				connLine2.setStyle({color: '#d9d900'});
 			}
 		}
 		else
@@ -358,7 +366,9 @@
 
 			if(polyline !== undefined)
 			{
-				polyline.setStyle({color: '#005ef7'});	
+				polyline.setStyle({color: '#005ef7'});
+				connLine1.setStyle({color: '#005ef7'});
+				connLine2.setStyle({color: '#005ef7'});
 			}
 		}
 	}
@@ -407,11 +417,19 @@
 		
 		sidebar.hide();
 		locationSidebar.hide();
-					
-		myMarker = L.marker([35.9738346, -78.8982177], {icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
-					
+		
+		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 200, icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+
+		myMarker.on('dragstart', function() {
+			markerDragging = true;
+		});
+		
+		myMarker.on('dragend', function() {
+			markerDragging = false;
+		});
+		
 		alert("Failed to find user. Please drag marker to your location.");
-					
+		
 		myMarker.dragging.enable();
 		map.setView(myMarker.getLatLng(), 17);
 		
@@ -448,32 +466,13 @@
 		
 		myMarker = L.marker(position, {icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 		
-		var distance = Number.MAX_VALUE;
-		var index = 0;
-		
-		for(var i = 0; i < sidewalks.length; i++)
-		{
-			var pos = {
-				lat: sidewalks[i][0],
-				lng: sidewalks[i][1]
-			};
-			
-			var newdist = getDistance(position, pos);
-			
-			if(newdist < distance)
-			{
-				distance = newdist;
-				index = i;
-			}
-		}
-		
 		map.setView(position, 18);
-		setTimeout(function() {verifyLocation(index);}, 500);
+		setTimeout(function() {verifyLocation();}, 500);
 	}
 	
-	// @method verifyLocation(<Number> index)
+	// @method verifyLocation()
 	// Allows user to confirm marker location as accurate or correct if wrong.
-	function verifyLocation(index)
+	function verifyLocation()
 	{
 		$(function() {
 			$( "#dialog" ).dialog({
@@ -484,7 +483,7 @@
 				buttons: {
 					"Yes": function() {
 						$( this ).dialog( "close" );
-						locationVerified(index);
+						locationVerified();
 					},
 					"No":  function() {
 						$( this ).dialog( "close" );
@@ -495,10 +494,9 @@
 		});
 	}
 
-	function locationVerified(index)
+	function locationVerified()
 	{
 		document.getElementById("locateButton").src = "images/locate.png";
-		myLoc = index;
 		myMarker.dragging.disable();
 		locating = false;
 	}
@@ -606,16 +604,32 @@
 		
 		if(document.getElementById("check1").checked)
 		{
-			if(myMarker === undefined || myLoc === -1)
+			if(myMarker === undefined)
 			{
 				return;
 			}
 			
+			var distance = Number.MAX_VALUE;
+		
+			for(var i = 0; i < sidewalks.length; i++)
+			{
+				var pos = {
+					lat: sidewalks[i][0],
+					lng: sidewalks[i][1]
+				};
+			
+				var newdist = getDistance(myMarker.getLatLng(), pos);
+			
+				if(newdist < distance)
+				{
+					distance = newdist;
+					start_index = i;
+				}
+			}
+			
 			cleanMap();
-			
-			start_index = myLoc;
-			
-			connLine1 = L.polyline([[myMarker.getLatLng().lat, myMarker.getLatLng().lng], [sidewalks[myLoc][0], sidewalks[myLoc][1]]], {dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
+						
+			connLine1 = L.polyline([[myMarker.getLatLng().lat, myMarker.getLatLng().lng], [sidewalks[start_index][0], sidewalks[start_index][1]]], {color: '#005ef7', dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 		}
 		else if(document.getElementById("check2").checked)
 		{
@@ -641,7 +655,7 @@
 					{
 						start_index = connections[i][0];
 						cleanMap();
-						connLine1 = L.polyline([[features[featIndex][0], features[featIndex][1]], [sidewalks[start_index][0], sidewalks[start_index][1]]], {dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
+						connLine1 = L.polyline([[features[featIndex][0], features[featIndex][1]], [sidewalks[start_index][0], sidewalks[start_index][1]]], {color: '#005ef7', dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 						break connLoop;
 					}
 				}
@@ -660,7 +674,6 @@
 		var visitedNodes = new Array(numNodes);
 		var nodeWeights = new Array(numNodes);
 		var prevNodes = new Array(numNodes);
-
 
 		for (var i = 0; i < numNodes; i++)
 		{
@@ -690,7 +703,7 @@
 				{		
 					if(connections[i][2] || canAccess)
 					{
-						connLine2 = L.polyline([[features[end_index][0], features[end_index][1]], [sidewalks[currentNode][0], sidewalks[currentNode][1]]], {dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
+						connLine2 = L.polyline([[features[end_index][0], features[end_index][1]], [sidewalks[currentNode][0], sidewalks[currentNode][1]]], {color: '#005ef7', dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 						
 						break loop;
 					}
@@ -747,13 +760,13 @@
 			latlngs.push([sidewalks[index][0], sidewalks[index][1]]);
 		}
 		
-		if(!showSat)
-		{
-			polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5, opacity: 1});
-		}
-		else
+		polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5, opacity: 1});
+		
+		if(showSat)
 		{
 			polyline = L.polyline(latlngs, {color: '#d9d900', interactive: false, weight: 5, opacity: 1});
+			connLine1.setStyle({color: '#d9d900'});
+			connLine2.setStyle({color: '#d9d900'});
 		}
 		
 		map.addLayer(polyline);
@@ -838,14 +851,7 @@
 			var freq = {};
 			for(var i = 0; i < results.length; i++)
 			{
-				if(freq[results[i]] === undefined)
-				{
-					freq[results[i]] = 1;
-				}
-				else
-				{
-					freq[results[i]] = freq[results[i]] + 1;
-				}
+				freq[results[i]] = (freq[results[i]] === undefined) ? 1 : freq[results[i]] + 1;
 			}
 			
 			var suggestions = [];
