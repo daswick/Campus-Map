@@ -123,5 +123,18 @@
 			[35.974627, -78.894026, 'printer', "Chidley North Residence Hall Printer", printerIcon + "2nd floor lab"],
 			[35.975748, -78.901692, 'printer', "Ruffin Residence Hall Printer", printerIcon + "Room 136"],
 			[35.975120, -78.899458, 'printer', "Annie Day Residence Hall Printer", printerIcon + "Room 141"],
-			[35.976020, -78.900066, 'printer', "Fine Arts Printer", printerIcon + "3rd floor"]
+			[35.976020, -78.900066, 'printer', "Fine Arts Printer", printerIcon + "3rd floor"],
+			[35.975015, -78.899020, 'bathroom', "Annie Day Bathroom", "Ground floor"],
+			[35.973055, -78.899538, 'bathroom', "Baynes Bathroom", "Main lobby"],
+			[35.976023, -78.900719, 'bathroom', "B.N. Duke Bathroom", "Main lobby"],
+			[35.971856, -78.896723, 'bathroom', "Criminal Justice Bathroom", "Room 311"],
+			[35.975353, -78.899782, 'bathroom', "Hoey Administration Bathroom", "Third floor"],
+			[35.976474, -78.896710, 'bathroom', "Latham Parking Deck Bathroom", "Third floor"],
+			[35.975989, -78.897868, 'bathroom', "McDougald Arena Bathroom", "First floor"],
+			[35.973316, -78.894955, 'bathroom', "Nursing Building Bathroom", "Second floor"],
+			[35.973695, -78.901425, 'bathroom', "Police and Safety Bathroom", "Ground floor"],
+			[35.975785, -78.901499, 'bathroom', "Ruffin Hall Bathroom", "Main lobby"],
+			[35.974871, -78.899741, 'bathroom', "Rush Hall Bathroom", "Basement"],
+			[35.974978, -78.900062, 'bathroom', "William Jones Bathroom", "First floor"],
+			[35.972988, -78.899100, 'bathroom', "Women's Center Bathroom", "Main lobby"]
 		];

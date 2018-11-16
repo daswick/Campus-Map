@@ -133,7 +133,7 @@
 			classroom: 'images/classroom-ico.svg',
 			food: 'images/food-ico.svg',
 			printer: 'images/printer-ico.svg',
-			bathroom: 'images/inclusive-icon.svg'
+			bathroom: 'images/inclusive-ico.svg'
 		};
 		
 		for(var i = 0; i < features.length; i++)
@@ -197,7 +197,7 @@
 	}
 
 	function clearAll()
-	{		
+	{
 		var types = ["classroom", "dorm", "food", "interest", "office", "parking", "printer",  "bathroom"];
 		
 		for(var i = 0; i < types.length; i++)
@@ -233,7 +233,7 @@
 		}
 		
 		var feature = features[index];
-		var marker = L.marker([feature[0], feature[1]], {interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10]})});
+		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10]})});
 		marker.mType = type;
 		marker.index = index;
 
@@ -255,9 +255,11 @@
 			document.getElementById("buildingname").innerHTML = customPopup;
 
 			marker.closePopup();
-			map.setView(marker.getLatLng(), 17);
+			map.setView(marker.getLatLng(), 18);
 			
-			locationSidebar.show();
+			setTimeout(function() {
+				locationSidebar.show();
+			}, 300);
 		});
 		
 		marker.on('mouseover', function() {
@@ -418,7 +420,7 @@
 		sidebar.hide();
 		locationSidebar.hide();
 		
-		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 200, icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 500, icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 
 		myMarker.on('dragstart', function() {
 			markerDragging = true;
@@ -775,7 +777,10 @@
 		map.addLayer(polyline);
 		
 		var group = new L.featureGroup([polyline, connLine1, connLine2]);
-		map.fitBounds(group.getBounds());
+		
+		setTimeout(function() {
+			map.fitBounds(group.getBounds());
+		}, 400);
 		
 		// var minutes = Math.ceil(nodeWeights[currentNode] / 60);
 	}
