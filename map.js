@@ -552,10 +552,13 @@
 		
 		var popupMessage = "<p class='location-name'>Directions to: " + features[index][3] + "</p>";
 		popupMessage += "<p class='sidebar-para' style='line-height: 40px;'>Choose your starting point:<br></p>";
+		popupMessage += "<label class='radio-cont'><img src='images/myLoc.png'></img>Your Location<input type='radio' onclick='locationSelected();' id='check1' name='choices'><span class='radio-chk'></span></label><br>";
+		/*
 		popupMessage += "<input type='radio' onclick='locationSelected();' id='check1' name='choices'>  <span id='myLocation' onclick='locationFocus();'><img src='images/myLoc.png'></img>  Your location</span><br>";
-		popupMessage += "<input type='radio' name='choices' id='check2'>  <img src='images/inside-ico.png'></img><input id='locationBox' onclick='textFocus();' oninput='hashBuild();' style='width: 85%; border-radius: 3px;' placeholder='Enter a location'></input></div><p id='locations'></p><br>";
-		popupMessage += "<input style='height: 18px; width: 18px;' id='accessBox' type='checkbox'>  Accessible routes only?";
-		popupMessage += "<br><br><a href='#' onclick='getDirections(" + index + ");'><button class='side-btn'><img class='side-btn-img' src='images/start-ico.png'/>Start Route</button></a>";
+		*/
+		popupMessage += "<div class='enter-loc'><label class='radio-cont'><input type='radio' name='choices' id='check2'>  <img src='images/inside-ico.png'></img><span class='radio-chk'></span></label><input id='locationBox' onclick='textFocus();' oninput='hashBuild();' style='border-radius: 3px;' placeholder='Enter a location'></div><p id='locations'></p><br>";
+		popupMessage += "<label class='accessDiv'>Accessible routes only?<input style='height: 18px; width: 18px;' id='accessBox' type='checkbox'><span class='accessChk'></span></label>";
+		popupMessage += "<a href='#' onclick='getDirections(" + index + ");'><button class='side-btn'><img class='side-btn-img' src='images/start-ico.png'/>Start Route</button></a>";
 		
 		document.getElementById("buildingname").innerHTML = popupMessage;
 	}
@@ -888,7 +891,7 @@
 		
 		if(hash[str_hash] === undefined)
 		{
-			document.getElementById("locations").innerHTML = "No matches found.";
+			document.getElementById("locations").innerHTML = "<span class='indented'>No matches found.</span>";
 		}
 		else
 		{
