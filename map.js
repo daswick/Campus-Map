@@ -420,7 +420,7 @@
 		sidebar.hide();
 		locationSidebar.hide();
 		
-		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 500, icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 500, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 
 		myMarker.on('dragstart', function() {
 			markerDragging = true;
@@ -466,7 +466,7 @@
 			map.removeLayer(myMarker);	
 		}
 		
-		myMarker = L.marker(position, {icon: L.icon({iconUrl: 'images/YAH-ico.png', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker(position, {icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 		
 		map.setView(position, 18);
 		setTimeout(function() {verifyLocation();}, 500);
@@ -555,9 +555,6 @@
 		var popupMessage = "<p class='location-name'>Directions to: " + features[index][3] + "</p>";
 		popupMessage += "<p class='sidebar-para' style='line-height: 40px;'>Choose your starting point:<br></p>";
 		popupMessage += "<label class='radio-cont'><img src='images/myLoc.png'></img>Your Location<input type='radio' onclick='locationSelected();' id='check1' name='choices'><span class='radio-chk'></span></label><br>";
-		/*
-		popupMessage += "<input type='radio' onclick='locationSelected();' id='check1' name='choices'>  <span id='myLocation' onclick='locationFocus();'><img src='images/myLoc.png'></img>  Your location</span><br>";
-		*/
 		popupMessage += "<div class='enter-loc'><label class='radio-cont'><input type='radio' name='choices' id='check2'>  <img src='images/inside-ico.png'></img><span class='radio-chk'></span></label><input id='locationBox' onclick='textFocus();' oninput='hashBuild();' style='border-radius: 3px;' placeholder='Enter a location'></div><p id='locations'></p><br>";
 		popupMessage += "<label class='accessDiv'>Accessible routes only?<input style='height: 18px; width: 18px;' id='accessBox' type='checkbox'><span class='accessChk'></span></label>";
 		popupMessage += "<a href='#' onclick='getDirections(" + index + ");'><button class='side-btn'><img class='side-btn-img' src='images/start-ico.png'/>Start Route</button></a>";
@@ -577,6 +574,7 @@
 	{
 		if(document.getElementById("check1").checked && myMarker === undefined)
 		{
+			locationSidebar.hide();
 			attemptLocate();
 		}
 	}

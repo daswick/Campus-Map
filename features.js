@@ -5,7 +5,8 @@
 		var inside = "<p style='line-height: 1.8'>Also at this location: <br>";
 		var accessibleIcon = "<img style='width:20px;' src='images/accessible-ico.svg'></img>    ";
 		var accessibleText = "Accessible spots: ";
-		var printerIcon = "";
+		var printerIcon = "<p><img src='images/printer-inside-ico.png'>";
+		var inclusiveIcon = "<p><img src='images/inclusive-inside-ico.png'>";
 		//var printerIcon = "<p><img src='images/papercut_icon.jpg'></img>   ";
 		
 		var features = [
@@ -124,7 +125,7 @@
 			[35.975748, -78.901692, 'printer', "Ruffin Residence Hall Printer", printerIcon + "Room 136"],
 			[35.975120, -78.899458, 'printer', "Annie Day Residence Hall Printer", printerIcon + "Room 141"],
 			[35.976020, -78.900066, 'printer', "Fine Arts Printer", printerIcon + "3rd floor"],
-			[35.975015, -78.899020, 'bathroom', "Annie Day Bathroom", "Ground floor"],
+			[35.975015, -78.899020, 'bathroom', "Annie Day Bathroom", inclusiveIcon + "Ground floor"],
 			[35.973055, -78.899538, 'bathroom', "Baynes Bathroom", "Main lobby"],
 			[35.976023, -78.900719, 'bathroom', "B.N. Duke Bathroom", "Main lobby"],
 			[35.971856, -78.896723, 'bathroom', "Criminal Justice Bathroom", "Room 311"],

@@ -30,6 +30,10 @@
 	        user-select: none;
 	-webkit-user-drag: none;
 	}
+.leaflet-marker-icon {
+	height: 32px;
+	width: 22px;
+}
 .leaflet-marker-icon,
 .leaflet-marker-shadow {
 	display: block;
