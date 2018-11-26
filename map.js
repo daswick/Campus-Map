@@ -433,9 +433,10 @@
 		alert("Failed to find user. Please drag marker to your location.");
 		
 		myMarker.dragging.enable();
-		map.setView(myMarker.getLatLng(), 17);
-		
 		tryCount = 0;
+		
+		setTimeout(function() { map.setView(myMarker.getLatLng(), 17); }, 300);
+				
 		setTimeout(function() {locateUser(myMarker.getLatLng());}, 10000);
 	}
 	
