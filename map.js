@@ -335,10 +335,10 @@
 			return;
 		}
 		
-		document.getElementById("locateButton").src = "images/spinner.gif";
 		locating = true;
+		document.getElementById("locateButton").src = "images/spinner.gif";
 		
-		map.locate();
+		map.locate({maximumAge: 0, enableHighAccuracy: true});
 	}
 	
 	// @method switchTileLayer()
@@ -396,7 +396,7 @@
 					return;
 				}
 				tryCount++;
-				map.locate({maximumAge: 0, timeout: 4000});
+				map.locate({maximumAge: 0, enableHighAccuracy: true, timeout: 4000});
 				break;
 		}
 	}
@@ -420,7 +420,7 @@
 		sidebar.hide();
 		locationSidebar.hide();
 		
-		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 500, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 
 		myMarker.on('dragstart', function() {
 			markerDragging = true;
@@ -437,7 +437,7 @@
 		
 		setTimeout(function() { map.setView(myMarker.getLatLng(), 17); }, 300);
 				
-		setTimeout(function() {locateUser(myMarker.getLatLng());}, 10000);
+		setTimeout(function() { locateUser(myMarker.getLatLng());}, 10000 );
 	}
 	
 	// @method onLocationFound(<LocationEvent {latlng, accuracy, ...}> position)
@@ -467,7 +467,7 @@
 			map.removeLayer(myMarker);	
 		}
 		
-		myMarker = L.marker(position, {icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 		
 		map.setView(position, 18);
 		setTimeout(function() {verifyLocation();}, 500);
