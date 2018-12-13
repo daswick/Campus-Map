@@ -6,3 +6,5 @@ The goal of the map is to provide information to the students, the biggest of wh
 Aside from directions, the map also has a collection of information that may be otherwise hard to find. Each building has each of these features (when applicable): department website, front desk number, departments inside, and printer location. The map also has parking lot locations with the type of lot (reserved, commuter, etc) and the number of handicap parking spots. All of this information was gathered by the team so the student does not have to search the website (like we did) for the information they need.
 
 Some other functionality includes switching between map view and satellite view, searching for buildings using a Rabin-Karp partial hashing algorithm, and a custom geolocation algorithm for location finding and verification.
+
+Example of the map is shown here: https://daswick.github.io/Campus-Map/map.html
