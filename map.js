@@ -8,8 +8,8 @@
 	var tryCount;
 	var hash;
 	var locating;
-	var sidebar;
-	var locationSidebar;
+	//var sidebar;
+	//var locationSidebar;
 	var icons;
 	var activeMarkers;
 	var markerDragging;
@@ -42,7 +42,7 @@
 			zoomControl: false
 		});
 
-		map.attributionControl.setPrefix('<a href="https://leafletjs.com/" target="_blank">Leaflet</a> | Sidebar @ <a href="https://github.com/Turbo87/leaflet-sidebar" target="_blank">Turbo87</a>');
+		map.attributionControl.setPrefix('<a href="https://leafletjs.com/" target="_blank">Leaflet</a>');
 		
 		mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 			maxZoom: 20,
@@ -58,6 +58,7 @@
 		
 		map.addLayer(mapView);
 		
+		/*
 		sidebar = L.control.sidebar('sidebar', {
             closeButton: false,
             position: 'left'
@@ -76,7 +77,9 @@
 			position: 'left'
 		});
 		map.addControl(locationSidebar);
+		*/
 		
+		/*
 		L.Control.Button = L.Control.extend({
 			options: {
 				position: 'topleft'
@@ -88,6 +91,7 @@
 			}
 		});
 		L.control.button = function() { return new L.Control.Button(); };
+		*/
 		
 		L.Control.View = L.Control.extend({
 			options: {
@@ -113,12 +117,12 @@
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
-		L.control.button().addTo(map);
+		//L.control.button().addTo(map);
 		L.control.view().addTo(map);
 		L.control.locate().addTo(map);
 		
-		L.DomEvent.disableClickPropagation(document.getElementById("sidebar"));
-		L.DomEvent.disableClickPropagation(document.getElementById("textField"));
+		//L.DomEvent.disableClickPropagation(document.getElementById("sidebar"));
+		//L.DomEvent.disableClickPropagation(document.getElementById("textField"));
 		L.DomEvent.disableClickPropagation(document.getElementById("locateButton"));
 		L.DomEvent.disableClickPropagation(document.getElementById("changeView"));
 				
@@ -136,6 +140,7 @@
 			bathroom: 'images/inclusive-ico.svg'
 		};
 		
+		/*
 		for(var i = 0; i < features.length; i++)
 		{
 			var feature = features[i];
@@ -144,6 +149,7 @@
 			var string = "<tr onclick='openMarker(" + i + ")' onMouseOver='rowOnHover(" + i + ");' onMouseOut='rowOffHover(" + i + ");'><td>" + feature[3] + "</td></tr>";
 			document.getElementById(table).innerHTML += string;
 		}
+		*/
 	}
 
 	function openMarker(index)
@@ -257,9 +263,11 @@
 			marker.closePopup();
 			map.setView(marker.getLatLng(), 18);
 			
+			/*
 			setTimeout(function() {
 				locationSidebar.show();
 			}, 300);
+			*/
 		});
 		
 		marker.on('mouseover', function() {
@@ -417,8 +425,8 @@
 			map.removeLayer(myMarker);
 		}
 		
-		sidebar.hide();
-		locationSidebar.hide();
+		//sidebar.hide();
+		//locationSidebar.hide();
 		
 		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 
@@ -482,7 +490,7 @@
 				dialogClass: "no-close",
 				resizable: false,
 				draggable: false,
-				modal: true,
+				modal: false,
 				buttons: {
 					"Yes": function() {
 						$( this ).dialog( "close" );
@@ -494,6 +502,7 @@
 					}
 				}
 			});
+			$("#dialog").dialog("moveToTop");
 		});
 	}
 
@@ -560,7 +569,7 @@
 		popupMessage += "<label class='accessDiv'>Accessible routes only?<input style='height: 18px; width: 18px;' id='accessBox' type='checkbox'><span class='accessChk'></span></label>";
 		popupMessage += "<a href='#' onclick='getDirections(" + index + ");'><button class='side-btn'><img class='side-btn-img' src='images/start-ico.png'/>Start Route</button></a>";
 		
-		document.getElementById("buildingname").innerHTML = popupMessage;
+		//document.getElementById("buildingname").innerHTML = popupMessage;
 	}
 	
 	function locationFocus()
@@ -575,7 +584,7 @@
 	{
 		if(document.getElementById("check1").checked && myMarker === undefined)
 		{
-			locationSidebar.hide();
+			//locationSidebar.hide();
 			attemptLocate();
 		}
 	}
@@ -752,8 +761,8 @@
 			visitedNodes[minIndex] = true;
 		}
 		
-		sidebar.hide();
-		locationSidebar.hide();
+		//sidebar.hide();
+		//locationSidebar.hide();
 		
 		var index = currentNode;
 		var latlngs = [[sidewalks[currentNode][0], sidewalks[currentNode][1]]];

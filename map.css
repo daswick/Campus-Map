@@ -429,6 +429,15 @@ input[type=checkbox] {
 
 /** Confirm Location Box
  ---------------------------------------------------------*/
+
+.ui-dialog {
+	z-index: 10000 !important;
+}
+
+.ui-front { 
+	z-index: 10000 !important; 
+}
+
 .ui-dialog .ui-dialog-titlebar {
 	background-color: #8b2233;
 	color: #fff;
