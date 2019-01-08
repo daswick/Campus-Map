@@ -1,0 +1,448 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+#map {
+	width: 100vw; 
+}
+
+p {
+	font-size: 0.9em;
+	margin: 0;
+}
+
+#locations-txt {
+	font-weight: bold;
+}
+
+
+/** Search Box & Suggestions
+ ---------------------------------------------------------*/
+input[type=text], select, #locationBox {
+	font-size: 16px;
+	padding: 7px 12px;
+	margin: 1.25em 0 .25em 0;
+	display: inline-block;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+#locationBox {
+	margin: -.5em 0 .25em 0
+}
+
+#suggestions, #locations {
+	margin-top: -.35em;
+	font-size: 16px;
+	background-color: white;
+	border: 1px solid #ccc;
+}
+
+#locations { 
+	margin-left: 68px;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+.indented {
+	display: block;
+	font-size: 16px;
+	padding: .25em .8em;
+}
+
+.indented:hover {
+	background-color: #E8E8E8;
+	color: black;
+}
+
+.suggestions-hr {
+	margin: 0;
+	border-top: 1px solid #ccc;
+}
+
+.sidebar-para img {
+	margin-right: .5em;
+}
+
+/** Map Buttons
+ ---------------------------------------------------------*/
+.customButton {
+	border-radius: 4px;
+	border: 2px solid #BAB3AD;
+	margin: 8px 0;
+	background-color: #FFFFFF;
+	height: 44px;
+}
+
+.custom .leaflet-popup-tip,
+.custom .leaflet-popup-content-wrapper {
+	background: white;
+	color: black;
+	position: relative;
+	width: 100%;
+	font-size: 1.5em;
+}
+
+#locations {
+	font-size: 0.9em;
+}
+		
+.hovereffect1 {
+	width:100%;
+	height:100%;
+	float:left;
+	overflow:hidden;
+	position:relative;
+	text-align:center;
+	cursor:default;
+}
+
+.side-btn {
+	display: flex;
+	margin-left: auto;
+	margin-right: 0;
+	justify-content: center;
+	align-items: center;
+	border: none;
+	background-color: #2083DF;
+	min-height: 49px;
+	color: white;
+	font-size: 1.1em;
+	padding: .6em 1.2em;
+	font-weight: bold;
+	border-radius: 50px;
+	margin-top: 6em;
+}
+
+.side-btn-img {
+	margin-right: .5em;
+}
+
+/** Sidebar
+ ---------------------------------------------------------*/
+.leaflet-sidebar {
+	margin-left: 0em;
+}
+
+#sidebar h2 {
+	text-align: left;
+	padding-left: 1em;
+}
+
+input[type=checkbox] {
+	display: hidden;
+}
+
+.sidebar-ico {
+	height: 32px;
+	width: 32px;
+}
+
+.sidebar-header {
+	width: 108%;
+	display: inline-block;
+	background: #840018;
+	background-color: #840018;
+	height: 100px;
+	color: white;
+	text-align: center;
+	padding: 1em 0;
+	margin-bottom: 0;
+}
+
+.panel-default .panel-heading {
+	background-color: #fff;
+}
+
+.panel-default {
+	border-color: #fff;
+}
+
+.panel-title {
+	font-weight: bold;
+}
+
+.location-name {
+	font-size: 1.5em;
+	margin-top: 20px;
+	margin-bottom: 1em;
+}
+
+.add-info {
+	line-height: 20px;
+}
+
+.add-info p, .sidebar-para {
+	font-size: 1.2em;
+}
+
+.add-info img {	
+	margin-left: .5em;
+	margin-right: 1em;
+}
+
+.add-info-hr {
+	margin-top: 10px;
+	margin-bottom: 15px;
+}
+
+#bs-override .col-sm-4, #bs-override .col-md-4 {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.sidebar-content {
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+/** Radio Button Styles - Source: w3schools
+ ---------------------------------------------------------*/
+.radio-cont {
+    display: block;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 1.125em;
+	line-height: 32px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+	font-weight: normal;
+}
+
+.radio-cont img {
+	margin-right: .5em;
+}
+
+/* Hide the browser's default radio button */
+.radio-cont input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom radio button */
+.radio-chk {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 32px;
+    width: 32px;
+    background-color: #fff;
+	border: 2px solid #ABABAB;
+    border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.radio-cont:hover input ~ .radio-chk {
+    background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.radio-cont input:checked ~ .radio-chk {
+    background-color: #2083DF;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.radio-chk:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.radio-cont input:checked ~ .radio-chk:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.radio-cont .radio-chk:after {
+ 	top: 10px;
+	left: 10px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+.enter-loc {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+
+/** Checkbox Styles
+ ---------------------------------------------------------*/
+.chkDiv {
+    display: block;
+    float: right;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.accessDiv {
+    display: block;
+    position: relative;
+    padding-left: 45px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 1.125em;
+	line-height: 32px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+	font-weight: normal;
+}
+
+/* Hide the browser's default checkbox */
+.chkDiv input,
+.accessDiv input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.accessDiv input {
+    height: 0;
+    width: 0;
+}
+
+/* Custom checkbox */
+.checkmark, .accessChk {
+    top: 0;
+    left: 0;
+    height: 32px;
+    width: 32px;
+	background-color: #fff;
+	border: 2px solid #ABABAB;
+}
+
+.checkmark {
+	float: right;
+}
+.accessChk {
+    position: absolute;
+}
+
+/* Checkmark hover effect */
+.chkDiv:hover input ~ .checkmark,
+.accessDiv:hover input ~ .accessChk{
+	transition: .2s;
+    background-color: #ccc;
+}
+
+/* Checkmark background when checked */
+.chkDiv input:checked ~ .checkmark,
+.accessDiv input:checked ~ .accessChk{
+    background-color: #2083DF;
+}
+
+/* Checkmark/indicator (hidden when not checked) */
+.checkmark:after,
+.accessChk:after {
+    content: "";
+    display: none;
+}
+
+.checkmark:after {
+	position: relative;
+}
+
+.accessChk:after {
+	position: absolute;
+}
+
+/* Checkmark when checked */
+.chkDiv input:checked ~ .checkmark:after, 
+.accessDiv input:checked ~ .accessChk:after {
+    display: block;
+}
+
+/* Checkmark/indicator */
+.chkDiv .checkmark:after,
+.accessDiv .accessChk:after {
+    left: 10px;
+    top: 4px;
+    width: 8px;
+    height: 15px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+/** Buttons
+ ---------------------------------------------------------*/
+.filter-button,
+.ui-dialog-buttonset button {
+	border: none;
+	background-color: #2083DF;
+	color: #fff;
+	font-size: 1.1em;
+	border-radius: 4px;
+	margin-top: .5em;
+}
+
+.filter-button {
+	font-weight: bold;
+	padding: .75em 1.3em;
+}
+
+.ui-dialog-buttonset button {
+	padding: .4em 1.3em;
+}
+
+.filter-button:hover, 
+.side-btn:hover,
+.ui-dialog-buttonset button:hover {
+	transition: .2s;
+	background-color: #0f67b9;
+}
+.filter-sidebar {
+	margin-bottom: 6em;	
+}
+
+.row {
+	width: 115%;
+}
+
+#locationSidebar .filter-button {
+	margin-top: 3em;
+	margin-bottom: 3em;
+}
+
+.center {
+	text-align: center;
+}
+
+/** Confirm Location Box
+ ---------------------------------------------------------*/
+.ui-dialog .ui-dialog-titlebar {
+	background-color: #8b2233;
+	color: #fff;
+	font-size: 1.1em;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+	margin: .5em 1em .5em 0;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 1em;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+	padding: .5em 1em .5em .4em;
+}
