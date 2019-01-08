@@ -86,7 +86,7 @@
 			},
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/map.svg'></button>";
+				div.innerHTML = "<input class='customButton' id='sidebarButton' type='image' src='images/hamburger.png' onclick='locationSidebar.hide(); sidebar.toggle();'>";
 				return div;
 			}
 		});
@@ -99,7 +99,7 @@
 			},
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<input class='customButton' id='changeView' type='image' src='images/earth.svg' onclick='switchTileLayer();'>";
+				div.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/map.svg'></button>";
 				return div;
 			}
 		});
