@@ -99,7 +99,7 @@
 			},
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<input class='customButton' id='changeView' type='image' src='images/earth.png' onclick='switchTileLayer();'>";
+				div.innerHTML = "<input class='customButton' id='changeView' type='image' src='images/earth.svg' onclick='switchTileLayer();'>";
 				return div;
 			}
 		});
@@ -369,7 +369,7 @@
 		}
 		else
 		{
-			document.getElementById("changeView").src = "images/earth.png";
+			document.getElementById("changeView").src = "images/earth.svg";
 			map.removeLayer(satView);
 			map.addLayer(mapView);
 			showSat = false;
