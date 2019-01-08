@@ -355,7 +355,7 @@
 	{
 		if(!showSat)
 		{
-			document.getElementById("changeView").src = "images/map.png";
+			document.getElementById("changeView").src = "images/map.svg";
 			map.removeLayer(mapView);
 			map.addLayer(satView);
 			showSat = true;
