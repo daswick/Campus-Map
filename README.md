@@ -7,4 +7,6 @@ Aside from directions, the map also has a collection of information that may be 
 
 Some other functionality includes switching between map view and satellite view, searching for buildings using a Rabin-Karp partial hashing algorithm, and a custom geolocation algorithm for location finding and verification.
 
-Example of the map is shown here: https://daswick.github.io/Campus-Map/map.html
+The current live map can be seen here: https://daswick.github.io/Campus-Map/map.html
+
+The version of the map with legacy Leaflet, bootstrap, and old sidebar can be found here: https://daswick.github.io/Campus-Map/oldMap/map.html
