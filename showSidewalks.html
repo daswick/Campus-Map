@@ -49,9 +49,6 @@
 		{
 			var feature = features[i];
 			
-			if(feature[2] != "bathroom")
-				continue;
-			
 			console.log(i);
 			console.log(feature[3]);
 			
@@ -73,7 +70,7 @@
 			//	continue;
 			var marker = L.marker([sidewalk[0], sidewalk[1]]);
 			marker.bindPopup(" " + i);
-			//marker.addTo(map);					
+			marker.addTo(map);					
 		}
 		
 		
@@ -84,9 +81,6 @@
 			
 			var sidewalk = sidewalks[sidewalkIndex];
 			var location = features[locationIndex];
-			
-			if(location[2] != "bathroom")
-				continue;
 			
 			//console.log(locationIndex);
 
