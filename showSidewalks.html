@@ -48,10 +48,7 @@
 		for(var i = 0; i < features.length; i++)
 		{
 			var feature = features[i];
-			
-			console.log(i);
-			console.log(feature[3]);
-			
+						
 			var pos = {
 				lat: feature[0],
 				lng: feature[1]
@@ -70,7 +67,23 @@
 			//	continue;
 			var marker = L.marker([sidewalk[0], sidewalk[1]]);
 			marker.bindPopup(" " + i);
-			marker.addTo(map);					
+			marker.addTo(map);
+		}
+		
+		for(var i = 0; i < edges.length; i++)
+		{
+			var sidewalk1 = edges[i][0];
+			var sidewalk2 = edges[i][1];
+			
+			if(edges[i][2])
+			{
+				L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]], {color: 'blue', interactive: false, weight: 5}).addTo(map);
+			}
+			else
+			{
+				L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]], {color: 'red', interactive: false, weight: 5}).addTo(map);				
+			}
+			
 		}
 		
 		
@@ -81,8 +94,6 @@
 			
 			var sidewalk = sidewalks[sidewalkIndex];
 			var location = features[locationIndex];
-			
-			//console.log(locationIndex);
 
 			if(connections[i][2])
 			{
