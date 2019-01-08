@@ -596,18 +596,6 @@
 		document.getElementById("check2").checked = true;
 	}
 	
-	// @class edge
-	// Represents an "edge" from one position to another (to_edge), the distance to that point from the starting position (distance), and if it is handicap-accessible (accessible)
-	class edge
-	{
-		constructor(to_ed, dist, acc)
-		{
-			this.to_edge = to_ed;
-			this.distance = dist;
-			this.accessible = acc;
-		}
-	}
-	
 	// @method getDirections(<Number> end_index)
 	// Draws a polyline along route after finding best path using Dijkstra's shortest path algorithm.
 	function getDirections(end_index)
@@ -698,8 +686,8 @@
 		
 		for(var i = 0; i < edges.length; i++)
 		{
-			myMap.get(edges[i][0]).push(new edge(edges[i][1], edges[i][3], edges[i][2]));
-			myMap.get(edges[i][1]).push(new edge(edges[i][0], edges[i][3], edges[i][2]));
+			myMap.get(edges[i][0]).push([edges[i][1], edges[i][3], edges[i][2]]);
+			myMap.get(edges[i][1]).push([edges[i][0], edges[i][3], edges[i][2]]);
 		}
 		
 		visitedNodes[start_index] = true;
@@ -729,12 +717,12 @@
 			{
 				var newEdge = myMap.get(currentNode)[i];
 				
-				if(newEdge.accessible || canAccess)
+				if(newEdge[2] || canAccess)
 				{
-					if (nodeWeights[currentNode] + newEdge.distance < nodeWeights[newEdge.to_edge] )
+					if (nodeWeights[currentNode] + newEdge[1] < nodeWeights[newEdge[0]] )
 					{
-						nodeWeights[newEdge.to_edge] = nodeWeights[currentNode] + newEdge.distance;
-						prevNodes[newEdge.to_edge] = currentNode;
+						nodeWeights[newEdge[0]] = nodeWeights[currentNode] + newEdge[1];
+						prevNodes[newEdge[0]] = currentNode;
 					}
 				}
 			}
