@@ -99,7 +99,7 @@
 			},
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/map.svg'></button>";
+				div.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
 				return div;
 			}
 		});
