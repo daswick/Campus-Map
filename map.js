@@ -355,7 +355,7 @@
 	{
 		if(!showSat)
 		{
-			document.getElementById("changeView").src = "images/map.svg";
+			document.getElementById("changeView").src = "images/earth.svg";
 			map.removeLayer(mapView);
 			map.addLayer(satView);
 			showSat = true;
@@ -369,7 +369,7 @@
 		}
 		else
 		{
-			document.getElementById("changeView").src = "images/earth.svg";
+			document.getElementById("changeView").src = "images/map.svg";
 			map.removeLayer(satView);
 			map.addLayer(mapView);
 			showSat = false;
