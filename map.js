@@ -344,7 +344,7 @@
 		}
 		
 		locating = true;
-		document.getElementById("locateButton").src = "images/spinner.gif";
+		document.getElementById("locateButton").src = "images/spinner.svg";
 		
 		map.locate({maximumAge: 0, enableHighAccuracy: true});
 	}
