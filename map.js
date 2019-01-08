@@ -86,7 +86,7 @@
 			},
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<input class='customButton' id='sidebarButton' type='image' src='images/hamburger.png' onclick='locationSidebar.hide(); sidebar.toggle();'>";
+				div.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/map.svg'></button>";
 				return div;
 			}
 		});
@@ -111,7 +111,7 @@
 			},
 			onAdd: function() {
 				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<input class='customButton' id='locateButton' type='image' src='images/locate.png' onclick='attemptLocate();'>";
+				div.innerHTML = "<button class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
 				return div;
 			}
 		});
@@ -508,7 +508,7 @@
 
 	function locationVerified()
 	{
-		document.getElementById("locateButton").src = "images/locate.png";
+		document.getElementById("locateButton").src = "images/locate.svg";
 		myMarker.dragging.disable();
 		locating = false;
 	}
