@@ -428,6 +428,21 @@ radio button */
 	text-align: center;
 }
 
+.map-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #fff;
+	cursor: pointer;
+	padding: 6px;
+	border: 2px solid #bab3ad;
+}
+
+.map-button-img {
+	height: 30px;
+	width: 30px;
+}
+
 /** Confirm Location Box
  ---------------------------------------------------------*/
 
