@@ -10,3 +10,5 @@ Some other functionality includes switching between map view and satellite view,
 The current live map can be seen here: https://daswick.github.io/Campus-Map/map.html
 
 The version of the map with legacy Leaflet, bootstrap, and old sidebar can be found here: https://daswick.github.io/Campus-Map/oldMap/map.html
+
+If you want to see a live map showing all of the features, sidewalks, edges, and connections, the site is https://daswick.github.io/Campus-Map/showSidewalks.html
