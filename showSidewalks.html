@@ -121,7 +121,7 @@
 			{
 				var sidewalk = sidewalks[i];
 			
-				var marker = L.marker([sidewalk[0], sidewalk[1]]);
+				var marker = L.circleMarker([sidewalk[0], sidewalk[1]], {radius: 8, color: '#7a00cc'});
 				marker.bindPopup(" " + i);
 				marker.addTo(map);
 				activeSidewalks.push(marker);
