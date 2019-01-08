@@ -16,17 +16,32 @@
 	#map {
 		height: 100%; 
 		width: 100vw; 
-	}	
+	}
+	#buttons {
+		border-radius: 4px;
+		border: 2px solid #BAB3AD;
+		margin: 8px 15px;
+		background-color: #FFFFFF;
+		padding: 4px;
+	}
 </style>
 <script>
+	var map;
+	var activeSidewalks = [];
+	var activeEdges = [];
+	var activeFeatures = [];
+	var activeConnections = [];
+	var icons;
+	
 	function initialMap()
 	{
-		var map = L.map('map', {
+		map = L.map('map', {
 			center: [35.9738346, -78.8982177],
 			zoom: 16,
 			minZoom: 15,
 			zoomControl: false
 		});
+		
 		var mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 			maxZoom: 20,
 			attribution: 'Imagery © <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
@@ -34,7 +49,7 @@
 		});
 		map.addLayer(mapView);
 		
-		var icons = {
+		icons = {
 			parking: 'images/parking-ico.svg',
 			office: 'images/office-ico.svg',
 			interest: 'images/interest-ico.svg',
@@ -45,66 +60,146 @@
 			bathroom: 'images/inclusive-ico.svg'
 		};
 		
-		for(var i = 0; i < features.length; i++)
-		{
-			var feature = features[i];
-						
-			var pos = {
-				lat: feature[0],
-				lng: feature[1]
-			};
-			
-			var marker = L.marker([feature[0], feature[1]], {icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [-10, -20]})});
-			marker.bindPopup(" " + i);
-			marker.addTo(map);
-		}
-		
-		for(var i = 0; i < sidewalks.length; i++)
-		{
-			var sidewalk = sidewalks[i];
-			
-			//if(sidewalk[1] > sidewalks[146][1])
-			//	continue;
-			var marker = L.marker([sidewalk[0], sidewalk[1]]);
-			marker.bindPopup(" " + i);
-			marker.addTo(map);
-		}
-		
-		for(var i = 0; i < edges.length; i++)
-		{
-			var sidewalk1 = edges[i][0];
-			var sidewalk2 = edges[i][1];
-			
-			if(edges[i][2])
-			{
-				L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]]], {color: 'blue', interactive: false, weight: 5}).addTo(map);
+		L.Control.Views = L.Control.extend({
+			options: {
+				position: 'topright'
+			},
+			onAdd: function() {
+				var div = L.DomUtil.create('div', 'command');
+				var divContent = "<p id='buttons'>";
+				divContent += "<input type='checkbox' id='featureBox' onclick='addFeatures();'>Features<br>";
+				divContent += "<input type='checkbox' id='sidewalkBox' onclick='addSidewalks();'>Sidewalks<br>";
+				divContent += "<input type='checkbox' id='edgesBox' onclick='addEdges();'>Edges<br>";
+				divContent += "<input type='checkbox' id='connectionBox' onclick='addConnections();'>Connections<br>";
+				
+				div.innerHTML = divContent;
+				return div;
 			}
-			else
-			{
-				L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]]], {color: 'red', interactive: false, weight: 5}).addTo(map);
-			}
-			
-		}
+		});
+		L.control.views = function() { return new L.Control.Views(); };
 		
+		L.control.views().addTo(map);
 		
-		for(var i = 0; i < connections.length; i++)
+		L.DomEvent.disableClickPropagation(document.getElementById("buttons"));
+	}
+	
+	function addFeatures()
+	{
+		if(document.getElementById("featureBox").checked)
 		{
-			var sidewalkIndex = connections[i][0];
-			var locationIndex = connections[i][1];
+			for(var i = 0; i < features.length; i++)
+			{
+				var feature = features[i];
 			
-			var sidewalk = sidewalks[sidewalkIndex];
-			var location = features[locationIndex];
+				var pos = {
+					lat: feature[0],
+					lng: feature[1]
+				};
+			
+				var marker = L.marker([feature[0], feature[1]], {icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [-10, -20]})});
+				marker.bindPopup(" " + i);
+				marker.addTo(map);
+				
+				activeFeatures.push(marker);
+			}
+		}
+		else
+		{
+			for(var i = 0; i < activeFeatures.length; i++)
+			{
+				map.removeLayer(activeFeatures[i]);
+			}
+			activeFeatures = [];
+		}
+	}
+	
+	function addSidewalks()
+	{
+		if(document.getElementById("sidewalkBox").checked)
+		{
+			for(var i = 0; i < sidewalks.length; i++)
+			{
+				var sidewalk = sidewalks[i];
+			
+				var marker = L.marker([sidewalk[0], sidewalk[1]]);
+				marker.bindPopup(" " + i);
+				marker.addTo(map);
+				activeSidewalks.push(marker);
+			}
+		}
+		else
+		{
+			for(var i = 0; i < activeSidewalks.length; i++)
+			{
+				map.removeLayer(activeSidewalks[i]);
+			}
+			activeSidewalks = [];
+		}
+	}
+	
+	function addEdges()
+	{
+		if(document.getElementById("edgesBox").checked)
+		{
+			for(var i = 0; i < edges.length; i++)
+			{
+				var sidewalk1 = sidewalks[edges[i][0]];
+				var sidewalk2 = sidewalks[edges[i][1]];
+			
+				var newline;
+				if(edges[i][2])
+				{
+					newline = L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]]], {color: 'blue', interactive: false, weight: 3}).addTo(map);
+				}
+				else
+				{
+					newline = L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]]], {color: 'red', interactive: false, weight: 3}).addTo(map);
+				}
+				activeEdges.push(newline);
+			}
+		}
+		else
+		{
+			for(var i = 0; i < activeEdges.length; i++)
+			{
+				map.removeLayer(activeEdges[i]);
+			}
+			activeEdges = [];
+		}
+	}
+	
+	function addConnections()
+	{
+		if(document.getElementById("connectionBox").checked)
+		{
+			for(var i = 0; i < connections.length; i++)
+			{
+				var sidewalkIndex = connections[i][0];
+				var locationIndex = connections[i][1];
+			
+				var sidewalk = sidewalks[sidewalkIndex];
+				var location = features[locationIndex];
 
-			if(connections[i][2])
-			{
-				L.polyline([[sidewalk[0], sidewalk[1]], [location[0], location[1]]], {color: 'blue', interactive: false, weight: 5}).addTo(map);	
-			}
-			else
-			{
-				L.polyline([[sidewalk[0], sidewalk[1]], [location[0], location[1]]], {color: 'red', interactive: false, weight: 5}).addTo(map);					
+				var newline;
+				if(connections[i][2])
+				{
+					newline = L.polyline([[sidewalk[0], sidewalk[1]], [location[0], location[1]]], {color: 'blue', interactive: false, weight: 3}).addTo(map);	
+				}
+				else
+				{
+					newline = L.polyline([[sidewalk[0], sidewalk[1]], [location[0], location[1]]], {color: 'red', interactive: false, weight: 3}).addTo(map);					
+				}
+				activeConnections.push(newline);
 			}
 		}
-		//console.log(features.length);
+		else
+		{
+			for(var i = 0; i < activeConnections.length; i++)
+			{
+				map.removeLayer(activeConnections[i]);
+			}
+			activeConnections = [];
+		}
 	}
 	
 </script>
