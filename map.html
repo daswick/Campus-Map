@@ -10,12 +10,15 @@
 	<script src="sidewalks.js"></script>
 	<link rel="stylesheet" type="text/css" href="map.css">
 	
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-	
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
 	<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+
+	<script src="https://daswick.github.io/Leaflet-Sidebar/src/sidebar.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet-Sidebar/src/sidebar.css">
+	
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">	
 
 	<style>
 		body {
@@ -28,7 +31,7 @@
 		tr:hover{
 			background-color: #ffff99;
 		}
-		#dialog {
+		.dialog {
 			display: none;
 		}
 		.no-close .ui-dialog-titlebar-close {
@@ -49,196 +52,15 @@
 	</style>
 </head>
 <body onload="initMap();" id="bs-override">
-	<div id="dialog" title="Confirm Location">
+	<div class="dialog" id="confirm-location" title="Confirm Location">
 		<p autofocus>Is this location correct?</p>
 	</div>
-	<div id="map" class="leaflet-container leaflet-touch leaflet-retina leaflet-fade-anim">
+	<div class="dialog" id="error-message" title="Error">
+		<p autofocus id="errorMsg"></p>
 	</div>
+	<div id="map"></div>
 	<!--
-	<div id="sidebar" class="leaflet-control">
-		<div class="container">
-			<div class="row filter-sidebar">
-				<div class="col-sm-4 col-md-4">
-					<div class="sidebar-header">
-						<a href="http://www.nccu.edu" target="_blank">
-							<img src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
-						</a>
-					</div>
-					<div class="sidebar-content">
-						<input type="text" id="textField" placeholder="Search..." oninput="hashText();"/><br><p id="suggestions"></p>
-						<h3 id="locations-txt">Locations</h3>
-						<div class="panel-group" id="accordion">
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/classroomC-ico.svg">
-											</span>Classroom</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkClassroom" onchange="checkedLocation('classroom');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseOne" class="panel-collapse collapse">										
-									<div id="collapseOneBody" class="panel-body">
-										<table id="tblClassroom" class="table"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/foodC-ico.svg">
-											</span>Food</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkFood" onchange="checkedLocation('food');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseTwo" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblFood"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/officeC-ico.svg">
-											</span>Office</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkOffice" onchange="checkedLocation('office');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseThree" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblOffice"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/interestC-ico.svg">
-											</span>Interest</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkInterest" onchange="checkedLocation('interest');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseFour" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblInterest"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/parkingC-ico.svg">
-											</span>Parking</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkParking" onchange="checkedLocation('parking');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseFive" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblParking"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/dormC-ico.svg">
-											</span>Dorm</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkDorm" onchange="checkedLocation('dorm');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseSix" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblDorm"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/printerC-ico.svg">
-											</span>Printer</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkPrinter" onchange="checkedLocation('printer');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseSeven" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblPrinter"></table>
-									</div>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseEight">
-											<span class="glyphicon"><img class ="sidebar-ico" src="images/inclusiveC-ico.svg">
-											</span>Inclusive Bathrooms</a>
-										<label class="chkDiv">
-											<input type="checkbox" id="chkBathroom" onchange="checkedLocation('bathroom');">
-											<span class="checkmark"></span>
-										</label>
-									</h4>
-								</div>
-								<div id="collapseEight" class="panel-collapse collapse">
-									<div class="panel-body">
-										<table class="table" id="tblBathroom"></table>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="center">
-							<br><input class="filter-button" type="button" value="Show Locations" onclick="sidebar.hide();"><br><br>
-							<input class="filter-button" type="button" value="Clear All" onclick="clearAll();">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div id="locationSidebar" class="leaflet-control">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-4 col-md-4">
-					<div class="sidebar-header">
-						<a href="http://www.nccu.edu" target="_blank"><img src="images/NCCU-horz-logo.png" alt="North Carolina "/></a>
-					</div>
-					<div class="sidebar-content">
-						<div id="buildingname"></div>
-						<div class="center">
-							<input class="filter-button" type="button" value="Close Sidebar" onclick="locationSidebar.hide();">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+		Sidebar goes here
 	-->
 </body>
 </html>

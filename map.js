@@ -234,7 +234,7 @@
 		
 			if(feature[2] === type)
 			{
-				addMarker(i, type, false);
+				addMarker(i, false);
 			}
 		}
 	}
@@ -288,30 +288,36 @@
 		}
 	}
 	
-	
 	// @method locationError(<ErrorEvent {code}> err)
 	// Handles errors caused by location tracking either failing or location not being acceptable.
 	// Error code legend -> 1: Location denied,	2: Position Unobtainable, 3: Location timeout, 4: Low accuracy, 5: Location not within bounds
 	function locationError(err)
 	{
+		var message;
+				
 		switch(err.code)
 		{
-			case 1: alert("Please turn on location and allow the app to use your location.");
-				failedLocation();
+			case 1: tryCount = 2;
+				message = "Please turn on location and allow the app to use your location.";
 				break;
-			case 2: 
-			case 3: 
-			case 4: 
-			case 5:
-				if(tryCount >= 3)
-				{
-					failedLocation();
-					return;
-				}
-				tryCount++;
-				map.locate({maximumAge: 0, enableHighAccuracy: true, timeout: 4000});
+			case 2: message = "The location service failed. Please try again.";
+				break;
+			case 3: message = "The location service timed out. Please try again.";
+				break;
+			case 4: message = "The location accuracy is too low. Please try again.";
+				break;
+			case 5: message = "Your location is not within NCCU bounds.";
 				break;
 		}
+		message += " Please drag marker to your location.";
+		
+		if(tryCount >= 2)
+		{
+			errorPopup(message, failedLocation);
+			return;
+		}
+		tryCount++;
+		map.locate({maximumAge: 0, enableHighAccuracy: true, timeout: 5000});
 	}
 	
 	// @method failedLocation()
@@ -339,9 +345,7 @@
 		myMarker.on('dragend', function() {
 			markerDragging = false;
 		});
-		
-		alert("Failed to find user. Please drag marker to your location.");
-		
+				
 		myMarker.dragging.enable();
 		tryCount = 0;
 		
@@ -383,12 +387,32 @@
 		setTimeout(function() {verifyLocation();}, 500);
 	}
 	
+	function errorPopup(message, callback)
+	{
+		document.getElementById("errorMsg").innerHTML = message;
+		$(function() {
+			$( "#error-message" ).dialog({
+				dialogClass: "no-close",
+				resizable: false,
+				draggable: false,
+				modal: false,
+				buttons: {
+					"Ok": function() {
+						$(this).dialog("close");
+						callback();
+					}
+				}
+			});
+			$( "#error-message" ).dialog("moveToTop");
+		});
+	}
+	
 	// @method verifyLocation()
 	// Allows user to confirm marker location as accurate or correct if wrong.
 	function verifyLocation()
 	{
 		$(function() {
-			$( "#dialog" ).dialog({
+			$( "#confirm-location" ).dialog({
 				dialogClass: "no-close",
 				resizable: false,
 				draggable: false,
@@ -404,7 +428,7 @@
 					}
 				}
 			});
-			$("#dialog").dialog("moveToTop");
+			$( "#confirm-location" ).dialog("moveToTop");
 		});
 	}
 
@@ -421,7 +445,6 @@
 		alert("Please drag the marker to where you are");	
 		setTimeout(function() {locateUser(myMarker.getLatLng());}, 10000);
 	}
-
 	
 	// @method getDistance(<LatLng {lat, lng}> pos1, pos2): <Number> distance
 	// Returns Squared Euclidean Distance based on two geographic positions.
