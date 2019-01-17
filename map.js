@@ -8,8 +8,6 @@
 	var tryCount;
 	var hash;
 	var locating;
-	//var sidebar;
-	//var locationSidebar;
 	var icons;
 	var activeMarkers;
 	var markerDragging;
@@ -17,6 +15,7 @@
 	var satView;
 	var mapView;
 	var buildLoc;
+	var buildTypes;
 	
 	// @method initMap()
 	// Called on page load to initialize variables, set up map, and add controls and markers.
@@ -34,6 +33,12 @@
 		markerDragging = false;
 		initHash();
 		activeMarkers = [];
+		buildTypes = new Set();
+		
+		for(var i = 0; i < features.length; i++)
+		{
+			buildTypes.add(features[i][2]);
+		}
 		
 		map = L.map('map', {
 			center: [35.9738346, -78.8982177],
@@ -57,41 +62,6 @@
 		});
 		
 		map.addLayer(mapView);
-		
-		/*
-		sidebar = L.control.sidebar('sidebar', {
-            closeButton: false,
-            position: 'left'
-        });
-        map.addControl(sidebar);
-		
-		if(!L.Browser.mobile)
-		{
-			setTimeout(function () {
-				sidebar.show();
-			}, 300);
-		}
-		
-		locationSidebar = L.control.sidebar('locationSidebar', {
-			closeButton: false,
-			position: 'left'
-		});
-		map.addControl(locationSidebar);
-		*/
-		
-		/*
-		L.Control.Button = L.Control.extend({
-			options: {
-				position: 'topleft'
-			},
-			onAdd: function() {
-				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<input class='customButton' id='sidebarButton' type='image' src='images/hamburger.png' onclick='locationSidebar.hide(); sidebar.toggle();'>";
-				return div;
-			}
-		});
-		L.control.button = function() { return new L.Control.Button(); };
-		*/
 		
 		L.Control.View = L.Control.extend({
 			options: {
@@ -117,12 +87,9 @@
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
-		//L.control.button().addTo(map);
 		L.control.view().addTo(map);
 		L.control.locate().addTo(map);
 		
-		//L.DomEvent.disableClickPropagation(document.getElementById("sidebar"));
-		//L.DomEvent.disableClickPropagation(document.getElementById("textField"));
 		L.DomEvent.disableClickPropagation(document.getElementById("locateButton"));
 		L.DomEvent.disableClickPropagation(document.getElementById("changeView"));
 				
@@ -139,17 +106,6 @@
 			printer: 'images/printer-ico.svg',
 			bathroom: 'images/inclusive-ico.svg'
 		};
-		
-		/*
-		for(var i = 0; i < features.length; i++)
-		{
-			var feature = features[i];
-			
-			var table = "tbl" + feature[2].charAt(0).toUpperCase() + feature[2].slice(1);
-			var string = "<tr onclick='openMarker(" + i + ")' onMouseOver='rowOnHover(" + i + ");' onMouseOut='rowOffHover(" + i + ");'><td>" + feature[3] + "</td></tr>";
-			document.getElementById(table).innerHTML += string;
-		}
-		*/
 	}
 
 	function openMarker(index)
@@ -202,33 +158,7 @@
 		}
 	}
 
-	function clearAll()
-	{
-		var types = ["classroom", "dorm", "food", "interest", "office", "parking", "printer",  "bathroom"];
-		
-		for(var i = 0; i < types.length; i++)
-		{
-			var type = types[i];
-			
-			var name = "chk" + type.charAt(0).toUpperCase() + type.slice(1);
-			
-			if(document.getElementById(name).checked)
-			{
-				document.getElementById(name).checked = false;
-				checkedLocation(type);
-			}
-		}
-		
-		for(var i = 0; i < activeMarkers.length; i++)
-		{
-			map.removeLayer(activeMarkers[i]);
-		}
-		activeMarkers = [];
-		
-		cleanMap();
-	}
-
-	function addMarker(index, type, openUp)
+	function addMarker(index, openUp)
 	{
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
@@ -240,7 +170,7 @@
 		
 		var feature = features[index];
 		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10]})});
-		marker.mType = type;
+		marker.mType = feature[2];
 		marker.index = index;
 
 		marker.bindPopup(feature[3]);
@@ -262,12 +192,6 @@
 
 			marker.closePopup();
 			map.setView(marker.getLatLng(), 18);
-			
-			/*
-			setTimeout(function() {
-				locationSidebar.show();
-			}, 300);
-			*/
 		});
 		
 		marker.on('mouseover', function() {
@@ -302,35 +226,16 @@
 		}
 	}
 
-	function checkedLocation(type)
+	function addType(type)
 	{
-		var name = "chk" + type.charAt(0).toUpperCase() + type.slice(1);
-
-		if(document.getElementById(name).checked)
+		for(var i = 0; i < features.length; i++)
 		{
-			for(var i = 0; i < features.length; i++)
+			var feature = features[i];
+		
+			if(feature[2] === type)
 			{
-				var feature = features[i];
-			
-				if(feature[2] === type)
-				{
-					addMarker(i, type, false);
-				}
+				addMarker(i, type, false);
 			}
-		}
-		else
-		{
-			for(var i = 0; i < activeMarkers.length; i++)
-			{
-				if(activeMarkers[i].mType === type)
-				{
-					map.removeLayer(activeMarkers[i]);
-				}
-			}
-			
-			activeMarkers = activeMarkers.filter(function(marker) {
-				return marker.mType !== type;
-			});
 		}
 	}
 	
@@ -424,9 +329,6 @@
 		{
 			map.removeLayer(myMarker);
 		}
-		
-		//sidebar.hide();
-		//locationSidebar.hide();
 		
 		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 
@@ -584,7 +486,6 @@
 	{
 		if(document.getElementById("check1").checked && myMarker === undefined)
 		{
-			//locationSidebar.hide();
 			attemptLocate();
 		}
 	}
@@ -748,9 +649,6 @@
 			currentNode = minIndex;
 			visitedNodes[minIndex] = true;
 		}
-		
-		//sidebar.hide();
-		//locationSidebar.hide();
 		
 		var index = currentNode;
 		var latlngs = [[sidewalks[currentNode][0], sidewalks[currentNode][1]]];
