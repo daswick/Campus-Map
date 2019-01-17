@@ -121,50 +121,13 @@
 		addMarker(index, features[index][2], true);
 	}
 
-	function rowOnHover(index)
-	{
-		for(var i = 0; i < activeMarkers.length; i++)
-		{
-			if(activeMarkers[i].index === index)
-			{
-				map.setView(activeMarkers[i].getLatLng());
-				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [40, 46], iconAnchor: [20, 10], popupAnchor: [0, -10]}));
-				activeMarkers[i].openPopup();
-				
-				var icon = activeMarkers[i].options.icon;
-				activeMarkers[i].options.zIndexOffset = 100;
-				icon.options.iconSize = [40, 40];
-				activeMarkers[i].setIcon(icon);
-				return;
-			}
-		}
-	}
-
-	function rowOffHover(index)
-	{
-		for(var i = 0; i < activeMarkers.length; i++)
-		{
-			if(activeMarkers[i].index === index)
-			{
-				activeMarkers[i].setIcon(L.icon({iconUrl: icons[activeMarkers[i].mType], iconSize: [26, 30], iconAnchor: [20, 10]}));
-				activeMarkers[i].closePopup();
-				
-				var icon = activeMarkers[i].options.icon;
-				activeMarkers[i].options.zIndexOffset = 0;
-				icon.options.iconSize = [26, 30];
-				activeMarkers[i].setIcon(icon);
-				return;
-			}
-		}
-	}
-
 	function addMarker(index, openUp)
 	{
 		for(var i = 0; i < activeMarkers.length; i++)
 		{
 			if(activeMarkers[i].index === index)
 			{
-				return;	
+				return;
 			}
 		}
 		
@@ -178,29 +141,19 @@
 		marker.on('click', function() {
 			cleanMap();
 			
-			sidebar.hide();
-			
-			var customPopup = "<p class='location-name'><b>" + feature[3] + "</b></p>";
-			var len = feature.length - 4;
-			for(var j = 0; j < len; j++)
-			{
-				customPopup += "<div class='add-info'>" + feature[4+j] + "</div><hr class='add-info-hr'>";
-			}
-			customPopup += "<a href='#' onclick='directionPopup(" + index + ");'><button class='side-btn'><img class='side-btn-img' src='images/direction-ico.png'/>Directions</button></a>";
-
-			document.getElementById("buildingname").innerHTML = customPopup;
+			// Set content
 
 			marker.closePopup();
 			map.setView(marker.getLatLng(), 18);
 		});
 		
 		marker.on('mouseover', function() {
-			if(!markerDragging) 
+			if(!markerDragging)
 			{
 				var icon = marker.options.icon;
 				marker.options.zIndexOffset = 100;
 				icon.options.iconSize = [40, 40];
-				marker.setIcon(icon);					
+				marker.setIcon(icon);
 			}
 		});
 			
@@ -239,21 +192,6 @@
 		}
 	}
 	
-	// @method attemptLocate()
-	// Acts as binary lock on locating user
-	function attemptLocate()
-	{
-		if(locating)
-		{
-			return;
-		}
-		
-		locating = true;
-		document.getElementById("locateButton").src = "images/spinner.svg";
-		
-		map.locate({maximumAge: 0, enableHighAccuracy: true});
-	}
-	
 	// @method switchTileLayer()
 	// Changes map view between plain map and satellite
 	function switchTileLayer()
@@ -288,12 +226,27 @@
 		}
 	}
 	
+	// @method attemptLocate()
+	// Acts as binary lock on locating user
+	function attemptLocate()
+	{
+		if(locating)
+		{
+			return;
+		}
+		
+		locating = true;
+		document.getElementById("locateButton").src = "images/spinner.svg";
+		
+		map.locate({maximumAge: 0, enableHighAccuracy: true});
+	}
+	
 	// @method locationError(<ErrorEvent {code}> err)
 	// Handles errors caused by location tracking either failing or location not being acceptable.
-	// Error code legend -> 1: Location denied,	2: Position Unobtainable, 3: Location timeout, 4: Low accuracy, 5: Location not within bounds
+	// Error code legend -> 1: Location denied,	2: Position Unobtainable, 3: Location timeout, 4: Low accuracy, 5: Location not within bounds, 6: Need to continue dragging
 	function locationError(err)
 	{
-		var message;
+		var message = "";
 				
 		switch(err.code)
 		{
@@ -351,11 +304,9 @@
 		
 		setTimeout(function() { map.setView(myMarker.getLatLng(), 17); }, 300);
 				
-		setTimeout(function() { locateUser(myMarker.getLatLng());}, 10000 );
+		setTimeout(function() { setLocation(myMarker.getLatLng());}, 10000 );
 	}
 	
-	// @method onLocationFound(<LocationEvent {latlng, accuracy, ...}> position)
-	// When a location is found, check for accurate location and start to verify location
 	function onLocationFound(position) 
 	{
 		if(position.accuracy > 100)
@@ -369,12 +320,10 @@
 			return;
 		}
 		
-		locateUser(position.latlng);
+		setLocation(position.latlng);
 	}
 	
-	// @locateUser(<LatLng {lat, lng}> position)
-	// Find closest building to user location and prompt if location is correct, allowing user to correct any mistake.
-	function locateUser(position)
+	function setLocation(position)
 	{
 		if(myMarker !== undefined)
 		{
@@ -420,30 +369,20 @@
 				buttons: {
 					"Yes": function() {
 						$( this ).dialog( "close" );
-						locationVerified();
+						document.getElementById("locateButton").src = "images/locate.svg";
+						myMarker.dragging.disable();
+						locating = false;
 					},
 					"No":  function() {
 						$( this ).dialog( "close" );
-						locationUnverified();
+						myMarker.dragging.enable();
+						alert("Please drag the marker to where you are");	
+						setTimeout(function() {setLocation(myMarker.getLatLng());}, 10000);
 					}
 				}
 			});
 			$( "#confirm-location" ).dialog("moveToTop");
 		});
-	}
-
-	function locationVerified()
-	{
-		document.getElementById("locateButton").src = "images/locate.svg";
-		myMarker.dragging.disable();
-		locating = false;
-	}
-
-	function locationUnverified()
-	{
-		myMarker.dragging.enable();
-		alert("Please drag the marker to where you are");	
-		setTimeout(function() {locateUser(myMarker.getLatLng());}, 10000);
 	}
 	
 	// @method getDistance(<LatLng {lat, lng}> pos1, pos2): <Number> distance
@@ -487,14 +426,7 @@
 	{
 		cleanMap();
 		
-		var popupMessage = "<p class='location-name'>Directions to: " + features[index][3] + "</p>";
-		popupMessage += "<p class='sidebar-para' style='line-height: 40px;'>Choose your starting point:<br></p>";
-		popupMessage += "<label class='radio-cont'><img src='images/myLoc.png'></img>Your Location<input type='radio' onclick='locationSelected();' id='check1' name='choices'><span class='radio-chk'></span></label><br>";
-		popupMessage += "<div class='enter-loc'><label class='radio-cont'><input type='radio' name='choices' id='check2'>  <img src='images/inside-ico.png'></img><span class='radio-chk'></span></label><input id='locationBox' onclick='textFocus();' oninput='hashBuild();' style='border-radius: 3px;' placeholder='Enter a location'></div><p id='locations'></p><br>";
-		popupMessage += "<label class='accessDiv'>Accessible routes only?<input style='height: 18px; width: 18px;' id='accessBox' type='checkbox'><span class='accessChk'></span></label>";
-		popupMessage += "<a href='#' onclick='getDirections(" + index + ");'><button class='side-btn'><img class='side-btn-img' src='images/start-ico.png'/>Start Route</button></a>";
-		
-		//document.getElementById("buildingname").innerHTML = popupMessage;
+		// Set content
 	}
 	
 	function locationFocus()
@@ -511,13 +443,6 @@
 		{
 			attemptLocate();
 		}
-	}
-	
-	// @method textFocus()
-	// Selects the "Location on campus" checkbox when textbox is clicked.
-	function textFocus()
-	{
-		document.getElementById("check2").checked = true;
 	}
 	
 	// @method getDirections(<Number> end_index)
@@ -699,7 +624,7 @@
 			map.fitBounds(group.getBounds());
 		}, 400);
 		
-		// var minutes = Math.ceil(nodeWeights[currentNode] / 60);
+		var minutes = Math.ceil(nodeWeights[currentNode] / 60);
 	}
 	
 	// @method hashStr(String str): <Number> hashed
