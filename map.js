@@ -106,6 +106,30 @@
 			printer: 'images/printer-ico.svg',
 			bathroom: 'images/inclusive-ico.svg'
 		};
+		
+		var urlAddress = window.location.href.trim();
+		var tagsArray = urlAddress.slice( urlAddress.indexOf("?") + 1 ).split("&");
+		
+		for(var i = 0; i < tagsArray.length; i++)
+		{
+			var tag = tagsArray[i].toLowerCase().split("=");
+			
+			switch (tag[0]) 
+			{
+				case "type": 
+					if (buildTypes.has(tag[1]))
+					{
+						addType(tag[1]);
+					}
+					break;
+				case "id": 
+					if (tag[1] >= 0 && tag[1] <= features.length) 
+					{
+						addMarker(tag[1], true);
+					}
+					break;
+			}	
+		}
 	}
 
 	function openMarker(index)
@@ -132,7 +156,7 @@
 		}
 		
 		var feature = features[index];
-		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10]})});
+		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [10, -10]})});
 		marker.mType = feature[2];
 		marker.index = index;
 
@@ -184,7 +208,7 @@
 		for(var i = 0; i < features.length; i++)
 		{
 			var feature = features[i];
-		
+			
 			if(feature[2] === type)
 			{
 				addMarker(i, false);
