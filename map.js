@@ -125,7 +125,10 @@
 				case "id": 
 					if (tag[1] >= 0 && tag[1] <= features.length) 
 					{
-						addMarker(tag[1], true);
+						if(tagsArray.length === 1)
+							addMarker(tag[1], true);
+						else
+							addMarker(tag[1], false);
 					}
 					break;
 			}	
@@ -178,6 +181,7 @@
 				marker.options.zIndexOffset = 100;
 				icon.options.iconSize = [40, 40];
 				marker.setIcon(icon);
+				marker.openPopup();
 			}
 		});
 			
@@ -188,6 +192,7 @@
 				marker.options.zIndexOffset = 0;
 				icon.options.iconSize = [26, 30];
 				marker.setIcon(icon);
+				marker.closePopup();
 			}
 		});
 		
@@ -207,9 +212,7 @@
 	{
 		for(var i = 0; i < features.length; i++)
 		{
-			var feature = features[i];
-			
-			if(feature[2] === type)
+			if(features[i][2] === type)
 			{
 				addMarker(i, false);
 			}
