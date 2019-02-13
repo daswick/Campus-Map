@@ -26,20 +26,6 @@
 			location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
 		}
 		
-		tryCount = 0;
-		buildLoc = -1;
-		showSat = false;
-		locating = false;
-		markerDragging = false;
-		initHash();
-		activeMarkers = [];
-		buildTypes = new Set();
-		
-		for(var i = 0; i < features.length; i++)
-		{
-			buildTypes.add(features[i][2]);
-		}
-		
 		map = L.map('map', {
 			center: [35.9738346, -78.8982177],
 			zoom: 16,
@@ -49,7 +35,7 @@
 
 		map.attributionControl.setPrefix('<a href="https://leafletjs.com/" target="_blank">Leaflet</a>');
 		
-		mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+		mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA', {
 			maxZoom: 20,
 			attribution: 'Imagery © <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
 			id: 'mapbox.streets',
@@ -87,6 +73,7 @@
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
+		L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, headerHeight: 12, footerHeight: 8}).addTo(map);
 		L.control.view().addTo(map);
 		L.control.locate().addTo(map);
 		
@@ -95,6 +82,14 @@
 				
 		map.on('locationfound', onLocationFound);
 		map.on('locationerror', locationError);
+		
+		activeMarkers = [];
+		buildTypes = new Set();
+		
+		for(var i = 0; i < features.length; i++)
+		{
+			buildTypes.add(features[i][2]);
+		}
 		
 		icons = {
 			parking: 'images/parking-ico.svg',
@@ -122,7 +117,7 @@
 						addType(tag[1]);
 					}
 					break;
-				case "id": 
+				case "bldg": 
 					if (tag[1] >= 0 && tag[1] <= features.length) 
 					{
 						if(tagsArray.length === 1)
@@ -132,6 +127,44 @@
 					}
 					break;
 			}	
+		}
+
+		tryCount = 0;
+		buildLoc = -1;
+		showSat = false;
+		locating = false;
+		markerDragging = false;
+		initHash();
+		//fillContent();
+	}
+	
+	function clearSearch()
+	{
+		document.getElementById("textField").value="";
+		hashText();
+	}
+	
+	function fillContent()
+	{
+		for(var i = 0; i < features.length; i++)
+		{
+			var divID = features[i][2] + "-section";
+
+			if(!document.contains(document.getElementById(divID)))
+			{
+				var newdiv = document.createElement('div');
+				newdiv.id = divID;
+				newdiv.innerHTML = "<h3>" + features[i][2] + "</h3>";
+				document.getElementById("location-list").appendChild(newdiv);
+			}
+			
+			document.getElementById(divID).innerHTML +=  features[i][3] + "&emsp;" + i + "<br>";
+		}
+		
+		for(var buildType of buildTypes)
+		{
+			var divID = buildType + "-table";
+			//document.getElementById(divID).innerHTML += "</table>";
 		}
 	}
 

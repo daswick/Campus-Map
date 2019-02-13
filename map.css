@@ -8,39 +8,42 @@ html, body {
 	width: 100vw; 
 }
 
-p {
-	font-size: 0.9em;
-	margin: 0;
-}
-
-#locations-txt {
-	font-weight: bold;
-}
-
-
 /** Search Box & Suggestions
  ---------------------------------------------------------*/
-input[type=text], select, #locationBox {
+.searchbar {
+	width: 100%;
 	font-size: 16px;
+}
+#textField {
+	border-radius: 5px 0 0 5px;
 	padding: 7px 12px;
 	margin: 1.25em 0 .25em 0;
 	display: inline-block;
 	border: 1px solid #ccc;
 	box-sizing: border-box;
-	width: 100%;
+	width: 88%;
+}
+#clearTextField {
+	border-radius: 0 5px 5px 0;
+	padding: 7px 12px;
+	margin: 1.25em 0 .25em 0;
+	display: inline-block;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+	width: 10%;
 }
 
 #locationBox {
 	margin: -.5em 0 .25em 0
 }
-
+/*
 #suggestions, #locations {
 	margin-top: -.35em;
 	font-size: 16px;
 	background-color: white;
 	border: 1px solid #ccc;
 }
-
+*/
 #locations { 
 	margin-left: 68px;
 	border-left: 1px solid #ccc;
@@ -123,6 +126,14 @@ input[type=text], select, #locationBox {
 
 /** Sidebar
  ---------------------------------------------------------*/
+ .sidebar-header {
+	background: #840018;
+	background-color: #840018;
+ }
+ .sidebar-footer {
+	font-size: 14px;
+ }
+ /*
 .leaflet-sidebar {
 	margin-left: 0em;
 }
@@ -198,6 +209,7 @@ input[type=checkbox] {
 	padding-right: 15px;
 	padding-left: 15px;
 }
+*/
 
 /** Radio Button Styles - Source: w3schools
  ---------------------------------------------------------*/

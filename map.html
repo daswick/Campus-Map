@@ -13,8 +13,9 @@
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
 	<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
 
-	<script src="https://daswick.github.io/Leaflet-Sidebar/src/sidebar.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet-Sidebar/src/sidebar.css">
+	<script src="https://daswick.github.io/Leaflet.Sidebar/src/sidebar.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet.Sidebar/src/sidebar.css">
+	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet.Sidebar/src/sidebar-fancy.css">
 	
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -59,8 +60,59 @@
 		<p autofocus id="errorMsg"></p>
 	</div>
 	<div id="map"></div>
-	<!--
-		Sidebar goes here
-	-->
+	<div id="sidebar">
+		<!-- List all locations -->
+		<div id="layer-0" class="sidebar-source">
+			<div class="sidebar-header">
+				<a href="http://www.nccu.edu" target="_blank">
+					<img src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<div id="search-bar">
+					<input type="text" id="textField" placeholder="Search..." oninput="hashText();" class="searchbar"><input type="button" id="clearTextField" class="searchbar" onclick="clearSearch();" value="X"><br>
+					<p id="suggestions"></p>
+				</div>
+				<div id="location-list">
+					<h1>Locations</h1>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<a href="" target="_blank">About the map</a> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- Location information -->
+		<div id="layer-1" class="sidebar-source" parent="0">
+			<div class="sidebar-header">
+			</div>
+			<div class="sidebar-content">
+			</div>
+			<div class="sidebar-footer">
+			</div>
+		</div>
+		<!-- Directions layer -->
+		<div id="layer-2" class="sidebar-source" parent="1">
+			<div class="sidebar-header">
+			</div>
+			<div class="sidebar-content">
+			</div>
+			<div class="sidebar-footer">
+			</div>
+		</div>
+		<!-- Share layer -->
+		<div id="layer-3" class="sidebar-source" parent="1">
+			<div class="sidebar-header">
+			</div>
+			<div class="sidebar-content">
+			</div>
+			<div class="sidebar-footer">
+			</div>
+		</div>
+	</div>
 </body>
 </html>
