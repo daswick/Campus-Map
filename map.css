@@ -22,17 +22,20 @@ html, body {
 	margin: 1.25em 0 .25em 0;
 	display: inline-block;
 	border: 1px solid #ccc;
+	border-right: none;
 	box-sizing: border-box;
 	width: 88%;
 }
+#textField::ms-clear {
+	display: none;
+}
 #clearTextField {
 	border-radius: 0 5px 5px 0;
-	padding: 7px 12px;
 	margin: 1.25em 0 .25em 0;
 	display: inline-block;
 	border: 1px solid #ccc;
 	box-sizing: border-box;
-	width: 10%;
+	width: 12%;
 }
 /*
 #suggestions {
@@ -218,190 +221,59 @@ input[type=checkbox] {
 }
 */
 
-/** Radio Button Styles - Source: w3schools
- ---------------------------------------------------------*/
-.radio-cont {
-    display: block;
-    position: relative;
-    padding-left: 40px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    font-size: 1.125em;
-	line-height: 32px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-	font-weight: normal;
-}
-
-.radio-cont img {
-	margin-right: .5em;
-}
-
-/* Hide the browser's default radio button */
-.radio-cont input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
-
-/* Create a 
-radio button */
-.radio-chk {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 32px;
-    width: 32px;
-    background-color: #fff;
-	border: 2px solid #ABABAB;
-    border-radius: 50%;
-}
-
-/* On mouse-over, add a grey background color */
-.radio-cont:hover input ~ .radio-chk {
-    background-color: #ccc;
-}
-
-/* When the radio button is checked, add a blue background */
-.radio-cont input:checked ~ .radio-chk {
-    background-color: #2083DF;
-}
-
-/* Create the indicator (the dot/circle - hidden when not checked) */
-.radio-chk:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
-
-/* Show the indicator (dot/circle) when checked */
-.radio-cont input:checked ~ .radio-chk:after {
-    display: block;
-}
-
-/* Style the indicator (dot/circle) */
-.radio-cont .radio-chk:after {
- 	top: 10px;
-	left: 10px;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: white;
-}
-
-.enter-loc {
+.temp2 h3 {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
 }
 
-/** Checkbox Styles
- ---------------------------------------------------------*/
-.chkDiv {
-    display: block;
-    float: right;
-    cursor: pointer;
-    font-size: 22px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+input[type="checkbox"] {
+	display: none;
+	margin: 0;
 }
 
-.accessDiv {
-    display: block;
-    position: relative;
-    padding-left: 45px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    font-size: 1.125em;
-	line-height: 32px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-	font-weight: normal;
+input[type="checkbox"],
+.temp4 {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	width: 25px;
+	height: 25px;
+	display: flex;
+	justify-content: center;
+	border: 2px solid #707070;
 }
 
-/* Hide the browser's default checkbox */
-.chkDiv input,
-.accessDiv input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.accessDiv input {
-    height: 0;
-    width: 0;
-}
-
-/* Custom checkbox */
-.checkmark, .accessChk {
-    top: 0;
-    left: 0;
-    height: 32px;
-    width: 32px;
-	background-color: #fff;
-	border: 2px solid #ABABAB;
-}
-
-.checkmark {
-	float: right;
-}
-.accessChk {
-    position: absolute;
-}
-
-/* Checkmark hover effect */
-.chkDiv:hover input ~ .checkmark,
-.accessDiv:hover input ~ .accessChk{
+input[type="checkbox"]:hover,
+.temp4:hover {
+	background: #e8e8e8;
 	transition: .2s;
-    background-color: #ccc;
 }
 
-/* Checkmark background when checked */
-.chkDiv input:checked ~ .checkmark,
-.accessDiv input:checked ~ .accessChk{
-    background-color: #2083DF;
+.temp4:checked:before {
+	color: #ffffff;
+	font-size: 16px;
+	content: '\002714';
+	/*transform: rotate(40deg);*/
+	font-weight: bold;
 }
+.temp4:checked {
+	background-color: #5b6771;
+	transition: .2s;
+}
+.temp4:checked:hover {
+	background-color: #000000;	
+	transition: .2s;
+}
+.temp4:hover {
+	cursor: pointer;
+}	
 
-/* Checkmark/indicator (hidden when not checked) */
-.checkmark:after,
-.accessChk:after {
-    content: "";
-    display: none;
-}
-
-.checkmark:after {
-	position: relative;
-}
-
-.accessChk:after {
-	position: absolute;
-}
-
-/* Checkmark when checked */
-.chkDiv input:checked ~ .checkmark:after, 
-.accessDiv input:checked ~ .accessChk:after {
-    display: block;
-}
-
-/* Checkmark/indicator */
-.chkDiv .checkmark:after,
-.accessDiv .accessChk:after {
-    left: 10px;
-    top: 4px;
-    width: 8px;
-    height: 15px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    transform: rotate(45deg);
-}
+/*.block-views-exposed-filter-blockevent-page-1 .form-type-checkbox {
+	display: flex;
+	align-items: center;
+	margin-bottom: 1em;
+}*/
 
 /** Buttons
  ---------------------------------------------------------*/

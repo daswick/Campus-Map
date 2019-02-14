@@ -155,7 +155,7 @@
 			{
 				var newdiv = L.DomUtil.create('div', 'temp2');
 				newdiv.id = divID;
-				newdiv.innerHTML = "<h3>" + features[i][2] + "<input type='checkbox'> </h3> ";
+				newdiv.innerHTML = "<h3>" + features[i][2] + "<input type='checkbox' class='temp4'> </h3> ";
 				var tablediv = L.DomUtil.create('div', 'temp3');
 				tablediv.id = tableID;
 				tablediv.innerHTML = "";
