@@ -38,18 +38,6 @@
 		.no-close .ui-dialog-titlebar-close {
 			display: none;
 		}
-		.glyphicon {
-			margin-right:10px;
-		}
-		.panel-body {
-			padding:0px;
-		}
-		.panel-body table tr td {
-			padding-left: 15px;
-		}
-		.panel-body .table {
-			margin-bottom: 0px;
-		}
 	</style>
 </head>
 <body onload="initMap();" id="bs-override">
@@ -70,7 +58,8 @@
 			</div>
 			<div class="sidebar-content">
 				<div class="search-bar">
-					<input type="text" id="textField" placeholder="Search..." oninput="hashText('textField', 'suggestions', 5, 'openMarker');" class="searchbar"><input type="button" id="clearTextField" class="searchbar" onclick="clearSearch();" value="X"><br>
+					<input type="text" id="textField" placeholder="Search..." oninput="hashText('textField', 'suggestions', 5, 'openMarker');" class="searchbar">
+					<input type="button" id="clearTextField" class="searchbar" onclick="clearSearch();" value="X"><br>
 				</div>
 				<p id="suggestions"></p>
 				<div id="location-list">

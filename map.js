@@ -15,7 +15,7 @@
 	var satView;
 	var mapView;
 	var buildLoc;
-	var buildTypes;
+	var buildTypes;var locater;
 	
 	// @method initMap()
 	// Called on page load to initialize variables, set up map, and add controls and markers.
@@ -54,9 +54,9 @@
 				position: 'bottomright'
 			},
 			onAdd: function() {
-				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
-				return div;
+				this.container = L.DomUtil.create('div', 'command');
+				this.container.innerHTML = "<button class='map-button' style='display: flex;' id='moretesting' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
+				return this.container;
 			}
 		});
 		L.control.view = function() { return new L.Control.View(); };
@@ -66,16 +66,37 @@
 				position: 'topright'
 			},
 			onAdd: function() {
-				var div = L.DomUtil.create('div', 'command');
-				div.innerHTML = "<button class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
-				return div;
+				this.container = L.DomUtil.create('div', 'command');
+				this.container.id = "map-view";
+				this.container.innerHTML = "<button id='testingthings' style='display: flex;' class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
+				return this.container;
 			}
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
-		L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, headerHeight: 12, footerHeight: 8}).addTo(map);
-		L.control.view().addTo(map);
-		L.control.locate().addTo(map);
+		var sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, headerHeight: 12, footerHeight: 8}).addTo(map);
+		var viewchange = L.control.view().addTo(map);
+		var locater = L.control.locate().addTo(map);
+		
+		sidebar.on('open', function() {
+			if(L.Browser.mobile)
+			{
+				setTimeout(function() {
+					map.removeControl(locater);
+					map.removeControl(viewchange);
+				}, 200);
+			}
+		});
+		
+		sidebar.on('close', function() {
+			if(L.Browser.mobile)
+			{
+				setTimeout(function() {
+					locater.addTo(map);
+					viewchange.addTo(map);
+				}, 200);
+			}
+		});
 		
 		L.DomEvent.disableClickPropagation(document.getElementById("locateButton"));
 		L.DomEvent.disableClickPropagation(document.getElementById("changeView"));
@@ -136,12 +157,25 @@
 		markerDragging = false;
 		initHash();
 		fillContent();
+		
+		document.getElementById("textField").onkeypress = function(e) {
+			var keyCode = e.keyCode || e.which;
+			
+			if(keyCode === 13)
+			{
+				if(document.getElementById("suggestions").firstChild)
+				{
+					document.getElementById("suggestions").children[0].click();
+					clearSearch();
+				}
+			}
+		};
 	}
 	
 	function clearSearch()
 	{
 		document.getElementById("textField").value="";
-		hashText();
+		hashText("textField", "suggestions", 5, null);
 	}
 	
 	function fillContent()
@@ -151,11 +185,12 @@
 			var divID = features[i][2] + "-section";
 			var tableID = features[i][2] + "-list";
 
-			if(!document.contains(document.getElementById(divID)))
+			if(!document.body.contains(document.getElementById(divID)))
 			{
 				var newdiv = L.DomUtil.create('div', 'temp2');
 				newdiv.id = divID;
-				newdiv.innerHTML = "<h3>" + features[i][2] + "<input type='checkbox' class='temp4'> </h3> ";
+				var checkID = features[i][2] + "-check";
+				newdiv.innerHTML = "<h3>" + features[i][2] + "<input id='" + checkID + "' type='checkbox' class='temp4' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3> ";
 				var tablediv = L.DomUtil.create('div', 'temp3');
 				tablediv.id = tableID;
 				tablediv.innerHTML = "";
@@ -163,13 +198,30 @@
 				document.getElementById("location-list").appendChild(newdiv);
 			}
 			
-			document.getElementById(tableID).innerHTML +=  "<div class='temp'>" + features[i][3] + "</div>";
+			document.getElementById(tableID).innerHTML +=  "<div class='temp' onclick='openMarker(" + i + ");'>" + features[i][3] + "</div>";
 		}
-		
-		for(var buildType of buildTypes)
+	}
+	
+	function checkedLocation(type)
+	{
+		var name = type + "-check";
+		if(document.getElementById(name).checked)
 		{
-			var divID = buildType + "-table";
-			//document.getElementById(divID).innerHTML += "</table>";
+			addType(type);
+		}
+		else
+		{
+			for(var i = 0; i < activeMarkers.length; i++)
+			{
+				if(activeMarkers[i].mType === type)
+				{
+					map.removeLayer(activeMarkers[i]);
+				}
+			}
+			
+			activeMarkers = activeMarkers.filter(function(marker) {
+				return marker.mType !== type;
+			});
 		}
 	}
 
@@ -743,16 +795,16 @@
 	// When textbox is modified, get suggested locations based on input.
 	function hashText(inputID, outputID, outputLimit, callbackName)
 	{
-		var str = document.getElementById(inputID).value.toLowerCase();
-		str = str.replace("'", "");
+		var str = document.getElementById(inputID).value;
+		clean_str = str.toLowerCase().replace("'", "");
 		document.getElementById(outputID).innerHTML = "";
 		
-		if(str.length < 2)
+		if(clean_str.length < 2)
 		{
 			return;
 		}
 		
-		var str_hash = hashStr(str);
+		var str_hash = hashStr(clean_str);
 		
 		if(hash[str_hash] === undefined)
 		{
@@ -780,7 +832,11 @@
 			
 			for(var i = 0; i < limit; i++)
 			{
-				document.getElementById(outputID).innerHTML += "<a class='indented' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + features[suggestions[i]][3] + "</a><hr class='suggestions-hr'>";
+				var name = features[suggestions[i]][3];
+				var reg = new RegExp(str, 'gi');
+				name = name.replace(reg, function(str) { return "<b>" + str + "</b>"; });
+				
+				document.getElementById(outputID).innerHTML += "<a class='indented' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a><hr class='suggestions-hr'>";
 			}
 		}
 	}

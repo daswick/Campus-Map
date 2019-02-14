@@ -12,7 +12,6 @@ html, body {
  ---------------------------------------------------------*/
 .search-bar {
 	width: 100%;
-	font-size: 16px;
 	display: flex;
 	flex-wrap: nowrap;
 }
@@ -20,6 +19,7 @@ html, body {
 	border-radius: 5px 0 0 5px;
 	padding: 7px 12px;
 	margin: 1.25em 0 .25em 0;
+	font-size: 16px;
 	display: inline-block;
 	border: 1px solid #ccc;
 	border-right: none;
@@ -33,9 +33,13 @@ html, body {
 	border-radius: 0 5px 5px 0;
 	margin: 1.25em 0 .25em 0;
 	display: inline-block;
+	font-size: 16px;
 	border: 1px solid #ccc;
 	box-sizing: border-box;
 	width: 12%;
+}
+#suggestions:hover {
+	cursor: pointer;
 }
 /*
 #suggestions {
