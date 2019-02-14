@@ -10,9 +10,11 @@ html, body {
 
 /** Search Box & Suggestions
  ---------------------------------------------------------*/
-.searchbar {
+.search-bar {
 	width: 100%;
 	font-size: 16px;
+	display: flex;
+	flex-wrap: nowrap;
 }
 #textField {
 	border-radius: 5px 0 0 5px;
@@ -32,7 +34,12 @@ html, body {
 	box-sizing: border-box;
 	width: 10%;
 }
-
+/*
+#suggestions {
+	position: absolute;
+	background-color: white;
+}
+*/
 #locationBox {
 	margin: -.5em 0 .25em 0
 }

@@ -135,7 +135,7 @@
 		locating = false;
 		markerDragging = false;
 		initHash();
-		//fillContent();
+		fillContent();
 	}
 	
 	function clearSearch()
@@ -149,16 +149,21 @@
 		for(var i = 0; i < features.length; i++)
 		{
 			var divID = features[i][2] + "-section";
+			var tableID = features[i][2] + "-list";
 
 			if(!document.contains(document.getElementById(divID)))
 			{
-				var newdiv = document.createElement('div');
+				var newdiv = L.DomUtil.create('div', 'temp2');
 				newdiv.id = divID;
-				newdiv.innerHTML = "<h3>" + features[i][2] + "</h3>";
+				newdiv.innerHTML = "<h3>" + features[i][2] + "<input type='checkbox'> </h3> ";
+				var tablediv = L.DomUtil.create('div', 'temp3');
+				tablediv.id = tableID;
+				tablediv.innerHTML = "";
+				newdiv.appendChild(tablediv);
 				document.getElementById("location-list").appendChild(newdiv);
 			}
 			
-			document.getElementById(divID).innerHTML +=  features[i][3] + "&emsp;" + i + "<br>";
+			document.getElementById(tableID).innerHTML +=  "<div class='temp'>" + features[i][3] + "</div>";
 		}
 		
 		for(var buildType of buildTypes)
