@@ -741,12 +741,11 @@
 	
 	// @method hashText()
 	// When textbox is modified, get suggested locations based on input.
-	function hashText()
+	function hashText(inputID, outputID, outputLimit, callbackName)
 	{
-		var str = document.getElementById("textField").value.toLowerCase();
+		var str = document.getElementById(inputID).value.toLowerCase();
 		str = str.replace("'", "");
-
-		document.getElementById("suggestions").innerHTML = "";
+		document.getElementById(outputID).innerHTML = "";
 		
 		if(str.length < 2)
 		{
@@ -757,7 +756,7 @@
 		
 		if(hash[str_hash] === undefined)
 		{
-			document.getElementById("suggestions").innerHTML = "<span class='indented'>No matches found.</span>";
+			document.getElementById(outputID).innerHTML = "<span class='indented'>No matches found.</span>";
 		}
 		else
 		{
@@ -777,42 +776,11 @@
 			}
 			
 			suggestions.sort(function(a, b) { return (freq[b] - freq[a]);});
-			var limit = (suggestions.length < 5) ? suggestions.length : 5;
+			var limit = (suggestions.length < outputLimit) ? suggestions.length : outputLimit;
 			
 			for(var i = 0; i < limit; i++)
 			{
-				document.getElementById("suggestions").innerHTML += "<a class='indented' href='#' style='text-decoration: none' onclick='openMarker(" + suggestions[i] + ");'>" + features[suggestions[i]][3] + "</a><hr class='suggestions-hr'>";
-			}
-		}
-	}
-	
-	// @method hashBuild()
-	// When direction location text box is modified, get suggested locations based on input.
-	function hashBuild()
-	{
-		var str = document.getElementById("locationBox").value.toLowerCase();
-		str = str.replace("'", "");
-		document.getElementById("locations").innerHTML = "";
-		
-		if(str.length < 2)
-		{
-			return;
-		}
-		
-		var str_hash = hashStr(str);
-		
-		if(hash[str_hash] === undefined)
-		{
-			document.getElementById("locations").innerHTML = "<span class='indented'>No matches found.</span>";
-		}
-		else
-		{
-			var results = hash[str_hash];
-			var limit = (results.length < 3) ? results.length : 3;
-			
-			for(var i = 0; i < limit; i++)
-			{
-				document.getElementById("locations").innerHTML += "<a class='indented' style='text-decoration: none;' onclick='findBuilding(" + results[i] + ");' href='#'>" + features[results[i]][3] + "</a><hr class='suggestions-hr'>";
+				document.getElementById(outputID).innerHTML += "<a class='indented' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + features[suggestions[i]][3] + "</a><hr class='suggestions-hr'>";
 			}
 		}
 	}
