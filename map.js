@@ -15,7 +15,8 @@
 	var satView;
 	var mapView;
 	var buildLoc;
-	var buildTypes;var locater;
+	var buildTypes;
+	var sidebar;
 	
 	// @method initMap()
 	// Called on page load to initialize variables, set up map, and add controls and markers.
@@ -55,7 +56,7 @@
 			},
 			onAdd: function() {
 				this.container = L.DomUtil.create('div', 'command');
-				this.container.innerHTML = "<button class='map-button' style='display: flex;' id='moretesting' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
+				this.container.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
 				return this.container;
 			}
 		});
@@ -67,14 +68,13 @@
 			},
 			onAdd: function() {
 				this.container = L.DomUtil.create('div', 'command');
-				this.container.id = "map-view";
-				this.container.innerHTML = "<button id='testingthings' style='display: flex;' class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
+				this.container.innerHTML = "<button class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
 				return this.container;
 			}
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
-		var sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, headerHeight: 12, footerHeight: 8}).addTo(map);
+		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, headerHeight: 12, footerHeight: 8}).addTo(map);
 		var viewchange = L.control.view().addTo(map);
 		var locater = L.control.locate().addTo(map);
 		
@@ -114,7 +114,7 @@
 		
 		icons = {
 			parking: 'images/parking-ico.svg',
-			office: 'images/office-ico.svg',
+			admin: 'images/office-ico.svg',
 			interest: 'images/interest-ico.svg',
 			dorm: 'images/dorm-ico.svg',
 			classroom: 'images/classroom-ico.svg',
@@ -257,8 +257,24 @@
 
 		marker.on('click', function() {
 			cleanMap();
+			sidebar.showLayer(1);
+
+			document.getElementById("location-content").innerHTML = "";
 			
-			// Set content
+			document.getElementById('location-image').onerror = function() {
+				document.getElementById('location-image').src = "locations/hoey administration.png";
+			};
+			document.getElementById('location-image').src = "locations/" + feature[3].toLowerCase() + ".jpg";
+
+			for(var i = 0; i < feature[4].length; i++)
+			{
+				for(var j = 1; j < feature[4][i].length; j++)
+				{
+					document.getElementById("location-content").innerHTML += "<img src='images/" + feature[4][i][0] + "-ico.png'></img>" + feature[4][i][j] + "<br>";
+					
+				}
+				document.getElementById('location-content').innerHTML += "<br>";
+			}
 
 			marker.closePopup();
 			map.setView(marker.getLatLng(), 18);
