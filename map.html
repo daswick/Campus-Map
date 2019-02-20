@@ -57,11 +57,11 @@
 				</a>
 			</div>
 			<div class="sidebar-content">
-				<div class="search-bar">
-					<input type="text" id="textField" placeholder="Search..." oninput="hashText('textField', 'suggestions', 5, 'openMarker');" class="searchbar">
-					<input type="button" id="clearTextField" class="searchbar" onclick="clearSearch();" value="X"><br>
+				<div class="search">
+					<input type="text" id="textField" class='search-bar' placeholder="Search..." oninput="hashText('textField', 'suggestions', 5, 'openMarker');" class="searchbar">
+					<input type="button" id="clearTextField" class="clear-search" onclick="clearSearch();" value="X"><br>
 				</div>
-				<p id="suggestions"></p>
+				<p class='search-results' id="suggestions"></p>
 				<div id="location-list">
 					<h1>Locations</h1>
 				</div>
@@ -84,8 +84,7 @@
 			</div>
 			<div class="sidebar-content">
 				<h2 id='location-title'>Sample title</h2>
-				<div class='image-block'>
-					<img id='location-image' height="10%" width="100%"></img>
+				<div id='image-block'>
 				</div>
 				<div id='location-content'>
 				</div>

@@ -187,10 +187,10 @@
 
 			if(!document.body.contains(document.getElementById(divID)))
 			{
-				var newdiv = L.DomUtil.create('div', 'temp2');
+				var newdiv = L.DomUtil.create('div', 'section-list');
 				newdiv.id = divID;
 				var checkID = features[i][2] + "-check";
-				newdiv.innerHTML = "<h3>" + features[i][2] + "<input id='" + checkID + "' type='checkbox' class='temp4' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3> ";
+				newdiv.innerHTML = "<h3>" + features[i][2] + "<input id='" + checkID + "' type='checkbox' class='section-check' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3> ";
 				var tablediv = L.DomUtil.create('div', 'temp3');
 				tablediv.id = tableID;
 				tablediv.innerHTML = "";
@@ -261,11 +261,18 @@
 
 			document.getElementById("location-content").innerHTML = "";
 			
-			document.getElementById('location-image').onerror = function() {
-				document.getElementById('location-image').src = "locations/hoey administration.png";
+			document.getElementById("image-block").removeChild(document.getElementById("image-block").firstChild);
+			
+			var locationImage = L.DomUtil.create('img');
+			locationImage.id = 'location-image';
+			locationImage.alt = feature[3];
+			locationImage.src = "locations/" + feature[3].toLowerCase() + ".jpg";
+			locationImage.onerror = function() {
+				locationImage.src = "locations/default-img.jpg";
 			};
-			document.getElementById('location-image').src = "locations/" + feature[3].toLowerCase() + ".jpg";
-
+			
+			document.getElementById("image-block").appendChild(locationImage);
+			
 			for(var i = 0; i < feature[4].length; i++)
 			{
 				for(var j = 1; j < feature[4][i].length; j++)
@@ -824,7 +831,7 @@
 		
 		if(hash[str_hash] === undefined)
 		{
-			document.getElementById(outputID).innerHTML = "<span class='indented'>No matches found.</span>";
+			document.getElementById(outputID).innerHTML = "<span class='search-result'>No matches found.</span>";
 		}
 		else
 		{
@@ -852,7 +859,7 @@
 				var reg = new RegExp(str, 'gi');
 				name = name.replace(reg, function(str) { return "<b>" + str + "</b>"; });
 				
-				document.getElementById(outputID).innerHTML += "<a class='indented' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a><hr class='suggestions-hr'>";
+				document.getElementById(outputID).innerHTML += "<a class='search-result' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a><hr class='search-result-hr'>";
 			}
 		}
 	}
