@@ -31,7 +31,6 @@
 	var activeEdges = [];
 	var activeFeatures = [];
 	var activeConnections = [];
-	var icons;
 	
 	function initialMap()
 	{
@@ -48,17 +47,6 @@
 			id: 'mapbox.streets',
 		});
 		map.addLayer(mapView);
-		
-		icons = {
-			parking: 'images/parking-ico.svg',
-			office: 'images/office-ico.svg',
-			interest: 'images/interest-ico.svg',
-			dorm: 'images/dorm-ico.svg',
-			classroom: 'images/classroom-ico.svg',
-			food: 'images/food-ico.svg',
-			printer: 'images/printer-ico.svg',
-			bathroom: 'images/inclusive-ico.svg'
-		};
 		
 		L.Control.Views = L.Control.extend({
 			options: {
@@ -85,6 +73,7 @@
 	
 	function addFeatures()
 	{
+		var colors = ["#E74C3C", "#884EA0", "#3498DB", "#1ABC9C", "#117A65", "#F1C40F", "#D68910", "#D35400", "#D0D3D4", "#5D6D7E", "#212F3D", "#4A235A", "#82E0AA", "#EDBB99", "#784212", "#5D6D7E", "#F5B7B1", "#ABEBC6", "#641E16"];
 		if(document.getElementById("featureBox").checked)
 		{
 			for(var i = 0; i < features.length; i++)
@@ -96,7 +85,12 @@
 					lng: feature[1]
 				};
 			
-				var marker = L.marker([feature[0], feature[1]], {icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [-10, -20]})});
+				var index = feature[2].charCodeAt(0) - 97;
+				console.log(index);
+				var mcolor = colors[index];
+				//console.log(mcolor);
+				var marker = L.circleMarker([feature[0], feature[1]], {color: mcolor});
+				//var marker = L.marker([feature[0], feature[1]], {icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [-10, -20]})});
 				marker.bindPopup(" " + i);
 				marker.addTo(map);
 				
