@@ -120,9 +120,9 @@
 			classroom: 'images/classroom-ico.svg',
 			food: 'images/food-ico.svg',
 			printer: 'images/printer-ico.svg',
-			bathroom: 'images/inclusive-ico.svg'
-			recreation: 'images/recreation-ico.svg'
-			library: 'images/library-ico.svg'
+			bathroom: 'images/inclusive-ico.svg',
+			recreation: 'images/recreation-ico.svg',
+			library: 'images/library-ico.svg',
 			services: 'images/services-ico.svg'
 		};
 		
