@@ -65,6 +65,10 @@
 				<div id="location-list">
 					<h1>Locations</h1>
 				</div>
+				<div class='buttons'>
+					<button class='location-button' onclick='sidebar.showLayer(4);'>Share</button>
+					<button class='location-button' onclick='clearList();'>Clear</button>
+				</div>
 			</div>
 			<div class="sidebar-footer">
 				<div class="links">
@@ -121,8 +125,29 @@
 				&copy; 2019 North Carolina Central University
 			</div>
 		</div>
-		<!-- Share layer -->
+		<!-- Share Location layer -->
 		<div id="layer-3" class="sidebar-source" parent="1">
+			<div class="sidebar-header">
+				<a href="http://www.nccu.edu" target="_blank">
+					<img src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<h2 id='share-title'></h2>
+				<input readonly type='text'/>
+				Share
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<a href="" target="_blank">About the map</a> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- Share Map layer -->
+		<div id="layer-4" class="sidebar-source" parent="0">
 			<div class="sidebar-header">
 				<a href="http://www.nccu.edu" target="_blank">
 					<img src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>

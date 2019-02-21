@@ -205,6 +205,27 @@
 		}
 	}
 	
+	function clearList()
+	{
+		buildTypes.forEach(function(type) {
+			var name = type + "-check";
+			
+			if(document.getElementById(name).checked)
+			{
+				document.getElementById(name).checked = false;
+				checkedLocation(type);
+			}
+		});
+		
+		for(var i = 0; i < activeMarkers.length; i++)
+		{
+			map.removeLayer(activeMarkers[i]);
+		}
+		activeMarkers = [];
+		
+		cleanMap();
+	}
+	
 	function checkedLocation(type)
 	{
 		var name = type + "-check";
@@ -271,9 +292,9 @@
 			var locationImage = L.DomUtil.create('img');
 			locationImage.id = 'location-image';
 			locationImage.alt = feature[3];
-			var imageURL = feature[3].toLowerCase().split('.').join('').split(' ').join('-').replace(' ', '-') + ".jpg";
-			console.log(imageURL);
-			locationImage.src = "locations/" + imageURL;
+			
+			var imageURL = "locations/" + feature[3].toLowerCase().split('.').join('').split(' ').join('-').replace(' ', '-') + ".jpg";
+			locationImage.src = (feature[2] === 'parking' || feature[2] === 'printer' || feature[2] === 'bathroom') ? "locations/default-img.jpg" : imageURL;
 			locationImage.onerror = function() {
 				locationImage.src = "locations/default-img.jpg";
 			};
