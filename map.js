@@ -123,7 +123,7 @@
 			bathroom: 'images/inclusive-ico.svg',
 			recreation: 'images/recreation-ico.svg',
 			library: 'images/library-ico.svg',
-			services: 'images/services-ico.svg'
+			service: 'images/services-ico.svg'
 		};
 		
 		var urlAddress = window.location.href.trim();
@@ -264,26 +264,50 @@
 
 			document.getElementById("location-content").innerHTML = "";
 			
+			document.getElementById("location-title").innerHTML = feature[3];
+			
 			document.getElementById("image-block").removeChild(document.getElementById("image-block").firstChild);
 			
 			var locationImage = L.DomUtil.create('img');
 			locationImage.id = 'location-image';
 			locationImage.alt = feature[3];
-			locationImage.src = "locations/" + feature[3].toLowerCase() + ".jpg";
+			var imageURL = feature[3].toLowerCase().split('.').join('').split(' ').join('-').replace(' ', '-') + ".jpg";
+			console.log(imageURL);
+			locationImage.src = "locations/" + imageURL;
 			locationImage.onerror = function() {
 				locationImage.src = "locations/default-img.jpg";
 			};
 			
 			document.getElementById("image-block").appendChild(locationImage);
 			
-			for(var i = 0; i < feature[4].length; i++)
+			if(feature.length > 4)
 			{
-				for(var j = 1; j < feature[4][i].length; j++)
+				for(var i = 0; i < feature[4].length; i++)
 				{
-					document.getElementById("location-content").innerHTML += "<img src='images/" + feature[4][i][0] + "-ico.png'></img>" + feature[4][i][j] + "<br>";
+					var detail = "";
+					switch(feature[4][i][0])
+					{
+						case 'inside':
+							detail = "Inside this location";
+							break;
+						case 'website':
+							detail = "Website(s) for this location";
+							break;
+						case 'phone':
+							detail = "Phone number for this location";
+							break;
+						default:
+							detail = "Testing";
+							break;
+					}
 					
+					document.getElementById("location-content").innerHTML += detail + "<br>";
+					for(var j = 1; j < feature[4][i].length; j++)
+					{
+						document.getElementById("location-content").innerHTML += "<div class='location-detail'><img class='detail-image' src='images/" + feature[4][i][0] + "-ico.svg'></img> " + feature[4][i][j] + "</div>";					
+					}
+					document.getElementById('location-content').innerHTML += "<br>";
 				}
-				document.getElementById('location-content').innerHTML += "<br>";
 			}
 
 			marker.closePopup();

@@ -50,7 +50,7 @@
 			[35.974218, -78.899721, 'interest', "Greek Bowl"],
 			[35.975468, -78.900163, 'interest', "Hoey Circle"],
 			[35.975900, -78.897747, 'interest', "McDougald Arena"],
-			[35.975303, -78.901581, 'interest', "Shephard House"],
+			[35.975303, -78.901581, 'interest', "Shepard House"],
 			[35.975235, -78.895848, 'recreation', "Basketball Court"],
 			[35.972543, -78.899480, 'recreation', "Bowling Lanes", [['phone', "919-530-6444"]]],
 			[35.973833, -78.897015, 'recreation', "O'Kelly-Riddick Stadium"],

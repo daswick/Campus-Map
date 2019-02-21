@@ -96,10 +96,62 @@ html, body {
 	justify-content: space-between;
 	align-items: center;
 }
+/* Sizes images for location details (e.g. website) */
+.detail-image {
+	width: 25px;
+	height: 25px;
+	margin-right: 3px;
+}
+.buttons {
+	display: flex;
+	justify-content: center;
+}
+.buttons .location-button:first-child {
+	margin-right: 1em;
+}
+.location-button {
+	border: none;
+	background-color: #2E86C1;
+	color: #fff;
+	font-size: 1.4em;
+	border-radius: 4px;
+	font-weight: bold;
+	padding: .75em 1.3em;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+.location-button img {
+	width: 25px;
+	height: 25px;
+	margin-left: 10px;
+}
+.location-button:hover {
+	background-color: #1F618D;
+}
+.location-detail {
+	display: flex;
+	align-items: center;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+#location-title {
+	font-size: 22px;
+}
 /* Sizes image in location sidebar */
 #location-image {
 	width: 100%;
 	height: auto;
+	border: 2px solid dimgray;
+	margin-bottom: 2em;
+}
+/* Styles details for location */
+#location-content {
+	font-size: 16px;
+}
+/* Removes underline of links in details */
+#location-content a {
+	text-decoration: none;
 }
 /* Removes default checkbox to allow for custom styling */
 input[type="checkbox"] {
