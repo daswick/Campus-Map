@@ -317,6 +317,18 @@
 						case 'phone':
 							detail = "Phone number for this location";
 							break;
+						case 'parktype':
+							detail = "The parking permits that can park here";
+							break;
+						case 'accessible':
+							detail = "The number of handicap-accessible spots";
+							break;
+						case 'bathroom':
+							detail = "The unisex bathroom can be found here";
+							break;
+						case 'printloc':
+							detail = "The printer can be found here";
+							break;
 						default:
 							detail = "Testing";
 							break;
@@ -332,6 +344,7 @@
 			}
 
 			marker.closePopup();
+			sidebar.open();
 			map.setView(marker.getLatLng(), 18);
 		});
 		
