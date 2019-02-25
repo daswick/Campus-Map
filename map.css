@@ -223,3 +223,50 @@ input[type="checkbox"]:hover {
 .ui-dialog-buttonset button {
 	padding: .4em 1.3em;
 }
+
+
+.section-list {
+	cursor: pointer; 
+	margin: 0;
+}
+.section-list img {
+	height: 30px;
+	width: auto;
+	margin-right: 10px;
+}
+.section-list span {
+	display: flex;
+	align-items: center;
+}
+.temp {
+	padding: .5em;
+}
+.temp4:hover, .temp:hover {
+	background-color: #CCD1D1;
+}
+.temp3 {
+	display: none;
+}
+.temp4 {
+	padding: 0 .5em;
+	width: 100%;
+	margin: 0;
+	display: inline-block;
+}
+.temp, .temp4 {
+	transition: .2s;
+}
+.section-check {
+	display: inline-block;
+	vertical-align: middle;
+}
+.sidebar-back {
+	background: #e0e0e0;
+}
+.back-button {
+	background: #fff;
+	border: 1px solid #BAB3AD;
+	padding: .5em 1.25em;
+	/*margin: .25em 0;*/
+	cursor: pointer;
+}

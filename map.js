@@ -114,16 +114,16 @@
 		
 		icons = {
 			parking: 'images/parking-ico.svg',
-			admin: 'images/office-ico.svg',
+			admin: 'images/admin-ico.svg',
 			interest: 'images/interest-ico.svg',
 			dorm: 'images/dorm-ico.svg',
 			classroom: 'images/classroom-ico.svg',
 			food: 'images/food-ico.svg',
 			printer: 'images/printer-ico.svg',
-			bathroom: 'images/inclusive-ico.svg',
+			bathroom: 'images/bathroom-ico.svg',
 			recreation: 'images/recreation-ico.svg',
 			library: 'images/library-ico.svg',
-			service: 'images/services-ico.svg'
+			service: 'images/service-ico.svg'
 		};
 		
 		var urlAddress = window.location.href.trim();
@@ -192,11 +192,24 @@
 			{
 				var newdiv = L.DomUtil.create('div', 'section-list');
 				newdiv.id = divID;
+				
+				var newdiv2 = L.DomUtil.create('div', 'temp4');
+				newdiv2.onclick = function() {
+					//Expand or collapse this panel
+					$(this).next().slideToggle('fast');
+
+					//Hide the other panels
+					$(".temp3").not($(this).next()).slideUp('fast');
+				};
+				
 				var checkID = features[i][2] + "-check";
-				newdiv.innerHTML = "<h3>" + features[i][2] + "<input id='" + checkID + "' type='checkbox' class='section-check' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3> ";
+				newdiv2.innerHTML = "<h3 class='testing'><span><img src='images/" + features[i][2] + "C-ico.svg'/>" + (features[i][2].charAt(0).toUpperCase() + features[i][2].slice(1)) + "</span><input id='" + checkID + "' type='checkbox' class='section-check' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3>";
+
 				var tablediv = L.DomUtil.create('div', 'temp3');
 				tablediv.id = tableID;
 				tablediv.innerHTML = "";
+
+				newdiv.appendChild(newdiv2);
 				newdiv.appendChild(tablediv);
 				document.getElementById("location-list").appendChild(newdiv);
 			}

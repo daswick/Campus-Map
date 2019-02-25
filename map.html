@@ -5,6 +5,10 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
 	<script src="features.js"></script>
 	<script src="map.js"></script>
 	<script src="sidewalks.js"></script>
@@ -17,10 +21,6 @@
 	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet.Sidebar/src/sidebar.css">
 	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet.Sidebar/src/sidebar-fancy.css">
 	
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">	
-
 	<style>
 		body {
 			padding: 0;
@@ -93,7 +93,7 @@
 				<div id='location-content'>
 				</div>
 				<div class='buttons'>
-					<button class='location-button' onclick='sidebar.showLayer(3);'>Share</button>
+					<button class='location-button' onclick='sidebar.showLayer(3);'>Share <img src='images/share.svg'/></button>
 					<button class='location-button' onclick='sidebar.showLayer(2);'>Directions <img src='images/direction.svg'/></button>
 				</div>
 			</div>
