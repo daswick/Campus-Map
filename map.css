@@ -21,6 +21,10 @@ html, body {
 	height: 30px;
 	width: 30px;
 }
+.nccu-logo {
+	width: auto;
+	height: 9vh;
+}
 
 /* --------------- Search Boxes --------------- */
 /* Allows input and clear button to be beside each other */
