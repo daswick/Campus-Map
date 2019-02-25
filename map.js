@@ -490,7 +490,7 @@
 			map.removeLayer(myMarker);
 		}
 		
-		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 
 		myMarker.on('dragstart', function() {
 			markerDragging = true;
@@ -531,7 +531,7 @@
 			map.removeLayer(myMarker);	
 		}
 		
-		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/YAH-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
 		
 		map.setView(position, 18);
 		setTimeout(function() {verifyLocation();}, 500);
@@ -920,7 +920,7 @@
 				var reg = new RegExp(str, 'gi');
 				name = name.replace(reg, function(str) { return "<b>" + str + "</b>"; });
 				
-				document.getElementById(outputID).innerHTML += "<a class='search-result' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a><hr class='search-result-hr'>";
+				document.getElementById(outputID).innerHTML += "<a class='search-result' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a>";
 			}
 		}
 	}
