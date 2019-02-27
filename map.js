@@ -173,6 +173,8 @@
 				}
 			}
 		};
+		
+		//getDirections(20);
 	}
 	
 	function clearSearch()
@@ -194,6 +196,7 @@
 				newdiv.id = divID;
 				
 				var newdiv2 = L.DomUtil.create('div', 'temp4');
+				
 				newdiv2.onclick = function() {
 					//Expand or collapse this panel
 					$(this).next().slideToggle('fast');
@@ -205,6 +208,7 @@
 				var checkID = features[i][2] + "-check";
 				newdiv2.innerHTML = "<h3 class='testing'><span><img src='images/" + features[i][2] + "C-ico.svg'/>" + (features[i][2].charAt(0).toUpperCase() + features[i][2].slice(1)) + "</span><input id='" + checkID + "' type='checkbox' class='section-check' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3>";
 
+				
 				var tablediv = L.DomUtil.create('div', 'temp3');
 				tablediv.id = tableID;
 				tablediv.innerHTML = "";
@@ -354,6 +358,10 @@
 					}
 					document.getElementById('location-content').innerHTML += "<br>";
 				}
+				
+				document.getElementById("directions-button").onclick = function() {
+					getDirections(index);
+				};
 			}
 
 			marker.closePopup();
@@ -420,8 +428,6 @@
 			if(polyline !== undefined)
 			{
 				polyline.setStyle({color: '#d9d900'});
-				connLine1.setStyle({color: '#d9d900'});
-				connLine2.setStyle({color: '#d9d900'});
 			}
 		}
 		else
@@ -434,8 +440,6 @@
 			if(polyline !== undefined)
 			{
 				polyline.setStyle({color: '#005ef7'});
-				connLine1.setStyle({color: '#005ef7'});
-				connLine2.setStyle({color: '#005ef7'});
 			}
 		}
 	}
@@ -494,8 +498,6 @@
 		if(polyline !== undefined)
 		{
 			map.removeLayer(polyline);
-			map.removeLayer(connLine1);
-			map.removeLayer(connLine2);
 		}
 
 		if(myMarker !== undefined)
@@ -603,8 +605,8 @@
 	// Returns Squared Euclidean Distance based on two geographic positions.
 	function getDistance(pos1, pos2)
 	{
-		var disx = (pos2.lat - pos1.lat);
-		var disy = (pos2.lng - pos1.lng);
+		var disx = (pos2[0] - pos1[0]);
+		var disy = (pos2[1] - pos1[1]);
 		
 		var distance = (disx * disx) + (disy * disy);
 		return distance;
@@ -629,8 +631,6 @@
 		if(polyline !== undefined)
 		{
 			map.removeLayer(polyline);
-			map.removeLayer(connLine1);
-			map.removeLayer(connLine2);
 		}
 	}
 	
@@ -659,13 +659,49 @@
 		}
 	}
 	
+	function degreesToRadians(degrees) {
+		return degrees * Math.PI / 180;
+	}
+	
+	function testDistance(pos1, pos2)
+	{
+		var earthRadiusFeet = 6371 * 1000 * 3.28084;
+
+		var dLat = degreesToRadians(pos2[0]-pos1[0]);
+		var dLon = degreesToRadians(pos2[1]-pos1[1]);
+
+		var tlat1 = degreesToRadians(pos1[0]);
+		var tlat2 = degreesToRadians(pos2[0]);
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(tlat1) * Math.cos(tlat2); 
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		
+		return earthRadiusFeet * c;
+	}
+	
+	function findAngle(a, b, c)
+	{
+		var ab = { x: b[0] - a[0], y: b[1] - a[1] };
+        var cb = { x: b[0] - c[0], y: b[1] - c[1] };
+
+        var dot = (ab.x * cb.x + ab.y * cb.y); // dot product
+        var cross = (ab.x * cb.y - ab.y * cb.x); // cross product
+
+        var alpha = -Math.atan2(cross, dot);
+        if (alpha < 0) alpha += 2 * Math.PI;
+		
+		alpha = (alpha * 180) / Math.PI;
+        return alpha;
+	}
+	
 	// @method getDirections(<Number> end_index)
 	// Draws a polyline along route after finding best path using Dijkstra's shortest path algorithm.
 	function getDirections(end_index)
 	{
-		var canAccess = !document.getElementById("accessBox").checked;
+		//var canAccess = !document.getElementById("accessBox").checked;
 		var start_index = 0;
+		var canAccess = true;
 		
+		/*
 		if(document.getElementById("check1").checked)
 		{
 			if(myMarker === undefined)
@@ -730,6 +766,7 @@
 		{
 			return;
 		}
+		*/
 		
 		var numNodes = sidewalks.length;
 		var largeNum = Number.MAX_VALUE;
@@ -812,13 +849,55 @@
 			visitedNodes[minIndex] = true;
 		}
 		
+		sidebar.showLayer(2);
+		
 		var index = currentNode;
 		var latlngs = [[sidewalks[currentNode][0], sidewalks[currentNode][1]]];
 		
 		while (index !== start_index) 
-		{
+		{			
 			index = prevNodes[index];
 			latlngs.push([sidewalks[index][0], sidewalks[index][1]]);
+		}
+		
+		document.getElementById('directions-info').innerHTML = "";
+		
+		for(var i = 0; i < latlngs.length - 2; i++)
+		{			
+			var distance = testDistance(latlngs[i], latlngs[i + 1]);
+			
+			var angle = findAngle(latlngs[i], latlngs[i + 1], latlngs[i + 2]);
+						
+			var turn = "";
+
+			if(angle > 170 && angle < 190)
+			{
+				turn = "go straight";
+			}
+			else if(angle <= 170 && angle > 135)
+			{
+				turn = "veer right";
+			}
+			else if(angle >= 190 && angle < 225)
+			{
+				turn = "veer left";
+			}
+			else if(angle <= 150)
+			{
+				turn = "turn right";
+			}
+			else
+			{
+				turn = "turn left";
+			}
+
+			//console.log("Distance: " + distance);
+			
+			distance = Math.round(distance);
+
+			
+			//console.log("In " + distance + " feet, " + turn);
+			document.getElementById('directions-info').innerHTML += "<div class='direction-row'>In " + distance + " feet, " + turn + "</div>";
 		}
 		
 		polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5, opacity: 1});
@@ -826,13 +905,13 @@
 		if(showSat)
 		{
 			polyline = L.polyline(latlngs, {color: '#d9d900', interactive: false, weight: 5, opacity: 1});
-			connLine1.setStyle({color: '#d9d900'});
-			connLine2.setStyle({color: '#d9d900'});
 		}
 		
 		map.addLayer(polyline);
 		
-		var group = new L.featureGroup([polyline, connLine1, connLine2]);
+		
+		
+		//var group = new L.featureGroup([polyline, connLine1, connLine2]);
 		
 		setTimeout(function() {
 			map.fitBounds(group.getBounds());

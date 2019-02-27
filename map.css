@@ -224,6 +224,11 @@ input[type="checkbox"]:hover {
 	padding: .4em 1.3em;
 }
 
+#directions-info {
+	height: 20vh;
+	font-size: 16px;
+	overflow: auto;
+}
 
 .section-list {
 	cursor: pointer; 

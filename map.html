@@ -94,7 +94,7 @@
 				</div>
 				<div class='buttons'>
 					<button class='location-button' onclick='sidebar.showLayer(3);'>Share <img src='images/share.svg'/></button>
-					<button class='location-button' onclick='sidebar.showLayer(2);'>Directions <img src='images/direction.svg'/></button>
+					<button class='location-button' id='directions-button' onclick='getDirections(0);'>Directions <img src='images/direction.svg'/></button>
 				</div>
 			</div>
 			<div class="sidebar-footer">
@@ -115,6 +115,9 @@
 			</div>
 			<div class="sidebar-content">
 				Directions
+				<div id='directions-info'>
+				
+				</div>
 			</div>
 			<div class="sidebar-footer">
 				<div class="links">
