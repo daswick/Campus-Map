@@ -360,7 +360,7 @@
 				}
 				
 				document.getElementById("directions-button").onclick = function() {
-					getDirections(index);
+					populateDirections(index);
 				};
 			}
 
@@ -401,6 +401,13 @@
 				map.setView(marker.getLatLng(), 18);
 			}, 300);
 		}
+	}
+	
+	function populateDirections(index)
+	{
+		sidebar.showLayer(2);
+		
+		document.getElementById("direction-title").innerHTML = features[index][3];
 	}
 
 	function addType(type)
@@ -701,7 +708,6 @@
 		var start_index = 0;
 		var canAccess = true;
 		
-		/*
 		if(document.getElementById("check1").checked)
 		{
 			if(myMarker === undefined)
@@ -766,7 +772,6 @@
 		{
 			return;
 		}
-		*/
 		
 		var numNodes = sidewalks.length;
 		var largeNum = Number.MAX_VALUE;
