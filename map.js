@@ -2,8 +2,6 @@
 	// Global variables to be used throughout program
 	var map;
 	var polyline;
-	var connLine1;
-	var connLine2;
 	var myMarker;
 	var tryCount;
 	var hash;
@@ -361,9 +359,6 @@
 						case 'printloc':
 							detail = "The printer can be found here";
 							break;
-						default:
-							detail = "Testing";
-							break;
 					}
 					
 					document.getElementById("location-content").innerHTML += detail + "<br>";
@@ -373,12 +368,12 @@
 					}
 					document.getElementById('location-content').innerHTML += "<br>";
 				}
-				
-				document.getElementById("directions-button").onclick = function() {
-					populateDirections(index);
-				};
 			}
-
+			
+			document.getElementById("directions-button").onclick = function() {
+				populateDirections(index);
+			};
+				
 			marker.closePopup();
 			sidebar.open();
 			map.setView(marker.getLatLng(), 18);
@@ -424,7 +419,9 @@
 		
 		document.getElementById("direction-title").innerHTML = features[index][3];
 		
-		getDirections(20);
+		document.getElementById("direction-button").onclick = function() {
+			getDirections(index);
+		};
 	}
 
 	function addType(type)
@@ -724,7 +721,7 @@
 		//var canAccess = !document.getElementById("accessBox").checked;
 		var start_index = 0;
 		var canAccess = true;
-		
+		/*
 		if(document.getElementById("check1").checked)
 		{
 			if(myMarker === undefined)
@@ -789,6 +786,7 @@
 		{
 			return;
 		}
+		*/
 		
 		var numNodes = sidewalks.length;
 		var largeNum = Number.MAX_VALUE;
@@ -826,8 +824,6 @@
 				{		
 					if(connections[i][2] || canAccess)
 					{
-						connLine2 = L.polyline([[features[end_index][0], features[end_index][1]], [sidewalks[currentNode][0], sidewalks[currentNode][1]]], {color: '#005ef7', dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
-						
 						break loop;
 					}
 				}
@@ -912,13 +908,9 @@
 			{
 				turn = "turn left";
 			}
-
-			//console.log("Distance: " + distance);
 			
 			distance = Math.round(distance);
 
-			
-			//console.log("In " + distance + " feet, " + turn);
 			document.getElementById('directions-info').innerHTML += "<div class='direction-row'>In " + distance + " feet, " + turn + "</div>";
 		}
 		
@@ -931,12 +923,8 @@
 		
 		map.addLayer(polyline);
 		
-		
-		
-		//var group = new L.featureGroup([polyline, connLine1, connLine2]);
-		
 		setTimeout(function() {
-			map.fitBounds(group.getBounds());
+			map.fitBounds(polyline.getBounds());
 		}, 400);
 		
 		var minutes = Math.ceil(nodeWeights[currentNode] / 60);
