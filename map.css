@@ -22,8 +22,8 @@ html, body {
 	width: 30px;
 }
 .nccu-logo {
-	width: auto;
 	height: 8vh;
+	width: auto;
 }
 
 /* --------------- Search Boxes --------------- */
@@ -54,8 +54,8 @@ html, body {
 	margin-top: -.35em;
 	font-size: 16px;
 	background-color: white;
-	border: 1px solid #ccc;
-	border-bottom: none;
+	border: 1px solid #ccc !important;
+	border-bottom: none !important;
 }
 /* Styles the button for clearing the search */
 .clear-search {
@@ -99,12 +99,73 @@ html, body {
 .sidebar-footer {
 	font-size: 14px;
 }
-/* Styles for section list headers */
-.section-list h3 {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+.section {
+	cursor: pointer; 
+	margin: 0;
+	width: 100%;
+	margin-bottom: 5px;
 }
+.section-image {
+	height: auto;
+	width: 30px;
+	margin-right: 10px;
+}
+.section-title p {
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	font-weight: bold;
+	color: rgb(50, 50, 50)
+}
+.section-title:hover p:hover {
+	text-decoration: underline;
+}
+
+/* Styles for section list headers */
+
+.section-header {
+	padding: 0 .5em;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border: 1px solid silver;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.section-location {
+	padding: .5em;
+	font-size: 14px;
+	border: 1px solid silver;
+	border-top: none;
+}
+.section-location:hover {
+	text-decoration: underline;
+}
+.section-list {
+	display: none;
+}
+.section-header:hover, .section-location:hover {
+	background-color: #CCD1D1;
+}
+.section-location, .section-header {
+	transition: .2s;
+}
+.section-check {
+	display: inline-block;
+	vertical-align: middle;
+}
+.sidebar-back {
+	background: #e0e0e0;
+}
+.back-button {
+	background: #fff;
+	border: 1px solid #BAB3AD;
+	padding: .5em 1.25em;
+	/*margin: .25em 0;*/
+	cursor: pointer;
+}
+
 /* Sizes images for location details (e.g. website) */
 .detail-image {
 	width: 25px;
@@ -229,49 +290,6 @@ input[type="checkbox"]:hover {
 	font-size: 16px;
 	overflow: auto;
 }
-
-.section-list {
-	cursor: pointer; 
-	margin: 0;
-}
-.section-list img {
-	height: 30px;
-	width: auto;
-	margin-right: 10px;
-}
-.section-list span {
-	display: flex;
-	align-items: center;
-}
-.temp {
-	padding: .5em;
-}
-.temp4:hover, .temp:hover {
-	background-color: #CCD1D1;
-}
-.temp3 {
-	display: none;
-}
-.temp4 {
-	padding: 0 .5em;
-	width: 100%;
-	margin: 0;
-	display: inline-block;
-}
-.temp, .temp4 {
-	transition: .2s;
-}
-.section-check {
-	display: inline-block;
-	vertical-align: middle;
-}
-.sidebar-back {
-	background: #e0e0e0;
-}
-.back-button {
-	background: #fff;
-	border: 1px solid #BAB3AD;
-	padding: .5em 1.25em;
-	/*margin: .25em 0;*/
-	cursor: pointer;
+#direction-title {
+	font-size: 20px;
 }

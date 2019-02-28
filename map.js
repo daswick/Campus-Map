@@ -173,8 +173,6 @@
 				}
 			}
 		};
-		
-		//getDirections(20);
 	}
 	
 	function clearSearch()
@@ -192,33 +190,50 @@
 
 			if(!document.body.contains(document.getElementById(divID)))
 			{
-				var newdiv = L.DomUtil.create('div', 'section-list');
-				newdiv.id = divID;
+				var section = L.DomUtil.create('div', 'section');
+				section.id = divID;
 				
-				var newdiv2 = L.DomUtil.create('div', 'temp4');
+				var sectionHeader = L.DomUtil.create('div', 'section-header');
+				sectionHeader.id = features[i][2] + "-temp";
 				
-				newdiv2.onclick = function() {
-					//Expand or collapse this panel
-					$(this).next().slideToggle('fast');
-
-					//Hide the other panels
-					$(".temp3").not($(this).next()).slideUp('fast');
+				sectionHeader.onclick = function(e) 
+				{
+					if(e.target.id.indexOf("check") == -1)
+					{
+						//Expand or collapse this panel
+						$(this).next().slideToggle('fast');
+						
+						//Hide the other panels
+						$(".section-list").not($(this).next()).slideUp('fast');
+					}
 				};
 				
-				var checkID = features[i][2] + "-check";
-				newdiv2.innerHTML = "<h3 class='testing'><span><img src='images/" + features[i][2] + "C-ico.svg'/>" + (features[i][2].charAt(0).toUpperCase() + features[i][2].slice(1)) + "</span><input id='" + checkID + "' type='checkbox' class='section-check' onclick='checkedLocation(\"" + features[i][2] + "\");'> </h3>";
-
+				var sectionTitle = L.DomUtil.create('span', 'section-title');
+				sectionTitle.innerHTML = "<p><img class='section-image' src='images/" + features[i][2] + "C-ico.svg'/>" + (features[i][2].charAt(0).toUpperCase() + features[i][2].slice(1)) + "</p>";
 				
-				var tablediv = L.DomUtil.create('div', 'temp3');
+				var sectionCheck = L.DomUtil.create('input', 'section-check');
+				sectionCheck.type = "checkbox";
+				sectionCheck.openType = features[i][2];
+				sectionCheck.id = features[i][2] + "-check";
+				
+				sectionCheck.onclick = function() 
+				{
+					checkedLocation(this.openType);
+				};
+				
+				sectionHeader.appendChild(sectionTitle);
+				sectionHeader.appendChild(sectionCheck);
+				
+				var tablediv = L.DomUtil.create('div', 'section-list');
 				tablediv.id = tableID;
 				tablediv.innerHTML = "";
 
-				newdiv.appendChild(newdiv2);
-				newdiv.appendChild(tablediv);
-				document.getElementById("location-list").appendChild(newdiv);
+				section.appendChild(sectionHeader);
+				section.appendChild(tablediv);
+				document.getElementById("location-list").appendChild(section);
 			}
 			
-			document.getElementById(tableID).innerHTML +=  "<div class='temp' onclick='openMarker(" + i + ");'>" + features[i][3] + "</div>";
+			document.getElementById(tableID).innerHTML +=  "<div class='section-location' onclick='openMarker(" + i + ");'>" + features[i][3] + "</div>";
 		}
 	}
 	
@@ -408,6 +423,8 @@
 		sidebar.showLayer(2);
 		
 		document.getElementById("direction-title").innerHTML = features[index][3];
+		
+		getDirections(20);
 	}
 
 	function addType(type)
