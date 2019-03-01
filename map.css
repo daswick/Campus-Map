@@ -346,10 +346,53 @@ input[type="radio"]:checked:hover {
 
 #directions-info {
 	margin-top: 20px;
-	height: 20vh;
+	max-height: 30vh;
 	font-size: 16px;
 	overflow: auto;
 }
 #direction-title {
-	font-size: 20px;
+	font-size: 22px;
+}
+
+.directions-open {
+	border: 1px solid black;
+}
+
+.top-direction-row {
+	border-top: 1px solid black;
+}
+.direction-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 5px;
+	padding-right: 15px;
+	background-color: silver;
+	border-bottom: 1px solid black;
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+}
+
+#share-title {
+	font-size: 22px;
+}
+.share-url {
+	width: 95%;
+	font-size: 14px;	
+	padding: 5px;
+	resize: none;
+}
+.share-map {
+	width: 95%;
+	font-size: 14px;
+	height: 10vh;
+	padding: 5px;
+	resize: none;
+}
+.share-content {
+	font-size: 16px;
+}
+.share-button {
+	margin-top: 10px;
+	margin-bottom: 30px;
 }

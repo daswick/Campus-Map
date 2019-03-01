@@ -15,6 +15,8 @@
 	var buildLoc;
 	var buildTypes;
 	var sidebar;
+	var baseURL;
+	var noControls;
 	
 	// @method initMap()
 	// Called on page load to initialize variables, set up map, and add controls and markers.
@@ -95,7 +97,7 @@
 				}, 200);
 			}
 		});
-		
+
 		L.DomEvent.disableClickPropagation(document.getElementById("locateButton"));
 		L.DomEvent.disableClickPropagation(document.getElementById("changeView"));
 				
@@ -127,6 +129,25 @@
 		var urlAddress = window.location.href.trim();
 		var tagsArray = urlAddress.slice( urlAddress.indexOf("?") + 1 ).split("&");
 		
+		if(urlAddress.indexOf('?') > -1)
+		{
+			baseURL = urlAddress.substring(0, urlAddress.indexOf('?'));
+		}
+		else
+		{
+			baseURL = urlAddress;
+		}
+		
+		noControls = false;
+		
+		if(urlAddress.indexOf("ctrl=false") > -1)
+		{
+			noControls = true;
+			map.removeControl(sidebar);
+			map.removeControl(viewchange);
+			map.removeControl(locater);
+		}
+		
 		for(var i = 0; i < tagsArray.length; i++)
 		{
 			var tag = tagsArray[i].toLowerCase().split("=");
@@ -142,13 +163,18 @@
 				case "bldg": 
 					if (tag[1] >= 0 && tag[1] <= features.length) 
 					{
-						if(tagsArray.length === 1)
+						if((urlAddress.match(/bldg/g) || []).length === 1)
 							addMarker(tag[1], true);
 						else
 							addMarker(tag[1], false);
 					}
 					break;
 			}	
+		}
+		
+		if(noControls)
+		{
+			return;
 		}
 
 		tryCount = 0;
@@ -309,75 +335,20 @@
 
 		marker.bindPopup(feature[3]);
 
-		marker.on('click', function() {
-			cleanMap();
-			sidebar.showLayer(1);
+		if(noControls === false)
+		{
+			console.log(noControls.toString());
+			marker.on('click', function() {
+				cleanMap();
+				sidebar.showLayer(1);
 
-			document.getElementById("location-content").innerHTML = "";
-			
-			document.getElementById("location-title").innerHTML = feature[3];
-			
-			document.getElementById("image-block").removeChild(document.getElementById("image-block").firstChild);
-			
-			var locationImage = L.DomUtil.create('img');
-			locationImage.id = 'location-image';
-			locationImage.alt = feature[3];
-			
-			var imageURL = "locations/" + feature[3].toLowerCase().split('.').join('').split(' ').join('-').replace(' ', '-') + ".jpg";
-			locationImage.src = (feature[2] === 'parking' || feature[2] === 'printer' || feature[2] === 'bathroom') ? "locations/default-img.jpg" : imageURL;
-			locationImage.onerror = function() {
-				locationImage.src = "locations/default-img.jpg";
-			};
-			
-			document.getElementById("image-block").appendChild(locationImage);
-			
-			if(feature.length > 4)
-			{
-				for(var i = 0; i < feature[4].length; i++)
-				{
-					var detail = "";
-					switch(feature[4][i][0])
-					{
-						case 'inside':
-							detail = "Inside this location";
-							break;
-						case 'website':
-							detail = "Website(s) for this location";
-							break;
-						case 'phone':
-							detail = "Phone number for this location";
-							break;
-						case 'parktype':
-							detail = "The parking permits that can park here";
-							break;
-						case 'accessible':
-							detail = "The number of handicap-accessible spots";
-							break;
-						case 'bathroom':
-							detail = "The unisex bathroom can be found here";
-							break;
-						case 'printloc':
-							detail = "The printer can be found here";
-							break;
-					}
+				populateLocation(index);
 					
-					document.getElementById("location-content").innerHTML += detail + "<br>";
-					for(var j = 1; j < feature[4][i].length; j++)
-					{
-						document.getElementById("location-content").innerHTML += "<div class='location-detail'><img class='detail-image' src='images/" + feature[4][i][0] + "-ico.svg'></img> " + feature[4][i][j] + "</div>";					
-					}
-					document.getElementById('location-content').innerHTML += "<br>";
-				}
-			}
-			
-			document.getElementById("directions-button").onclick = function() {
-				populateDirections(index);
-			};
-				
-			marker.closePopup();
-			sidebar.open();
-			map.setView(marker.getLatLng(), 18);
-		});
+				marker.closePopup();
+				sidebar.open();
+				map.setView(marker.getLatLng(), 18);
+			});
+		}
 		
 		marker.on('mouseover', function() {
 			if(!markerDragging)
@@ -413,15 +384,104 @@
 		}
 	}
 	
+	function populateLocation(index)
+	{
+		var feature = features[index];
+		
+		document.getElementById("location-content").innerHTML = "";
+	
+		document.getElementById("location-title").innerHTML = feature[3];
+		
+		document.getElementById("image-block").removeChild(document.getElementById("image-block").firstChild);
+	
+		var locationImage = L.DomUtil.create('img');
+		locationImage.id = 'location-image';
+		locationImage.alt = feature[3];
+	
+		var imageURL = "locations/" + feature[3].toLowerCase().split('.').join('').split(' ').join('-').replace(' ', '-') + ".jpg";
+		locationImage.src = (feature[2] === 'parking' || feature[2] === 'printer' || feature[2] === 'bathroom') ? "locations/default-img.jpg" : imageURL;
+		locationImage.onerror = function() {
+			locationImage.src = "locations/default-img.jpg";
+		};
+	
+		document.getElementById("image-block").appendChild(locationImage);
+	
+		if(feature.length > 4)
+		{
+			for(var i = 0; i < feature[4].length; i++)
+			{
+				var detail = "";
+				switch(feature[4][i][0])
+				{
+					case 'inside':
+						detail = "Inside this location";
+						break;
+					case 'website':
+						detail = "Website(s) for this location";
+						break;
+					case 'phone':
+						detail = "Phone number for this location";
+						break;
+					case 'parktype':
+						detail = "The parking permits that can park here";
+						break;
+					case 'accessible':
+						detail = "The number of handicap-accessible spots";
+						break;
+					case 'bathroom':
+						detail = "The unisex bathroom can be found here";
+						break;
+					case 'printloc':
+						detail = "The printer can be found here";
+						break;
+				}
+			
+				document.getElementById("location-content").innerHTML += detail + "<br>";
+				for(var j = 1; j < feature[4][i].length; j++)
+				{
+					document.getElementById("location-content").innerHTML += "<div class='location-detail'><img class='detail-image' src='images/" + feature[4][i][0] + "-ico.svg'></img> " + feature[4][i][j] + "</div>";					
+				}
+				document.getElementById('location-content').innerHTML += "<br>";
+			}
+		}
+			
+		document.getElementById("share-location").onclick = function() {
+			shareLocation(index);
+		};
+		
+		document.getElementById("directions-button").onclick = function() {
+			populateDirections(index);
+		};
+	}
+	
 	function populateDirections(index)
 	{
 		sidebar.showLayer(2);
 		
 		document.getElementById("direction-title").innerHTML = features[index][3];
 		
+		document.getElementById('directions-info').innerHTML = "";
+		
+		L.DomUtil.removeClass(document.getElementById('directions-info'), 'directions-open');
+
 		document.getElementById("direction-button").onclick = function() {
 			getDirections(index);
 		};
+	}
+	
+	function shareLocation(index)
+	{
+		sidebar.showLayer(3);
+		
+		var shareURL = baseURL + "?bldg=" + index.toString();
+		
+		document.getElementById("share-title").innerHTML = features[index][3];
+		
+		document.getElementById("location-url").value = shareURL;
+		
+		var embedText = "<iframe width='400' height='400' src='" + shareURL + "&ctrl=false'/>";
+		
+		document.getElementById("location-embed").value = embedText;
 	}
 
 	function addType(type)
@@ -432,6 +492,22 @@
 			{
 				addMarker(i, false);
 			}
+		}
+	}
+	
+	function copyToClipboard(id)
+	{
+		var copyElement = document.getElementById(id);
+		
+		if(L.Browser.ie)
+		{
+			window.clipboardData.setData('Text', copyElement.value);
+		}
+		else
+		{
+			copyElement.select();
+			
+			document.execCommand("copy");
 		}
 	}
 	
@@ -720,6 +796,8 @@
 	{
 		//var canAccess = !document.getElementById("accessBox").checked;
 		var start_index = 0;
+		var start_name = features[start_index][3];
+		var end_name = features[end_index][3];
 		var canAccess = true;
 		/*
 		if(document.getElementById("check1").checked)
@@ -868,6 +946,10 @@
 		}
 		
 		sidebar.showLayer(2);
+		if(polyline !== undefined)
+		{
+			map.removeLayer(polyline);
+		}
 		
 		var index = currentNode;
 		var latlngs = [[sidewalks[currentNode][0], sidewalks[currentNode][1]]];
@@ -878,47 +960,60 @@
 			latlngs.push([sidewalks[index][0], sidewalks[index][1]]);
 		}
 		
-		document.getElementById('directions-info').innerHTML = "";
+		L.DomUtil.addClass(document.getElementById('directions-info'), 'directions-open');
+		document.getElementById('directions-info').innerHTML = "<div class='direction-row top-direction-row'><b>Start</b><b>" + start_name + "</b></div>";
 		
-		for(var i = 0; i < latlngs.length - 2; i++)
+		for(var i = latlngs.length - 1; i > 1; i--)
 		{			
-			var distance = testDistance(latlngs[i], latlngs[i + 1]);
+			var distance = testDistance(latlngs[i], latlngs[i - 1]);
 			
-			var angle = findAngle(latlngs[i], latlngs[i + 1], latlngs[i + 2]);
-						
+			var angle = findAngle(latlngs[i], latlngs[i - 1], latlngs[i - 2]);
+			
 			var turn = "";
+			var imageURL = "";
 
 			if(angle > 170 && angle < 190)
 			{
 				turn = "go straight";
+				imageURL = "images/straight.svg";
 			}
 			else if(angle <= 170 && angle > 135)
 			{
 				turn = "veer right";
+				imageURL = "images/veer-right.svg";
 			}
 			else if(angle >= 190 && angle < 225)
 			{
 				turn = "veer left";
+				imageURL = "images/veer-left.svg";
 			}
 			else if(angle <= 150)
 			{
 				turn = "turn right";
+				imageURL = "images/right-turn.svg";
 			}
 			else
 			{
 				turn = "turn left";
+				imageURL = "images/left-turn.svg";
 			}
 			
 			distance = Math.round(distance);
 
-			document.getElementById('directions-info').innerHTML += "<div class='direction-row'>In " + distance + " feet, " + turn + "</div>";
+			document.getElementById('directions-info').innerHTML += "<div class='direction-row'><img class='direction-image' src='" + imageURL + "'/>In " + distance + " feet, " + turn + "</div>";
 		}
+		document.getElementById('directions-info').innerHTML += "<div class='direction-row'><b>End</b><b>" + end_name + "</b></div>";
 		
 		polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5, opacity: 1});
 		
 		if(showSat)
 		{
 			polyline = L.polyline(latlngs, {color: '#d9d900', interactive: false, weight: 5, opacity: 1});
+		}
+		
+		if(L.Browser.mobile)
+		{
+			sidebar.close();
 		}
 		
 		map.addLayer(polyline);

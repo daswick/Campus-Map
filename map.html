@@ -93,8 +93,8 @@
 				<div id='location-content'>
 				</div>
 				<div class='buttons'>
-					<button class='location-button' onclick='sidebar.showLayer(3);'>Share <img src='images/share.svg'/></button>
-					<button class='location-button' id='directions-button' onclick='sidebar.showLayer(2);'>Directions <img src='images/direction.svg'/></button>
+					<button class='location-button' id='share-location'>Share <img src='images/share.svg'/></button>
+					<button class='location-button' id='directions-button'>Directions <img src='images/direction.svg'/></button>
 				</div>
 			</div>
 			<div class="sidebar-footer">
@@ -147,9 +147,21 @@
 				</a>
 			</div>
 			<div class="sidebar-content">
-				<h2 id='share-title'></h2>
-				<input readonly type='text'/>
-				Share
+				<div class='share-header'>
+					<h2>Share location:</h2>
+					<p id='share-title'></p>
+				</div>
+				<div class='share-content'>
+					<h3>Link to location</h3>
+					<p>Share this location by copying the URL below</p>
+					<textarea readonly id='location-url' class='share-url' name='text'></textarea>
+					<button class='share-button' onclick='copyToClipboard("location-url");'>Copy to clipboard</button>
+					
+					<h3>Embed this location</h3>
+					<p>Embed a map of this location to your site by copying the embed code below</p>
+					<textarea readonly id='location-embed' class='share-map' name='text'></textarea>
+					<button class='share-button' onclick='copyToClipboard("location-embed");'>Copy to clipboard</button>
+				</div>
 			</div>
 			<div class="sidebar-footer">
 				<div class="links">
@@ -168,9 +180,20 @@
 				</a>
 			</div>
 			<div class="sidebar-content">
-				<h2 id='share-title'></h2>
-				<input readonly type='text'/>
-				Share
+				<div class='share-header'>
+					<h2>Share map</h2>
+				</div>
+				<div class='share-content'>
+					<h3>Link to map</h3>
+					<p>Share this map by copying the URL below</p>
+					<input readonly id='map-url' class='share-url' type='text'/>
+					<button class='share-button' onclick='copyToClipboard("map-url");'>Copy to clipboard</button>
+					
+					<h3>Embed this map</h3>
+					<p>Embed this map to your site by copying the embed code below</p>
+					<input readonly id='map-embed' class='share-map' type='text'/>
+					<button class='share-button' onclick='copyToClipboard("map-embed");'>Copy to clipboard</button>
+				</div>
 			</div>
 			<div class="sidebar-footer">
 				<div class="links">
