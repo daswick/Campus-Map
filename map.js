@@ -337,7 +337,6 @@
 
 		if(noControls === false)
 		{
-			console.log(noControls.toString());
 			marker.on('click', function() {
 				cleanMap();
 				sidebar.showLayer(1);
@@ -475,7 +474,7 @@
 		
 		var shareURL = baseURL + "?bldg=" + index.toString();
 		
-		document.getElementById("share-title").innerHTML = features[index][3];
+		document.getElementById("link-title").innerHTML = features[index][3];
 		
 		document.getElementById("location-url").value = shareURL;
 		

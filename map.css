@@ -373,26 +373,26 @@ input[type="radio"]:checked:hover {
 	border-right: 1px solid black;
 }
 
-#share-title {
+#link-title {
 	font-size: 22px;
 }
-.share-url {
+.copy-url {
 	width: 95%;
 	font-size: 14px;	
 	padding: 5px;
 	resize: none;
 }
-.share-map {
+.copy-map {
 	width: 95%;
 	font-size: 14px;
 	height: 10vh;
 	padding: 5px;
 	resize: none;
 }
-.share-content {
+.link-content {
 	font-size: 16px;
 }
-.share-button {
+.copy-button {
 	margin-top: 10px;
 	margin-bottom: 30px;
 }
