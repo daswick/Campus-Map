@@ -26,6 +26,10 @@ html, body {
 	width: auto;
 }
 
+html a {
+	color: rgb(0, 112, 192)
+}
+
 /* --------------- Search Boxes --------------- */
 /* Allows input and clear button to be beside each other */
 .search {
@@ -226,6 +230,15 @@ html, body {
 	margin-bottom: 15px;
 }
 
+#directions-time {
+	text-align: center;
+	font-size: 16px;
+}
+
+#locations {
+	width: 90%;
+}
+
 .direction-search {
 	width: 70%;
 	border-radius: 5px;
@@ -307,17 +320,17 @@ input[type="radio"]:checked:hover {
 }
 
 /* Adds style for checked checkbox */
-.section-check:checked {
+input[type="checkbox"]:checked {
 	background-color: #5b6771;
 	transition: .2s;
 }
-.section-check:checked:before {
+input[type="checkbox"]:checked:before {
 	color: #ffffff;
 	font-size: 16px;
 	content: '\002714';
 	font-weight: bold;
 }
-.section-check:checked:hover {
+input[type="checkbox"]:checked:hover {
 	background-color: #000000;	
 	transition: .2s;
 }
@@ -381,7 +394,8 @@ input[type="radio"]:checked:hover {
 }
 .copy-url {
 	width: 95%;
-	font-size: 14px;	
+	font-size: 14px;
+	height: 6vh;
 	padding: 5px;
 	resize: none;
 }
@@ -404,4 +418,24 @@ input[type="radio"]:checked:hover {
 	border: 1px solid #BAB3AD;
 	padding: .5em 1.25em;
 	cursor: pointer;
+}
+
+.fake-footer-link {
+	color: rgb(0, 112, 192);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.about-header {
+	color: #404040;
+	font-size: 16px;
+}
+
+#locations:empty {
+	border: none !important;
+
+}
+
+.about-content {
+	font-size: 14px;
 }

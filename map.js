@@ -34,7 +34,8 @@
 			zoomControl: false
 		});
 
-		map.attributionControl.setPrefix('<a href="https://leafletjs.com/" target="_blank">Leaflet</a>');
+		map.removeControl(map.attributionControl);
+		//map.attributionControl.setPrefix('<a href="https://leafletjs.com/" target="_blank">Leaflet</a>');
 		
 		mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA', {
 			maxZoom: 20,
@@ -148,6 +149,11 @@
 			map.removeControl(locater);
 		}
 		
+		if(!noControls)
+		{
+			fillContent();
+		}
+		
 		for(var i = 0; i < tagsArray.length; i++)
 		{
 			var tag = tagsArray[i].toLowerCase().split("=");
@@ -183,7 +189,6 @@
 		locating = false;
 		markerDragging = false;
 		initHash();
-		fillContent();
 		
 		document.getElementById("textField").onkeypress = function(e) {
 			var keyCode = e.keyCode || e.which;
@@ -461,6 +466,8 @@
 		
 		document.getElementById('directions-info').innerHTML = "";
 		
+		document.getElementById("directions-time").innerHTML = "";
+		
 		L.DomUtil.removeClass(document.getElementById('directions-info'), 'directions-open');
 
 		document.getElementById("direction-button").onclick = function() {
@@ -482,6 +489,50 @@
 		
 		document.getElementById("location-embed").value = embedText;
 	}
+	
+	function shareMap()
+	{
+		var shareURL = baseURL;
+		var activeTypes = new Set();
+		var tags = [];
+		
+		buildTypes.forEach(function(type) {
+			var checkID = type + "-check";
+			if(document.getElementById(checkID).checked)
+			{
+				tags.push("type=" + type);
+				activeTypes.add(type);
+			}
+		});
+		
+		activeMarkers.forEach(function(marker) {
+			if(!activeTypes.has(marker.mType))
+			{
+				tags.push("bldg=" + marker.index.toString());
+			}
+		});
+		
+		if(tags.length > 0)
+		{
+			shareURL += "?";
+			for(var i = 0; i < tags.length; i++)
+			{
+				if(i > 0)
+				{
+					shareURL += "&";
+				}
+				shareURL += tags[i];
+			}			
+		}
+		
+		sidebar.showLayer(4);
+		
+		document.getElementById("map-url").value = shareURL;
+		
+		var embedText = "<iframe width='400' height='400' src='" + shareURL + ((shareURL.charAt(shareURL.length - 1) === 'l') ? "?ctrl=false" : "&ctrl=false") + "'/>";
+		
+		document.getElementById("map-embed").value = embedText;
+	}
 
 	function addType(type)
 	{
@@ -491,6 +542,11 @@
 			{
 				addMarker(i, false);
 			}
+		}
+		
+		if(sidebar.getCurrentIndex() === 0)
+		{
+			document.getElementById(type + "-check").checked = true;
 		}
 	}
 	
@@ -697,17 +753,6 @@
 		});
 	}
 	
-	// @method getDistance(<LatLng {lat, lng}> pos1, pos2): <Number> distance
-	// Returns Squared Euclidean Distance based on two geographic positions.
-	function getDistance(pos1, pos2)
-	{
-		var disx = (pos2[0] - pos1[0]);
-		var disy = (pos2[1] - pos1[1]);
-		
-		var distance = (disx * disx) + (disy * disy);
-		return distance;
-	}
-	
 	// @method findBuilding(<Number> index)
 	// Fills direction textbox when building suggestion was clicked.
 	function findBuilding(index)
@@ -730,15 +775,6 @@
 		}
 	}
 	
-	// @method directionPopup(<Number> index)
-	// Displays popup for getting directions to selected marker
-	function directionPopup(index)
-	{
-		cleanMap();
-		
-		// Set content
-	}
-	
 	function locationFocus()
 	{
 		document.getElementById("check1").checked = true;
@@ -755,11 +791,12 @@
 		}
 	}
 	
-	function degreesToRadians(degrees) {
+	function degreesToRadians(degrees) 
+	{
 		return degrees * Math.PI / 180;
 	}
 	
-	function testDistance(pos1, pos2)
+	function getDistance(pos1, pos2)
 	{
 		var earthRadiusFeet = 6371 * 1000 * 3.28084;
 
@@ -793,29 +830,27 @@
 	// Draws a polyline along route after finding best path using Dijkstra's shortest path algorithm.
 	function getDirections(end_index)
 	{
-		//var canAccess = !document.getElementById("accessBox").checked;
+		var canAccess = !document.getElementById("accessBox").checked;
 		var start_index = 0;
-		var start_name = features[start_index][3];
+		var start_name = "";
 		var end_name = features[end_index][3];
-		var canAccess = true;
-		/*
-		if(document.getElementById("check1").checked)
+
+		if(document.getElementById("location-option").checked)
 		{
 			if(myMarker === undefined)
 			{
 				return;
 			}
 			
+			start_name = "Your location";
+			
 			var distance = Number.MAX_VALUE;
-		
+			
+			var markerLocation = [myMarker.getLatLng().lat, myMarker.getLatLng().lng];
+			
 			for(var i = 0; i < sidewalks.length; i++)
 			{
-				var pos = {
-					lat: sidewalks[i][0],
-					lng: sidewalks[i][1]
-				};
-			
-				var newdist = getDistance(myMarker.getLatLng(), pos);
+				var newdist = getDistance(markerLocation, sidewalks[i]);
 			
 				if(newdist < distance)
 				{
@@ -823,47 +858,44 @@
 					start_index = i;
 				}
 			}
-			
-			cleanMap();
-						
-			connLine1 = L.polyline([[myMarker.getLatLng().lat, myMarker.getLatLng().lng], [sidewalks[start_index][0], sidewalks[start_index][1]]], {color: '#005ef7', dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
 		}
-		else if(document.getElementById("check2").checked)
+		else if(document.getElementById("building-option").checked)
 		{
 			if(buildLoc === end_index)
 			{
 				return;	
 			}
 			
-			var featIndex = buildLoc;
-			addMarker(featIndex, features[featIndex][2], false);
+			addMarker(buildLoc, false);
 			
-			connLoop:
+			start_name = features[start_index][3];
+			
+			var smallestDistance = Number.MAX_VALUE;
+			var minIndex = 0;
+			
 			for(var i = 0; i < connections.length; i++)
 			{
-				if(i === connections.length - 1 && connections[i][1] !== featIndex)
-				{
-					return;
-				}
-				
-				if(connections[i][1] === featIndex)
+				if(connections[i][1] === buildLoc)
 				{
 					if(connections[i][2] || canAccess)
 					{
-						start_index = connections[i][0];
-						cleanMap();
-						connLine1 = L.polyline([[features[featIndex][0], features[featIndex][1]], [sidewalks[start_index][0], sidewalks[start_index][1]]], {color: '#005ef7', dashArray: '10,10', weight: 5, opacity: 1}).addTo(map);
-						break connLoop;
+						var newdist = getDistance(sidewalks[connections[i][0]], features[end_index]);
+						
+						if(newdist < smallestDistance)
+						{
+							smallestDistance = newdist;
+							minIndex = connections[i][0];
+						}
 					}
 				}
 			}
 			
+			start_index = minIndex;
 		}
 		else
 		{
 			return;
 		}
-		*/
 		
 		var numNodes = sidewalks.length;
 		var largeNum = Number.MAX_VALUE;
@@ -959,12 +991,15 @@
 			latlngs.push([sidewalks[index][0], sidewalks[index][1]]);
 		}
 		
+		var minutes = Math.ceil(nodeWeights[currentNode] / 60);
+		document.getElementById("directions-time").innerHTML = "Estimated time: " + minutes.toString() + " minutes.";
+		
 		L.DomUtil.addClass(document.getElementById('directions-info'), 'directions-open');
 		document.getElementById('directions-info').innerHTML = "<div class='direction-row top-direction-row'><b>Start</b><b>" + start_name + "</b></div>";
 		
 		for(var i = latlngs.length - 1; i > 1; i--)
 		{			
-			var distance = testDistance(latlngs[i], latlngs[i - 1]);
+			var distance = getDistance(latlngs[i], latlngs[i - 1]);
 			
 			var angle = findAngle(latlngs[i], latlngs[i - 1], latlngs[i - 2]);
 			
@@ -1017,11 +1052,11 @@
 		
 		map.addLayer(polyline);
 		
+		/*
 		setTimeout(function() {
 			map.fitBounds(polyline.getBounds());
 		}, 400);
-		
-		var minutes = Math.ceil(nodeWeights[currentNode] / 60);
+		*/
 	}
 	
 	// @method hashStr(String str): <Number> hashed
