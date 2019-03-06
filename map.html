@@ -120,8 +120,8 @@
 				</div>
 				<div class='direction-options'>
 					<p>Choose your starting point:</p>
-					<div class='direction-option'><input id="location-option" type='radio' name='direction-image'><img class='direction-image' src='images/locate.svg'/>Your Location</div>
-					<div class='direction-option'><input id="building-option" type='radio' name='direction-image'><img class='direction-image' src='images/inside-ico.svg'/><input placeholder='Enter a Location' id="locationBox" class='direction-search' oninput="hashText('locationBox', 'locations', 3, 'findBuilding');" type='text'/></div>
+					<div id='direction-location' class='direction-option'><input id="location-option" type='radio' name='direction-image'><img class='direction-image' src='images/locate.svg'/>Your Location</div>
+					<div id='direction-building' class='direction-option'><input id="building-option" type='radio' name='direction-image'><img class='direction-image' src='images/inside-ico.svg'/><input placeholder='Enter a Location' id="locationBox" class='direction-search' oninput="hashText('locationBox', 'locations', 3, 'findBuilding');" type='text'/></div>
 					<p class="search-results" id="locations"></p>
 					<div class='direction-option'><input id="accessBox" type='checkbox'/><p style='margin-left: 10px'>Only use accessible routes?</p></div>
 				</div>

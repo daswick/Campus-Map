@@ -468,6 +468,14 @@
 		
 		document.getElementById("directions-time").innerHTML = "";
 		
+		document.getElementById("direction-location").onclick = function() {
+			document.getElementById("location-option").checked = true;
+		};
+		
+		document.getElementById("direction-building").onclick = function() {
+			document.getElementById("building-option").checked = true;
+		};
+
 		L.DomUtil.removeClass(document.getElementById('directions-info'), 'directions-open');
 
 		document.getElementById("direction-button").onclick = function() {
@@ -623,16 +631,16 @@
 			case 1: tryCount = 2;
 				message = "Please turn on location and allow the app to use your location.";
 				break;
-			case 2: message = "The location service failed. Please try again.";
+			case 2: message = "The location service failed.";
 				break;
-			case 3: message = "The location service timed out. Please try again.";
+			case 3: message = "The location service timed out.";
 				break;
-			case 4: message = "The location accuracy is too low. Please try again.";
+			case 4: message = "The location accuracy is too low.";
 				break;
 			case 5: message = "Your location is not within NCCU bounds.";
 				break;
 		}
-		message += " Please drag marker to your location.";
+		message += " Click \"Continue\" to drag a marker to your location or click \"Cancel\" to cancel.";
 		
 		if(tryCount >= 2)
 		{
@@ -714,9 +722,14 @@
 				draggable: false,
 				modal: false,
 				buttons: {
-					"Ok": function() {
+					"Continue": function() {
 						$(this).dialog("close");
 						callback();
+					},
+					"Cancel": function() {
+						$(this).dialog("close");
+						document.getElementById("locateButton").src = "images/locate.svg";
+						locating = false;
 					}
 				}
 			});
@@ -743,8 +756,7 @@
 					},
 					"No":  function() {
 						$( this ).dialog( "close" );
-						myMarker.dragging.enable();
-						alert("Please drag the marker to where you are");	
+						myMarker.dragging.enable();	
 						setTimeout(function() {setLocation(myMarker.getLatLng());}, 10000);
 					}
 				}
@@ -775,22 +787,6 @@
 		}
 	}
 	
-	function locationFocus()
-	{
-		document.getElementById("check1").checked = true;
-		locationSelected();
-	}
-
-	// @method locationSelected()
-	// Locates user when "Your location" is selected and location has not been previously found.
-	function locationSelected()
-	{
-		if(document.getElementById("check1").checked && myMarker === undefined)
-		{
-			attemptLocate();
-		}
-	}
-	
 	function degreesToRadians(degrees) 
 	{
 		return degrees * Math.PI / 180;
@@ -813,11 +809,11 @@
 	
 	function findAngle(a, b, c)
 	{
-		var ab = { x: b[0] - a[0], y: b[1] - a[1] };
-        var cb = { x: b[0] - c[0], y: b[1] - c[1] };
+		var ab = [ b[0] - a[0], b[1] - a[1] ];
+		var cb = [ b[0] - c[0], b[1] - c[1] ];
 
-        var dot = (ab.x * cb.x + ab.y * cb.y); // dot product
-        var cross = (ab.x * cb.y - ab.y * cb.x); // cross product
+        var dot = (ab[0] * cb[0] + ab[1] * cb[1]);
+        var cross = (ab[0] * cb[1] - ab[1] * cb[0]);
 
         var alpha = -Math.atan2(cross, dot);
         if (alpha < 0) alpha += 2 * Math.PI;
@@ -834,11 +830,15 @@
 		var start_index = 0;
 		var start_name = "";
 		var end_name = features[end_index][3];
-
+		
+		document.getElementById("directions-time").innerHTML = "";
+		document.getElementById('directions-info').innerHTML = "";
+		
 		if(document.getElementById("location-option").checked)
 		{
 			if(myMarker === undefined)
 			{
+				document.getElementById("directions-time").innerHTML = "Please find your location first.";
 				return;
 			}
 			
@@ -861,14 +861,21 @@
 		}
 		else if(document.getElementById("building-option").checked)
 		{
+			if(buildLoc === -1)
+			{
+				document.getElementById("directions-time").innerHTML = "Please enter a location first.";
+				return;	
+			}
+			
 			if(buildLoc === end_index)
 			{
+				document.getElementById("directions-time").innerHTML = "These are the same locations.";
 				return;	
 			}
 			
 			addMarker(buildLoc, false);
 			
-			start_name = features[start_index][3];
+			start_name = features[buildLoc][3];
 			
 			var smallestDistance = Number.MAX_VALUE;
 			var minIndex = 0;
@@ -989,6 +996,12 @@
 		{			
 			index = prevNodes[index];
 			latlngs.push([sidewalks[index][0], sidewalks[index][1]]);
+		}
+		
+		if(latlngs.length === 1)
+		{
+			document.getElementById("directions-time").innerHTML = "These are the same locations.";
+			return;	
 		}
 		
 		var minutes = Math.ceil(nodeWeights[currentNode] / 60);
