@@ -1,13 +1,3 @@
-/* Allows map to take up full page */
-html, body {
-	margin: 0;
-	padding: 0;
-	height: 100%;
-}
-/* Allows map to take up full page */
-#map {
-	width: 100vw; 
-}
 .map-button {
 	display: flex;
 	align-items: center;
@@ -24,6 +14,12 @@ html, body {
 .nccu-logo {
 	height: 8vh;
 	width: auto;
+}
+.dialog {
+	display: none;
+}
+.no-close .ui-dialog-titlebar-close {
+	display: none;
 }
 
 html a {
@@ -75,6 +71,7 @@ html a {
 .search-result {
 	display: block;
 	font-size: 16px;
+	text-decoration: none;
 	border-bottom: 1px solid #ccc;
 	padding: .25em .8em;
 }

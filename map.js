@@ -1164,7 +1164,7 @@
 				var reg = new RegExp(str, 'gi');
 				name = name.replace(reg, function(str) { return "<b>" + str + "</b>"; });
 				
-				document.getElementById(outputID).innerHTML += "<a class='search-result' style='text-decoration: none;' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a>";
+				document.getElementById(outputID).innerHTML += "<a class='search-result' onclick='" + callbackName + "(" + suggestions[i] + ");'>" + name + "</a>";
 			}
 		}
 	}
