@@ -1,25 +1,24 @@
 
-	// Global variables to be used throughout program
-	var map;
-	var polyline;
-	var myMarker;
-	var tryCount;
-	var hash;
-	var locating;
-	var icons;
-	var activeMarkers;
-	var markerDragging;
-	var showSat;
-	var satView;
-	var mapView;
-	var buildLoc;
-	var buildTypes;
-	var sidebar;
-	var baseURL;
-	var noControls;
+	/* Global variables to be used throughout program */
+	var map;			// The map used
+	var polyline;		// Polyline used for directions
+	var myMarker;		// Marker for user's location
+	var tryCount;		// Counter for failed location attempts
+	var hash;			// Hashtable for locations
+	var locating;		// Boolean "lock" for if geolocation is currently running
+	var icons;			// Lookup table for marker icons
+	var activeMarkers;	// List of markers currently on the map
+	var markerDragging;	// Boolean denoting if user marker is currently being dragged
+	var showSat;		// Boolean denoting if the map is currently showing satellite view
+	var satView;		// Tile layer for satellite view
+	var mapView;		// Tile layer for map view
+	var buildLoc;		// Current index of building used for directions
+	var buildTypes;		// Set of all "types" of locations
+	var sidebar;		// Leaflet control for sidebar
+	var baseURL;		// Current URL without tags for sharing
+	var noControls;		// Boolean denoting if map should load controls
 	
-	// @method initMap()
-	// Called on page load to initialize variables, set up map, and add controls and markers.
+	// Initializes map, variables, and controls, as well as filters through URL tags
 	function initMap()
 	{
 		if (location.protocol === 'http:')
@@ -35,7 +34,6 @@
 		});
 
 		map.removeControl(map.attributionControl);
-		//map.attributionControl.setPrefix('<a href="https://leafletjs.com/" target="_blank">Leaflet</a>');
 		
 		mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA', {
 			maxZoom: 20,
@@ -151,7 +149,7 @@
 		
 		if(!noControls)
 		{
-			fillContent();
+			populateList();
 		}
 		
 		for(var i = 0; i < tagsArray.length; i++)
@@ -204,13 +202,194 @@
 		};
 	}
 	
-	function clearSearch()
+
+	/* -------------------- Geolocation -------------------- */
+	
+	// Attempts to locate the user
+	function attemptLocate()
 	{
-		document.getElementById("textField").value="";
-		hashText("textField", "suggestions", 5, null);
+		if(locating)
+		{
+			if(myMarker !== undefined)
+			{
+				onLocationFound({ latlng: myMarker.getLatLng(), accuracy: 1 });
+			}
+			return;
+		}
+		
+		locating = true;
+		document.getElementById("locateButton").src = "images/spinner.svg";
+		
+		map.locate({maximumAge: 0, enableHighAccuracy: true});
 	}
 	
-	function fillContent()
+	// If the map has an issue with the location, try again or warn the user
+	function locationError(err)
+	{
+		var message = "";
+				
+		switch(err.code)
+		{
+			case 1: tryCount = 2;
+				message = "Please turn on location and allow the app to use your location.";
+				break;
+			case 2: message = "The location service failed.";
+				break;
+			case 3: message = "The location service timed out.";
+				break;
+			case 4: message = "The location accuracy is too low.";
+				break;
+			case 5: message = "Your location is not within NCCU bounds.";
+				break;
+		}
+		message += " Click \"Continue\" to drag a marker to your location or click \"Cancel\" to cancel.";
+		
+		if(tryCount >= 2)
+		{
+			errorPopup(message, failedLocation);
+			return;
+		}
+		tryCount++;
+		map.locate({maximumAge: 0, enableHighAccuracy: true, timeout: 5000});
+	}
+	
+	// Set/Reset marker to center given there was an issue with location
+	function failedLocation()
+	{
+		if(polyline !== undefined)
+		{
+			map.removeLayer(polyline);
+		}
+
+		if(myMarker !== undefined)
+		{
+			map.removeLayer(myMarker);
+		}
+		
+		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+
+		myMarker.on('dragstart', function() {
+			markerDragging = true;
+		});
+		
+		myMarker.on('dragend', function() {
+			markerDragging = false;
+		});
+				
+		myMarker.dragging.enable();
+		tryCount = 2;
+		
+		setTimeout(function() { map.setView(myMarker.getLatLng(), 17); }, 300);
+				
+		setTimeout(function() { 
+			onLocationFound({ latlng: myMarker.getLatLng(), accuracy: 1 });
+		}, 10000 );
+	}
+	
+	// When location is found, ensure the location is accurate
+	function onLocationFound(position) 
+	{
+		if(!locating)
+		{
+			return;
+		}
+		
+		if(position.accuracy > 100)
+		{
+			locationError({code: 4});
+			return;
+		}
+		else if((position.latlng.lat <= 35.9683968 || position.latlng.lat >= 35.977236) || (position.latlng.lng >= -78.8923467 || position.latlng.lng <= -78.9084195))
+		{
+			locationError({code: 5});
+			return;
+		}
+		
+		setLocation(position.latlng);
+	}
+	
+	// Sets location on map to verify
+	function setLocation(position)
+	{
+		if(myMarker !== undefined)
+		{
+			map.removeLayer(myMarker);	
+		}
+		
+		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		
+		map.setView(position, 18);
+		setTimeout(function() {verifyLocation();}, 500);
+	}
+	
+	// Warns the user the location service failed
+	function errorPopup(message, callback)
+	{
+		sidebar.close();
+		
+		document.getElementById("errorMsg").innerHTML = message;
+		$(function() {
+			$( "#error-message" ).dialog({
+				dialogClass: "no-close",
+				resizable: false,
+				draggable: false,
+				modal: false,
+				buttons: {
+					"Continue": function() {
+						$(this).dialog("close");
+						callback();
+					},
+					"Cancel": function() {
+						$(this).dialog("close");
+						tryCount = 0;
+						document.getElementById("locateButton").src = "images/locate.svg";
+						locating = false;
+						
+						if(myMarker !== undefined)
+						{
+							map.removeLayer(myMarker);
+						}
+						map.setView([35.9738346, -78.8982177], 16);
+					}
+				}
+			});
+			$( "#error-message" ).dialog("moveToTop");
+		});
+	}
+	
+	// Allows user to confirm/deny the accuracy of location found
+	function verifyLocation()
+	{
+		$(function() {
+			$( "#confirm-location" ).dialog({
+				dialogClass: "no-close",
+				resizable: false,
+				draggable: false,
+				modal: false,
+				buttons: {
+					"Yes": function() {
+						$( this ).dialog( "close" );
+						tryCount = 0;
+						document.getElementById("locateButton").src = "images/locate.svg";
+						myMarker.dragging.disable();
+						locating = false;
+					},
+					"No":  function() {
+						$( this ).dialog( "close" );
+						myMarker.dragging.enable();	
+						setTimeout(function() { onLocationFound({ latlng: myMarker.getLatLng(), accuracy: 1 }); }, 10000);
+					}
+				}
+			});
+			$( "#confirm-location" ).dialog("moveToTop");
+		});
+	}
+	
+	
+	/* -------------------- Sidebar content -------------------- */
+
+	// Fills in list layer of sidebar with all location types
+	function populateList()
 	{
 		for(var i = 0; i < features.length; i++)
 		{
@@ -265,129 +444,8 @@
 			document.getElementById(tableID).innerHTML +=  "<div class='section-location' onclick='openMarker(" + i + ");'>" + features[i][3] + "</div>";
 		}
 	}
-	
-	function clearList()
-	{
-		buildTypes.forEach(function(type) {
-			var name = type + "-check";
-			
-			if(document.getElementById(name).checked)
-			{
-				document.getElementById(name).checked = false;
-				checkedLocation(type);
-			}
-		});
 		
-		for(var i = 0; i < activeMarkers.length; i++)
-		{
-			map.removeLayer(activeMarkers[i]);
-		}
-		activeMarkers = [];
-		
-		cleanMap();
-	}
-	
-	function checkedLocation(type)
-	{
-		var name = type + "-check";
-		if(document.getElementById(name).checked)
-		{
-			addType(type);
-		}
-		else
-		{
-			for(var i = 0; i < activeMarkers.length; i++)
-			{
-				if(activeMarkers[i].mType === type)
-				{
-					map.removeLayer(activeMarkers[i]);
-				}
-			}
-			
-			activeMarkers = activeMarkers.filter(function(marker) {
-				return marker.mType !== type;
-			});
-		}
-	}
-
-	function openMarker(index)
-	{
-		for(var i = 0; i < activeMarkers.length; i++)
-		{
-			if(activeMarkers[i].index === index)
-			{
-				activeMarkers[i].fire('click');
-				return;
-			}
-		}
-		addMarker(index, features[index][2], true);
-	}
-
-	function addMarker(index, openUp)
-	{
-		for(var i = 0; i < activeMarkers.length; i++)
-		{
-			if(activeMarkers[i].index === index)
-			{
-				return;
-			}
-		}
-		
-		var feature = features[index];
-		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [10, -10]})});
-		marker.mType = feature[2];
-		marker.index = index;
-
-		marker.bindPopup(feature[3]);
-
-		if(noControls === false)
-		{
-			marker.on('click', function() {
-				cleanMap();
-				sidebar.showLayer(1);
-
-				populateLocation(index);
-					
-				marker.closePopup();
-				sidebar.open();
-				map.setView(marker.getLatLng(), 18);
-			});
-		}
-		
-		marker.on('mouseover', function() {
-			if(!markerDragging)
-			{
-				var icon = marker.options.icon;
-				marker.options.zIndexOffset = 100;
-				icon.options.iconSize = [40, 40];
-				marker.setIcon(icon);
-				marker.openPopup();
-			}
-		});
-			
-		marker.on('mouseout', function() {
-			if(!markerDragging) 
-			{
-				var icon = marker.options.icon;
-				marker.options.zIndexOffset = 0;
-				icon.options.iconSize = [26, 30];
-				marker.setIcon(icon);
-				marker.closePopup();
-			}
-		});
-		
-		marker.addTo(map);
-		activeMarkers.push(marker);
-
-		if(openUp)
-		{
-			setTimeout(function() {
-				marker.fireEvent('click');
-				map.setView(marker.getLatLng(), 18);
-			}, 300);
-		}
-	}
-	
+	// Fills in location layer of sidebar with location based on index
 	function populateLocation(index)
 	{
 		var feature = features[index];
@@ -458,6 +516,7 @@
 		};
 	}
 	
+	// Fills in direction layer of sidebar with location based on index
 	function populateDirections(index)
 	{
 		sidebar.showLayer(2);
@@ -469,11 +528,19 @@
 		document.getElementById("directions-time").innerHTML = "";
 		
 		document.getElementById("direction-location").onclick = function() {
-			document.getElementById("location-option").checked = true;
+			if(!document.getElementById("location-option").checked)
+			{
+				document.getElementById("location-option").checked = true;
+				clearDirections();
+			}
 		};
 		
 		document.getElementById("direction-building").onclick = function() {
-			document.getElementById("building-option").checked = true;
+			if(!document.getElementById("building-option").checked)
+			{
+				document.getElementById("building-option").checked = true;
+				clearDirections();
+			}
 		};
 
 		L.DomUtil.removeClass(document.getElementById('directions-info'), 'directions-open');
@@ -483,6 +550,7 @@
 		};
 	}
 	
+	// Fills in share location layer of sidebar with location based on index
 	function shareLocation(index)
 	{
 		sidebar.showLayer(3);
@@ -498,6 +566,7 @@
 		document.getElementById("location-embed").value = embedText;
 	}
 	
+	// Fills in share map layer of sidebar
 	function shareMap()
 	{
 		var shareURL = baseURL;
@@ -541,23 +610,73 @@
 		
 		document.getElementById("map-embed").value = embedText;
 	}
-
-	function addType(type)
+	
+	// Empties location search on list layer of sidebar
+	function clearSearch()
 	{
-		for(var i = 0; i < features.length; i++)
-		{
-			if(features[i][2] === type)
+		document.getElementById("textField").value="";
+		hashText("textField", "suggestions", 5, null);
+	}
+	
+	// Removes all locations on the map
+	function clearList()
+	{
+		buildTypes.forEach(function(type) {
+			var name = type + "-check";
+			
+			if(document.getElementById(name).checked)
 			{
-				addMarker(i, false);
+				document.getElementById(name).checked = false;
+				checkedLocation(type);
 			}
-		}
+		});
 		
-		if(sidebar.getCurrentIndex() === 0)
+		for(var i = 0; i < activeMarkers.length; i++)
 		{
-			document.getElementById(type + "-check").checked = true;
+			map.removeLayer(activeMarkers[i]);
+		}
+		activeMarkers = [];
+		
+		cleanMap();
+	}
+	
+	// Adds/removes all markers of a type based on checkbox value
+	function checkedLocation(type)
+	{
+		var name = type + "-check";
+		if(document.getElementById(name).checked)
+		{
+			addType(type);
+		}
+		else
+		{
+			for(var i = 0; i < activeMarkers.length; i++)
+			{
+				if(activeMarkers[i].mType === type)
+				{
+					map.removeLayer(activeMarkers[i]);
+				}
+			}
+			
+			activeMarkers = activeMarkers.filter(function(marker) {
+				return marker.mType !== type;
+			});
+		}
+	}
+
+	// Clears extra directions content when switching options
+	function clearDirections()
+	{
+		document.getElementById("locations").innerHTML = "";
+		document.getElementById('directions-info').innerHTML = "";
+		document.getElementById("directions-time").innerHTML = "";
+		if(L.DomUtil.hasClass(document.getElementById("directions-info"), "directions-open"))
+		{
+			L.DomUtil.removeClass(document.getElementById("directions-info"), "directions-open");
 		}
 	}
 	
+	// Copies value of textbox based on id to clipboard
 	function copyToClipboard(id)
 	{
 		var copyElement = document.getElementById(id);
@@ -574,8 +693,128 @@
 		}
 	}
 	
-	// @method switchTileLayer()
-	// Changes map view between plain map and satellite
+	// Populates direction location search based on clicked entry
+	function findBuilding(index)
+	{
+		document.getElementById("locations").innerHTML = "";
+		document.getElementById("locationBox").value = features[index][3];
+		document.getElementById("building-option").checked = true;
+		buildLoc = index;
+		return;
+	}
+	
+	
+	/* -------------------- Modifying map -------------------- */
+	
+	// Opens location sidebar layer of location based on index
+	function openMarker(index)
+	{
+		for(var i = 0; i < activeMarkers.length; i++)
+		{
+			if(activeMarkers[i].index === index)
+			{
+				activeMarkers[i].fire('click');
+				return;
+			}
+		}
+		addMarker(index, features[index][2], true);
+	}
+
+	// Adds marker to map and can open it based on second parameter
+	function addMarker(index, openUp)
+	{
+		for(var i = 0; i < activeMarkers.length; i++)
+		{
+			if(activeMarkers[i].index === index)
+			{
+				return;
+			}
+		}
+		
+		var feature = features[index];
+		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [10, -10]})});
+		marker.mType = feature[2];
+		marker.index = index;
+
+		marker.bindPopup(feature[3]);
+
+		if(noControls === false)
+		{
+			marker.on('click', function() {
+				cleanMap();
+				sidebar.showLayer(1);
+
+				populateLocation(index);
+					
+				marker.closePopup();
+				sidebar.open();
+				map.setView(marker.getLatLng(), 18);
+			});
+		}
+		
+		marker.on('mouseover', function() {
+			if(!markerDragging)
+			{
+				var icon = marker.options.icon;
+				marker.options.zIndexOffset = 100;
+				icon.options.iconSize = [40, 40];
+				marker.setIcon(icon);
+				marker.openPopup();
+			}
+		});
+			
+		marker.on('mouseout', function() {
+			if(!markerDragging) 
+			{
+				var icon = marker.options.icon;
+				marker.options.zIndexOffset = 0;
+				icon.options.iconSize = [26, 30];
+				marker.setIcon(icon);
+				marker.closePopup();
+			}
+		});
+		
+		marker.addTo(map);
+		activeMarkers.push(marker);
+
+		if(openUp)
+		{
+			setTimeout(function() {
+				marker.fireEvent('click');
+				map.setView(marker.getLatLng(), 18);
+			}, 300);
+		}
+	}
+
+	// Adds all markers of specific type to map
+	function addType(type)
+	{
+		for(var i = 0; i < features.length; i++)
+		{
+			if(features[i][2] === type)
+			{
+				addMarker(i, false);
+			}
+		}
+		
+		if(sidebar.getCurrentIndex() === 0)
+		{
+			document.getElementById(type + "-check").checked = true;
+		}
+	}
+	
+	// Removes all non-marker layers of map
+	function cleanMap()
+	{
+		map.closePopup();
+		
+		if(polyline !== undefined)
+		{
+			map.removeLayer(polyline);
+		}
+	}
+	
+	// Toggles between map and satellite view
 	function switchTileLayer()
 	{
 		if(!showSat)
@@ -604,194 +843,16 @@
 		}
 	}
 	
-	// @method attemptLocate()
-	// Acts as binary lock on locating user
-	function attemptLocate()
-	{
-		if(locating)
-		{
-			return;
-		}
-		
-		locating = true;
-		document.getElementById("locateButton").src = "images/spinner.svg";
-		
-		map.locate({maximumAge: 0, enableHighAccuracy: true});
-	}
 	
-	// @method locationError(<ErrorEvent {code}> err)
-	// Handles errors caused by location tracking either failing or location not being acceptable.
-	// Error code legend -> 1: Location denied,	2: Position Unobtainable, 3: Location timeout, 4: Low accuracy, 5: Location not within bounds, 6: Need to continue dragging
-	function locationError(err)
-	{
-		var message = "";
-				
-		switch(err.code)
-		{
-			case 1: tryCount = 2;
-				message = "Please turn on location and allow the app to use your location.";
-				break;
-			case 2: message = "The location service failed.";
-				break;
-			case 3: message = "The location service timed out.";
-				break;
-			case 4: message = "The location accuracy is too low.";
-				break;
-			case 5: message = "Your location is not within NCCU bounds.";
-				break;
-		}
-		message += " Click \"Continue\" to drag a marker to your location or click \"Cancel\" to cancel.";
-		
-		if(tryCount >= 2)
-		{
-			errorPopup(message, failedLocation);
-			return;
-		}
-		tryCount++;
-		map.locate({maximumAge: 0, enableHighAccuracy: true, timeout: 5000});
-	}
+	/* -------------------- Directions -------------------- */
 	
-	// @method failedLocation()
-	// Adds marker to center of campus and allows user to drag marker to location
-	function failedLocation()
-	{
-		if(polyline !== undefined)
-		{
-			map.removeLayer(polyline);
-		}
-
-		if(myMarker !== undefined)
-		{
-			map.removeLayer(myMarker);
-		}
-		
-		myMarker = L.marker([35.9738346, -78.8982177], {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
-
-		myMarker.on('dragstart', function() {
-			markerDragging = true;
-		});
-		
-		myMarker.on('dragend', function() {
-			markerDragging = false;
-		});
-				
-		myMarker.dragging.enable();
-		tryCount = 0;
-		
-		setTimeout(function() { map.setView(myMarker.getLatLng(), 17); }, 300);
-				
-		setTimeout(function() { setLocation(myMarker.getLatLng());}, 10000 );
-	}
-	
-	function onLocationFound(position) 
-	{
-		if(position.accuracy > 100)
-		{
-			locationError({code: 4});
-			return;
-		}
-		else if((position.latlng.lat <= 35.9683968 || position.latlng.lat >= 35.977236) || (position.latlng.lng >= -78.8923467 || position.latlng.lng <= -78.9084195))
-		{
-			locationError({code: 5});
-			return;
-		}
-		
-		setLocation(position.latlng);
-	}
-	
-	function setLocation(position)
-	{
-		if(myMarker !== undefined)
-		{
-			map.removeLayer(myMarker);	
-		}
-		
-		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
-		
-		map.setView(position, 18);
-		setTimeout(function() {verifyLocation();}, 500);
-	}
-	
-	function errorPopup(message, callback)
-	{
-		document.getElementById("errorMsg").innerHTML = message;
-		$(function() {
-			$( "#error-message" ).dialog({
-				dialogClass: "no-close",
-				resizable: false,
-				draggable: false,
-				modal: false,
-				buttons: {
-					"Continue": function() {
-						$(this).dialog("close");
-						callback();
-					},
-					"Cancel": function() {
-						$(this).dialog("close");
-						document.getElementById("locateButton").src = "images/locate.svg";
-						locating = false;
-					}
-				}
-			});
-			$( "#error-message" ).dialog("moveToTop");
-		});
-	}
-	
-	// @method verifyLocation()
-	// Allows user to confirm marker location as accurate or correct if wrong.
-	function verifyLocation()
-	{
-		$(function() {
-			$( "#confirm-location" ).dialog({
-				dialogClass: "no-close",
-				resizable: false,
-				draggable: false,
-				modal: false,
-				buttons: {
-					"Yes": function() {
-						$( this ).dialog( "close" );
-						document.getElementById("locateButton").src = "images/locate.svg";
-						myMarker.dragging.disable();
-						locating = false;
-					},
-					"No":  function() {
-						$( this ).dialog( "close" );
-						myMarker.dragging.enable();	
-						setTimeout(function() {setLocation(myMarker.getLatLng());}, 10000);
-					}
-				}
-			});
-			$( "#confirm-location" ).dialog("moveToTop");
-		});
-	}
-	
-	// @method findBuilding(<Number> index)
-	// Fills direction textbox when building suggestion was clicked.
-	function findBuilding(index)
-	{
-		document.getElementById("locations").innerHTML = "";
-		document.getElementById("locationBox").value = features[index][3];
-		buildLoc = index;
-		return;
-	}
-	
-	// @method cleanMap()
-	// Closes any popups as well as removes route lines
-	function cleanMap()
-	{
-		map.closePopup();
-		
-		if(polyline !== undefined)
-		{
-			map.removeLayer(polyline);
-		}
-	}
-	
+	// Converts coordinate distance to radians
 	function degreesToRadians(degrees) 
 	{
 		return degrees * Math.PI / 180;
 	}
 	
+	// Returns distance between two coordinates in feet
 	function getDistance(pos1, pos2)
 	{
 		var earthRadiusFeet = 6371 * 1000 * 3.28084;
@@ -807,6 +868,7 @@
 		return earthRadiusFeet * c;
 	}
 	
+	// Returns the angle between three points
 	function findAngle(a, b, c)
 	{
 		var ab = [ b[0] - a[0], b[1] - a[1] ];
@@ -822,8 +884,7 @@
         return alpha;
 	}
 	
-	// @method getDirections(<Number> end_index)
-	// Draws a polyline along route after finding best path using Dijkstra's shortest path algorithm.
+	// Displays optimal route from starting point (chosen by user) to end location using Dijkstra's algorithm
 	function getDirections(end_index)
 	{
 		var canAccess = !document.getElementById("accessBox").checked;
@@ -833,6 +894,7 @@
 		
 		document.getElementById("directions-time").innerHTML = "";
 		document.getElementById('directions-info').innerHTML = "";
+		L.DomUtil.removeClass(document.getElementById('directions-info'), 'directions-open');
 		
 		if(document.getElementById("location-option").checked)
 		{
@@ -901,6 +963,7 @@
 		}
 		else
 		{
+			document.getElementById("directions-time").innerHTML = "Please select an option first.";
 			return;
 		}
 		
@@ -1072,8 +1135,10 @@
 		*/
 	}
 	
-	// @method hashStr(String str): <Number> hashed
-	// Given a string, return a hash value based on Rabin-Karp algorithm.
+
+	/* -------------------- Hashing -------------------- */
+	
+	// Returns a number based on the characters in a string
 	function hashStr(str)
 	{
 		var hashed = 0;
@@ -1086,8 +1151,7 @@
 		return hashed;
 	}
 	
-	// @method initHash()
-	// Fill up hash table with all partial hashes of each location name.
+	// Populates hash table with location names based on Rabin-Karp algorithm
 	function initHash()
 	{
 		hash = {};
@@ -1119,10 +1183,10 @@
 		}
 	}
 	
-	// @method hashText()
-	// When textbox is modified, get suggested locations based on input.
+	// Returns the most relevant results based on the text entered
 	function hashText(inputID, outputID, outputLimit, callbackName)
 	{
+		buildLoc = -1;
 		var str = document.getElementById(inputID).value;
 		clean_str = str.toLowerCase().replace("'", "");
 		document.getElementById(outputID).innerHTML = "";
@@ -1168,3 +1232,4 @@
 			}
 		}
 	}
+	
