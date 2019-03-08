@@ -1,3 +1,10 @@
+
+/* -------------------------------------------------- GENERAL MAP STUFF ----------------------------------------------- */
+
+html a {
+	color: rgb(0, 112, 192)
+}
+
 .map-button {
 	display: flex;
 	align-items: center;
@@ -7,26 +14,15 @@
 	padding: 6px;
 	border: 2px solid #bab3ad;
 }
+
 .map-button-img {
 	height: 30px;
 	width: 30px;
 }
-.nccu-logo {
-	height: 8vh;
-	width: auto;
-}
-.dialog {
-	display: none;
-}
-.no-close .ui-dialog-titlebar-close {
-	display: none;
-}
 
-html a {
-	color: rgb(0, 112, 192)
-}
 
-/* --------------- Search Boxes --------------- */
+/* -------------------- Search Bars -------------------- */
+
 /* Allows input and clear button to be beside each other */
 .search {
 	width: 100%;
@@ -81,16 +77,14 @@ html a {
 	color: black;
 	cursor: pointer;
 }
-/* Styles the horizontal rules in the search results */
-.search-result-hr {
-	margin: 0;
-	border-top: 1px solid #ccc;
-}
+/* Removes border when results is empty */
 .search-results:empty {
-	border: none;
+	border: none !important;
 }
 
-/* --------------- Sidebar --------------- */
+
+/* -------------------------------------------------- GENERAL SIDEBAR ----------------------------------------------- */
+
 /* Background color for sidebar header */
 .sidebar-header {
 	background: #840018;
@@ -100,66 +94,11 @@ html a {
 .sidebar-footer {
 	font-size: 16px;
 }
-.section {
-	cursor: pointer; 
-	margin: 0;
-	width: 100%;
-	margin-bottom: 5px;
-}
-.section-image {
-	height: 30px;
-	width: 30px;
-	margin-right: 10px;
-}
-.section-title p {
-	font-size: 16px;
-	display: flex;
-	align-items: center;
-	font-weight: bold;
-	color: rgb(50, 50, 50)
-}
-.section-title:hover p:hover {
-	text-decoration: underline;
-}
-
-/* Styles for section list headers */
-
-.section-header {
-	padding: 0 .5em;
-	margin: 0;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	border: 1px solid silver;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-.section-location {
-	padding: .5em;
-	padding-left: 1em;
-	font-size: 14px;
-	border: 1px solid lightgray;
-	border-top: none;
-}
-.section-location:hover {
-	text-decoration: underline;
-}
-.section-list {
-	display: none;
-}
-.section-header:hover, .section-location:hover {
-	background-color: #CCD1D1;
-}
-.section-location, .section-header {
-	transition: .2s;
-}
-.section-check {
-	display: inline-block;
-	vertical-align: middle;
-}
+/* Background color of back button container */
 .sidebar-back {
 	background: #e0e0e0;
 }
+/* Styles the back button across layers */
 .back-button {
 	background: #fff;
 	border: 1px solid #BAB3AD;
@@ -167,31 +106,91 @@ html a {
 	cursor: pointer;
 }
 
-.direction-image {
-	height: 25px;
+input[type="checkbox"] {
+	display: none;
+	margin: 0;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
 	width: 25px;
-	min-width: 25px;
-	min-height: 25px;
-	margin-left: 5px;
-	margin-right: 10px;
+	height: 25px;
+	display: flex;
+	justify-content: center;
+	border: 2px solid #707070;
 }
 
-/* Sizes images for location details (e.g. website) */
-.detail-image {
+input[type="checkbox"]:hover {
+	background: #CCD1D1;
+	cursor: pointer;
+	transition: .2s;
+}
+
+input[type="checkbox"]:checked {
+	background-color: #5b6771;
+	transition: .2s;
+}
+
+input[type="checkbox"]:checked:before {
+	color: #ffffff;
+	font-size: 16px;
+	content: '\002714';
+	font-weight: bold;
+}
+
+input[type="checkbox"]:checked:hover {
+	background-color: #000000;	
+	transition: .2s;
+}
+
+input[type="radio"] {
+	display: none;
+	margin: 0;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
 	width: 25px;
 	height: 25px;
-	margin-right: 8px;
+	display: flex;
+	justify-content: center;
+	border-radius: 50%;
+	border: 2px solid #707070;
 }
+
+input[type="radio"]:hover {
+	background: #CCD1D1;
+	cursor: pointer;
+	transition: .2s;
+}
+
+input[type="radio"]:checked {
+	background-color: #5b6771;
+	transition: .2s;
+}
+
+input[type="radio"]:checked:before {
+	color: #ffffff;
+	font-size: 16px;
+	content: '\002714';
+	font-weight: bold;
+}
+
+input[type="radio"]:checked:hover {
+	background-color: #000000;	
+	transition: .2s;	
+}
+
 .buttons {
 	display: flex;
 	justify-content: center;
 	margin-top: 1em;
 	margin-bottom: 1em;
 }
-.buttons .location-button:first-child {
+
+.buttons .sidebar-button:first-child {
 	margin-right: 1em;
 }
-.location-button {
+
+.sidebar-button {
 	border: none;
 	background-color: #2E86C1;
 	color: #fff;
@@ -203,14 +202,105 @@ html a {
 	display: flex;
 	align-items: center;
 }
-.location-button img {
+
+.sidebar-button img {
 	width: 25px;
 	height: 25px;
 	margin-left: 10px;
 }
-.location-button:hover {
+
+.sidebar-button:hover {
 	background-color: #1F618D;
 }
+
+.nccu-logo {
+	height: 8vh;
+	width: auto;
+}
+
+.fake-footer-link {
+	color: rgb(0, 112, 192);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+
+
+/* -------------------------------------------------- LIST SIDEBAR ----------------------------------------------- */
+
+.section {
+	cursor: pointer; 
+	margin: 0;
+	width: 100%;
+	margin-bottom: 5px;
+}
+
+.section-image {
+	height: 30px;
+	width: 30px;
+	margin-right: 10px;
+}
+
+.section-title p {
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	font-weight: bold;
+	color: rgb(50, 50, 50)
+}
+
+.section-title:hover p:hover {
+	text-decoration: underline;
+}
+
+.section-header {
+	padding: 0 .5em;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border: 1px solid silver;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.section-location {
+	padding: .5em;
+	padding-left: 1em;
+	font-size: 14px;
+	border: 1px solid lightgray;
+	border-top: none;
+}
+
+.section-location:hover {
+	text-decoration: underline;
+}
+
+.section-header:hover, .section-location:hover {
+	background-color: #CCD1D1;
+}
+
+.section-list {
+	display: none;
+}
+
+.section-location, .section-header {
+	transition: .2s;
+}
+
+.section-check {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+/* -------------------------------------------------- LOCATION SIDEBAR ----------------------------------------------- */
+
+.detail-image {
+	width: 25px;
+	height: 25px;
+	margin-right: 8px;
+}
+
 .location-detail {
 	display: flex;
 	align-items: center;
@@ -218,9 +308,42 @@ html a {
 	margin-bottom: 5px;
 }
 
+#location-title {
+	font-size: 22px;
+}
+
+#location-image {
+	width: 100%;
+	height: auto;
+	border: 2px solid dimgray;
+	margin-bottom: 2em;
+}
+
+#location-content {
+	font-size: 16px;
+}
+
+#location-content a {
+	text-decoration: none;
+}
+
+
+
+/* -------------------------------------------------- DIRECTIONS SIDEBAR ----------------------------------------------- */
+
+.direction-image {
+	height: 25px;
+	width: 25px;
+	min-width: 25px;
+	min-height: 25px;
+	margin-left: 5px;
+	margin-right: 10px;
+}
+
 .direction-options {
 	font-size: 18px;
 }
+
 .direction-option {
 	display: flex;
 	align-items: center;
@@ -245,124 +368,13 @@ html a {
 	box-sizing: border-box;
 }
 
-#location-title {
-	font-size: 22px;
-}
-/* Sizes image in location sidebar */
-#location-image {
-	width: 100%;
-	height: auto;
-	border: 2px solid dimgray;
-	margin-bottom: 2em;
-}
-/* Styles details for location */
-#location-content {
-	font-size: 16px;
-}
-/* Removes underline of links in details */
-#location-content a {
-	text-decoration: none;
-}
-/* Removes default checkbox to allow for custom styling */
-input[type="checkbox"] {
-	display: none;
-	margin: 0;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	width: 25px;
-	height: 25px;
-	display: flex;
-	justify-content: center;
-	border: 2px solid #707070;
-}
-/* Adds hover effect for checkboxes */
-input[type="checkbox"]:hover {
-	background: #CCD1D1;
-	cursor: pointer;
-	transition: .2s;
-}
-
-input[type="radio"] {
-	display: none;
-	margin: 0;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	width: 25px;
-	height: 25px;
-	display: flex;
-	justify-content: center;
-	border-radius: 50%;
-	border: 2px solid #707070;
-}
-input[type="radio"]:hover {
-	background: #CCD1D1;
-	cursor: pointer;
-	transition: .2s;
-}
-input[type="radio"]:checked {
-	background-color: #5b6771;
-	transition: .2s;
-}
-input[type="radio"]:checked:before {
-	color: #ffffff;
-	font-size: 16px;
-	content: '\002714';
-	font-weight: bold;
-}
-input[type="radio"]:checked:hover {
-	background-color: #000000;	
-	transition: .2s;	
-}
-
-/* Adds style for checked checkbox */
-input[type="checkbox"]:checked {
-	background-color: #5b6771;
-	transition: .2s;
-}
-input[type="checkbox"]:checked:before {
-	color: #ffffff;
-	font-size: 16px;
-	content: '\002714';
-	font-weight: bold;
-}
-input[type="checkbox"]:checked:hover {
-	background-color: #000000;	
-	transition: .2s;
-}
-
-/* --------------- jQuery popup --------------- */
-.ui-dialog {
-	z-index: 10000 !important;
-}
-.ui-front { 
-	z-index: 10000 !important; 
-}
-.ui-dialog .ui-dialog-titlebar {
-	background-color: #8b2233;
-	color: #fff;
-	font-size: 1.1em;
-}
-.ui-dialog .ui-dialog-buttonpane button {
-	margin: .5em 1em .5em 0;
-}
-.ui-dialog .ui-dialog-content {
-	padding: 1em;
-}
-.ui-dialog .ui-dialog-buttonpane {
-	padding: .5em 1em .5em .4em;
-}
-.ui-dialog-buttonset button {
-	padding: .4em 1.3em;
-}
-
 #directions-info {
 	margin-top: 20px;
 	max-height: 30vh;
 	font-size: 16px;
 	overflow: auto;
 }
+
 #direction-title {
 	font-size: 22px;
 }
@@ -374,6 +386,7 @@ input[type="checkbox"]:checked:hover {
 .top-direction-row {
 	border-top: 1px solid black;
 }
+
 .direction-row {
 	display: flex;
 	align-items: center;
@@ -386,9 +399,14 @@ input[type="checkbox"]:checked:hover {
 	border-right: 1px solid black;
 }
 
+
+
+/* -------------------------------------------------- SHARE SIDEBAR ----------------------------------------------- */
+
 #link-title {
 	font-size: 22px;
 }
+
 .copy-url {
 	width: 95%;
 	font-size: 14px;
@@ -396,6 +414,7 @@ input[type="checkbox"]:checked:hover {
 	padding: 5px;
 	resize: none;
 }
+
 .copy-map {
 	width: 95%;
 	font-size: 14px;
@@ -403,9 +422,11 @@ input[type="checkbox"]:checked:hover {
 	padding: 5px;
 	resize: none;
 }
+
 .link-content {
 	font-size: 16px;
 }
+
 .copy-button {
 	margin-top: 10px;
 	width: 100%;
@@ -417,22 +438,54 @@ input[type="checkbox"]:checked:hover {
 	cursor: pointer;
 }
 
-.fake-footer-link {
-	color: rgb(0, 112, 192);
-	cursor: pointer;
-	text-decoration: underline;
-}
+
+/* -------------------------------------------------- ABOUT SIDEBAR ----------------------------------------------- */
 
 .about-header {
 	color: #404040;
 	font-size: 16px;
 }
 
-#locations:empty {
-	border: none !important;
-
-}
-
 .about-content {
 	font-size: 14px;
+}
+
+
+/* --------------- jQuery popup --------------- */
+.ui-dialog {
+	z-index: 10000 !important;
+}
+
+.ui-front { 
+	z-index: 10000 !important; 
+}
+
+.ui-dialog .ui-dialog-titlebar {
+	background-color: #8b2233;
+	color: #fff;
+	font-size: 1.1em;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+	margin: .5em 1em .5em 0;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 1em;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+	padding: .5em 1em .5em .4em;
+}
+
+.ui-dialog-buttonset button {
+	padding: .4em 1.3em;
+}
+
+.dialog {
+	display: none;
+}
+
+.no-close .ui-dialog-titlebar-close {
+	display: none;
 }

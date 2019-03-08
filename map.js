@@ -73,7 +73,7 @@
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
-		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, headerHeight: 12, footerHeight: 8}).addTo(map);
+		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, togglePan: true, headerHeight: 12, footerHeight: 8}).addTo(map);
 		var viewchange = L.control.view().addTo(map);
 		var locater = L.control.locate().addTo(map);
 		
@@ -316,7 +316,7 @@
 			map.removeLayer(myMarker);	
 		}
 		
-		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10], popupAnchor: [0, -18]})}).addTo(map);
+		myMarker = L.marker(position, {zIndexOffset: 1000, icon: L.icon({iconUrl: 'images/location-ico.svg', iconSize: [32, 36], iconAnchor: [10, 10]})}).addTo(map);
 		
 		map.setView(position, 18);
 		setTimeout(function() {verifyLocation();}, 500);
@@ -826,7 +826,7 @@
 			
 			if(polyline !== undefined)
 			{
-				polyline.setStyle({color: '#d9d900'});
+				polyline.setStyle({color: '#CC0000'});
 			}
 		}
 		else
@@ -1118,7 +1118,7 @@
 		
 		if(showSat)
 		{
-			polyline = L.polyline(latlngs, {color: '#d9d900', interactive: false, weight: 5, opacity: 1});
+			polyline = L.polyline(latlngs, {color: '#CC0000', interactive: false, weight: 5, opacity: 1});
 		}
 		
 		if(L.Browser.mobile)
@@ -1127,12 +1127,23 @@
 		}
 		
 		map.addLayer(polyline);
+
+		var center = polyline.getCenter();
+		var point = map.latLngToContainerPoint(center);
 		
-		/*
+		console.log(point.x + " " + point.y);
+		
+		if(sidebar.isOpen())
+		{
+			point = point.subtract([document.getElementById("left-layer").offsetWidth, 0]);
+		}
+		
 		setTimeout(function() {
-			map.fitBounds(polyline.getBounds());
-		}, 400);
-		*/
+
+			console.log(point.x + " " + point.y);
+
+			map.setView(map.containerPointToLatLng(point), 17);
+		}, 200);
 	}
 	
 
