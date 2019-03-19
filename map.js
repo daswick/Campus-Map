@@ -532,6 +532,11 @@
 			{
 				document.getElementById("location-option").checked = true;
 				clearDirections();
+				
+				if(myMarker === undefined)
+				{
+					attemptLocate();
+				}
 			}
 		};
 		
@@ -898,7 +903,7 @@
 		
 		if(document.getElementById("location-option").checked)
 		{
-			if(myMarker === undefined)
+			if(myMarker === undefined || locating)
 			{
 				document.getElementById("directions-time").innerHTML = "Please find your location first.";
 				return;
@@ -1063,7 +1068,7 @@
 		
 		if(latlngs.length === 1)
 		{
-			document.getElementById("directions-time").innerHTML = "These are the same locations.";
+			document.getElementById("directions-time").innerHTML = "These are right next to each other.";
 			return;	
 		}
 		
@@ -1131,17 +1136,12 @@
 		var center = polyline.getCenter();
 		var point = map.latLngToContainerPoint(center);
 		
-		console.log(point.x + " " + point.y);
-		
 		if(sidebar.isOpen())
 		{
 			point = point.subtract([document.getElementById("left-layer").offsetWidth, 0]);
 		}
 		
 		setTimeout(function() {
-
-			console.log(point.x + " " + point.y);
-
 			map.setView(map.containerPointToLatLng(point), 17);
 		}, 200);
 	}
