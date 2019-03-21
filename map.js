@@ -329,18 +329,25 @@
 		
 		document.getElementById("errorMsg").innerHTML = message;
 		$(function() {
+			if($("#confirm-location").hasClass("ui-dialog-content"))
+			{
+				$( "#confirm-location" ).dialog("close");
+			}
+			
 			$( "#error-message" ).dialog({
 				dialogClass: "no-close",
 				resizable: false,
 				draggable: false,
-				modal: false,
+				modal: true,
 				buttons: {
 					"Continue": function() {
-						$(this).dialog("close");
+						setTimeout(function() { $( "#error-message" ).dialog( "close" ); }, 1);
+
 						callback();
 					},
 					"Cancel": function() {
-						$(this).dialog("close");
+						setTimeout(function() { $( "#error-message" ).dialog( "close" ); }, 1);
+
 						tryCount = 0;
 						document.getElementById("locateButton").src = "images/locate.svg";
 						locating = false;
@@ -350,6 +357,7 @@
 							map.removeLayer(myMarker);
 						}
 						map.setView([35.9738346, -78.8982177], 16);
+
 					}
 				}
 			});
@@ -361,21 +369,26 @@
 	function verifyLocation()
 	{
 		$(function() {
+			if($("#error-message").hasClass("ui-dialog-content"))
+			{
+				$( "#error-message" ).dialog("close");
+			}
+			
 			$( "#confirm-location" ).dialog({
 				dialogClass: "no-close",
 				resizable: false,
-				draggable: false,
-				modal: false,
+				draggable: true,
+				modal: true,
 				buttons: {
 					"Yes": function() {
-						$( this ).dialog( "close" );
+						setTimeout(function() { $( "#confirm-location" ).dialog( "close" ); }, 1);
 						tryCount = 0;
 						document.getElementById("locateButton").src = "images/locate.svg";
 						myMarker.dragging.disable();
 						locating = false;
 					},
 					"No":  function() {
-						$( this ).dialog( "close" );
+						setTimeout(function() { $( "#confirm-location" ).dialog( "close" ); }, 1);
 						myMarker.dragging.enable();	
 						setTimeout(function() { onLocationFound({ latlng: myMarker.getLatLng(), accuracy: 1 }); }, 10000);
 					}
@@ -417,7 +430,35 @@
 				};
 				
 				var sectionTitle = L.DomUtil.create('span', 'section-title');
-				sectionTitle.innerHTML = "<p><img class='section-image' src='images/" + features[i][2] + "C-ico.svg'/>" + (features[i][2].charAt(0).toUpperCase() + features[i][2].slice(1)) + "</p>";
+				var locationType = features[i][2];
+				
+				console.log(locationType);
+				switch(locationType)
+				{
+					case "admin": locationType = "administration";
+						break;
+					case "interest": locationType = "point of Interest";
+						break;
+					case "bathroom": locationType = "inclusive Bathroom";
+						break;
+					case "printer": locationType = "paperCut Printer";
+						break;
+					case "library": locationType = "libraries";
+						break;
+					case "food": locationType = "campus Dining";
+						break;
+					case "recreation": locationType = "campus Recreation";
+						break;
+					case "classroom": 
+					case "dorm":
+					case "service":
+						locationType += "s";
+						break;
+				}
+				
+				locationType = locationType.charAt(0).toUpperCase() + locationType.slice(1);
+				
+				sectionTitle.innerHTML = "<p><img class='section-image' src='images/" + features[i][2] + "C-ico.svg'/>" + locationType + "</p>";
 				
 				var sectionCheck = L.DomUtil.create('input', 'section-check');
 				sectionCheck.type = "checkbox";
@@ -831,7 +872,7 @@
 			
 			if(polyline !== undefined)
 			{
-				polyline.setStyle({color: '#CC0000'});
+				polyline.setStyle({color: '#c40923'});
 			}
 		}
 		else
@@ -1076,7 +1117,8 @@
 		document.getElementById("directions-time").innerHTML = "Estimated time: " + minutes.toString() + " minutes.";
 		
 		L.DomUtil.addClass(document.getElementById('directions-info'), 'directions-open');
-		document.getElementById('directions-info').innerHTML = "<div class='direction-row top-direction-row'><b>Start</b><b>" + start_name + "</b></div>";
+		var tableText = "<table class='direction-table'><tr class='direction-row top-direction-row'><td><b>Start</b></td><td><b>" + start_name + "</b></td></tr>";
+		//document.getElementById('directions-info').innerHTML = "<div class='direction-row top-direction-row'><b>Start</b><b>" + start_name + "</b></div>";
 		
 		for(var i = latlngs.length - 1; i > 1; i--)
 		{			
@@ -1115,15 +1157,21 @@
 			
 			distance = Math.round(distance);
 
-			document.getElementById('directions-info').innerHTML += "<div class='direction-row'><img class='direction-image' src='" + imageURL + "'/>In " + distance + " feet, " + turn + "</div>";
+			tableText += "<tr class='direction-row'><td><img class='direction-image' src='" + imageURL + "'/></td><td>In " + distance + " feet, " + turn + "</td></tr>";
+			//document.getElementById('directions-info').innerHTML += "<div class='direction-row'><img class='direction-image' src='" + imageURL + "'/>In " + distance + " feet, " + turn + "</div>";
 		}
-		document.getElementById('directions-info').innerHTML += "<div class='direction-row'><b>End</b><b>" + end_name + "</b></div>";
+		
+		tableText += "<tr class='direction-row'><td><b>End</b></td><td><b>" + end_name + "</b></td></tr></table>";
+		//document.getElementById('directions-info').innerHTML += "<div class='direction-row'><b>End</b><b>" + end_name + "</b></div>";
+		setTimeout(function() {
+			document.getElementById("directions-info").innerHTML = tableText; 
+		}, 10);
 		
 		polyline = L.polyline(latlngs, {color: '#005ef7', interactive: false, weight: 5, opacity: 1});
 		
 		if(showSat)
 		{
-			polyline = L.polyline(latlngs, {color: '#CC0000', interactive: false, weight: 5, opacity: 1});
+			polyline.setStyle({color: '#c40923'});
 		}
 		
 		if(L.Browser.mobile)
@@ -1197,7 +1245,11 @@
 	// Returns the most relevant results based on the text entered
 	function hashText(inputID, outputID, outputLimit, callbackName)
 	{
-		buildLoc = -1;
+		if(inputID === "locationBox")
+		{
+			buildLoc = -1;
+		}
+		
 		var str = document.getElementById(inputID).value;
 		clean_str = str.toLowerCase().replace("'", "");
 		document.getElementById(outputID).innerHTML = "";
