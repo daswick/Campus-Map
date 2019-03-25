@@ -17,6 +17,7 @@
 	var sidebar;		// Leaflet control for sidebar
 	var baseURL;		// Current URL without tags for sharing
 	var noControls;		// Boolean denoting if map should load controls
+	var fullScreen;		// Boolean denoting if map is currently in fullscreen
 	
 	// Initializes map, variables, and controls, as well as filters through URL tags
 	function initMap()
@@ -49,13 +50,39 @@
 		
 		map.addLayer(mapView);
 		
+		L.Control.Options = L.Control.extend({
+			options: {
+				position: 'topright'
+			},
+			onAdd: function() {
+				this._container = L.DomUtil.create('div', 'options-container');
+				
+				this._locate = L.DomUtil.create('div', 'map-option');
+				this._locate.innerHTML = "<button class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
+				
+				this._full = L.DomUtil.create('div', 'map-option');
+				this._full.innerHTML = "<button class='map-button' onclick='toggleFullScreen();'><img class='map-button-img' src='images/fullscreen.svg'></button>";
+				
+				this._view = L.DomUtil.create('div', 'map-option');
+				this._view.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
+				
+				this._container.appendChild(this._locate);
+				this._container.appendChild(this._full);
+				this._container.appendChild(this._view);
+				
+				return this._container;
+			}
+		});
+		L.control.options = function() {return new L.Control.Options(); };
+		
+		/*
 		L.Control.View = L.Control.extend({
 			options: {
 				position: 'bottomright'
 			},
 			onAdd: function() {
 				this.container = L.DomUtil.create('div', 'command');
-				this.container.innerHTML = "<button class='map-button' onclick='switchTileLayer();'><img class='map-button-img' id='changeView' src='images/earth.svg'></button>";
+				this.container.innerHTML = ;
 				return this.container;
 			}
 		});
@@ -67,22 +94,23 @@
 			},
 			onAdd: function() {
 				this.container = L.DomUtil.create('div', 'command');
-				this.container.innerHTML = "<button class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
+				this.container.innerHTML = ;
 				return this.container;
 			}
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
+		*/
 		
 		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, togglePan: true, autoResize: true, headerHeight: 12}).addTo(map);
-		var viewchange = L.control.view().addTo(map);
-		var locater = L.control.locate().addTo(map);
+		//var viewchange = L.control.view().addTo(map);
+		//var locater = L.control.locate().addTo(map);
+		var optionsControl = L.control.options().addTo(map);
 		
 		sidebar.on('open', function() {
 			if(L.Browser.mobile)
 			{
 				setTimeout(function() {
-					map.removeControl(locater);
-					map.removeControl(viewchange);
+					map.removeControl(optionsControl);
 				}, 200);
 			}
 		});
@@ -91,8 +119,7 @@
 			if(L.Browser.mobile)
 			{
 				setTimeout(function() {
-					locater.addTo(map);
-					viewchange.addTo(map);
+					optionsControl.addTo(map);
 				}, 200);
 			}
 		});
@@ -186,6 +213,7 @@
 		showSat = false;
 		locating = false;
 		markerDragging = false;
+		fullScreen = false;
 		initHash();
 		
 		document.getElementById("textField").onkeypress = function(e) {
@@ -203,6 +231,51 @@
 	}
 	
 
+	function toggleFullScreen()
+	{
+		var elem = document.documentElement;
+		
+		if(fullScreen)
+		{
+			if (document.exitFullscreen) 
+			{
+				document.exitFullscreen();
+			} 
+			else if (document.mozCancelFullScreen) 
+			{
+				document.mozCancelFullScreen();
+			} 
+			else if (document.webkitExitFullscreen)
+			{
+				document.webkitExitFullscreen();
+			} 
+			else if (document.msExitFullscreen) 
+			{
+				document.msExitFullscreen();
+			}
+		}
+		else
+		{
+			if (elem.requestFullscreen) 
+			{
+				elem.requestFullscreen();
+			} 
+			else if (elem.mozRequestFullScreen) 
+			{
+				elem.mozRequestFullScreen();
+			} 
+			else if (elem.webkitRequestFullscreen) 
+			{
+				elem.webkitRequestFullscreen();
+			} 
+			else if (elem.msRequestFullscreen) 
+			{
+				elem.msRequestFullscreen();
+			}
+		}
+		
+		fullScreen = !fullScreen;
+	}
 	/* -------------------- Geolocation -------------------- */
 	
 	// Attempts to locate the user
