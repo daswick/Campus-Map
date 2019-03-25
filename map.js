@@ -73,7 +73,7 @@
 		});
 		L.control.locate = function() { return new L.Control.Locate(); };
 		
-		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, togglePan: true, headerHeight: 12, footerHeight: 8}).addTo(map);
+		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, togglePan: true, autoResize: true, headerHeight: 12}).addTo(map);
 		var viewchange = L.control.view().addTo(map);
 		var locater = L.control.locate().addTo(map);
 		
@@ -432,7 +432,6 @@
 				var sectionTitle = L.DomUtil.create('span', 'section-title');
 				var locationType = features[i][2];
 				
-				console.log(locationType);
 				switch(locationType)
 				{
 					case "admin": locationType = "administration";

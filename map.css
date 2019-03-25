@@ -359,12 +359,10 @@ html a {
 	font-size: 16px;
 }
 /* Sizing for search results */
-#locations {
-	width: 90%;
-}
+
 /* Formatting for location search bar */
 .direction-search {
-	width: 70%;
+	width: 80%;
 	border-radius: 5px;
 	padding: 7px 12px;
 	font-size: 16px;
