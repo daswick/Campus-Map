@@ -788,7 +788,7 @@
 		}
 		
 		var feature = features[index];
-		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [10, -10]})});
+		var marker = L.marker([feature[0], feature[1]], {zIndexOffset: 0, interactive: true, icon: L.icon({iconUrl: icons[feature[2]], iconSize: [26, 30], iconAnchor: [10, 10], popupAnchor: [2, -10]})});
 		marker.mType = feature[2];
 		marker.index = index;
 
@@ -813,7 +813,8 @@
 			{
 				var icon = marker.options.icon;
 				marker.options.zIndexOffset = 100;
-				icon.options.iconSize = [40, 40];
+				//icon.options.iconSize = [40, 40];
+				//icon.options.popupAnchor = [10, -10];
 				marker.setIcon(icon);
 				marker.openPopup();
 			}
@@ -825,6 +826,7 @@
 				var icon = marker.options.icon;
 				marker.options.zIndexOffset = 0;
 				icon.options.iconSize = [26, 30];
+				icon.options.popupAnchor = [2, -10];
 				marker.setIcon(icon);
 				marker.closePopup();
 			}
