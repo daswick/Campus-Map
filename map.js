@@ -155,8 +155,7 @@
 		{
 			noControls = true;
 			map.removeControl(sidebar);
-			map.removeControl(viewchange);
-			map.removeControl(locater);
+			map.removeControl(optionsControl);
 		}
 		
 		if(!noControls)
