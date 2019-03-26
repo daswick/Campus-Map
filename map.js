@@ -71,7 +71,7 @@
 				this._container.appendChild(this._full);
 				this._container.appendChild(this._view);
 				
-				if(window.innerWidth <= 500)
+				if(window.innerWidth <= 500 && !L.Browser.mobile)
 				{
 					this._container.style.display = "none";
 				}
@@ -1176,7 +1176,6 @@
 		
 		L.DomUtil.addClass(document.getElementById('directions-info'), 'directions-open');
 		var tableText = "<table class='direction-table'><tr class='direction-row top-direction-row'><td><b>Start</b></td><td><b>" + start_name + "</b></td></tr>";
-		//document.getElementById('directions-info').innerHTML = "<div class='direction-row top-direction-row'><b>Start</b><b>" + start_name + "</b></div>";
 		
 		for(var i = latlngs.length - 1; i > 1; i--)
 		{			
@@ -1216,11 +1215,10 @@
 			distance = Math.round(distance);
 
 			tableText += "<tr class='direction-row'><td><img class='direction-image' src='" + imageURL + "'/></td><td>In " + distance + " feet, " + turn + "</td></tr>";
-			//document.getElementById('directions-info').innerHTML += "<div class='direction-row'><img class='direction-image' src='" + imageURL + "'/>In " + distance + " feet, " + turn + "</div>";
 		}
 		
 		tableText += "<tr class='direction-row'><td><b>End</b></td><td><b>" + end_name + "</b></td></tr></table>";
-		//document.getElementById('directions-info').innerHTML += "<div class='direction-row'><b>End</b><b>" + end_name + "</b></div>";
+
 		setTimeout(function() {
 			document.getElementById("directions-info").innerHTML = tableText; 
 		}, 10);
@@ -1231,25 +1229,28 @@
 		{
 			polyline.setStyle({color: '#c40923'});
 		}
+
+		map.addLayer(polyline);
 		
 		if(L.Browser.mobile)
 		{
 			sidebar.close();
+			map.fitBounds(polyline.getBounds());
 		}
-		
-		map.addLayer(polyline);
-
-		var center = polyline.getCenter();
-		var point = map.latLngToContainerPoint(center);
-		
-		if(sidebar.isOpen())
+		else
 		{
-			point = point.subtract([document.getElementById("left-layer").offsetWidth, 0]);
-		}
+			var center = polyline.getCenter();
+			var point = map.latLngToContainerPoint(center);
 		
-		setTimeout(function() {
-			map.setView(map.containerPointToLatLng(point), 17);
-		}, 200);
+			if(sidebar.isOpen())
+			{
+				point = point.subtract([document.getElementById("left-layer").offsetWidth, 0]);
+			}
+		
+			setTimeout(function() {
+				map.setView(map.containerPointToLatLng(point), 17);
+			}, 200);
+		}
 	}
 	
 
