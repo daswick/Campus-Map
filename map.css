@@ -223,7 +223,8 @@ input[type="radio"]:checked:hover {
 	background-color: #1F618D;
 }
 /* Sizes the logo image in header */
-.nccu-logo {
+.logo-container {
+	margin: 15px;
 	height: 8vh;
 	width: auto;
 }
