@@ -52,10 +52,11 @@
 		
 		L.Control.Options = L.Control.extend({
 			options: {
-				position: 'topright'
+				position: 'topright',
 			},
 			onAdd: function() {
 				this._container = L.DomUtil.create('div', 'options-container');
+				this._container.id = "map-options";
 				
 				this._locate = L.DomUtil.create('div', 'map-option');
 				this._locate.innerHTML = "<button class='map-button' onclick='attemptLocate();'><img class='map-button-img' id='locateButton' src='images/locate.svg'></button>";
@@ -70,62 +71,46 @@
 				this._container.appendChild(this._full);
 				this._container.appendChild(this._view);
 				
+				if(window.innerWidth <= 500)
+				{
+					this._container.style.display = "none";
+				}
+				
+				L.DomEvent.disableScrollPropagation(this._container);
+				L.DomEvent.disableClickPropagation(this._container);
+				
 				return this._container;
+			},
+			show: function() {
+				this._container.style.display = "block";
+			},
+			hide: function() {
+				this._container.style.display = "none";
 			}
 		});
 		L.control.options = function() {return new L.Control.Options(); };
-		
-		/*
-		L.Control.View = L.Control.extend({
-			options: {
-				position: 'bottomright'
-			},
-			onAdd: function() {
-				this.container = L.DomUtil.create('div', 'command');
-				this.container.innerHTML = ;
-				return this.container;
-			}
-		});
-		L.control.view = function() { return new L.Control.View(); };
-		
-		L.Control.Locate = L.Control.extend({
-			options: {
-				position: 'topright'
-			},
-			onAdd: function() {
-				this.container = L.DomUtil.create('div', 'command');
-				this.container.innerHTML = ;
-				return this.container;
-			}
-		});
-		L.control.locate = function() { return new L.Control.Locate(); };
-		*/
-		
-		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, togglePan: true, autoResize: true, headerHeight: 12}).addTo(map);
-		//var viewchange = L.control.view().addTo(map);
-		//var locater = L.control.locate().addTo(map);
+	
 		var optionsControl = L.control.options().addTo(map);
 		
+		sidebar = L.control.sidebar("sidebar", {openOnAdd: !L.Browser.mobile, showHeader: true, showFooter: true, fullHeight: true, togglePan: true, autoResize: true, headerHeight: 12}).addTo(map);
+		
 		sidebar.on('open', function() {
-			if(L.Browser.mobile)
+			if(window.innerWidth <= 500)
 			{
 				setTimeout(function() {
-					map.removeControl(optionsControl);
+					optionsControl.hide();
 				}, 200);
 			}
 		});
 		
 		sidebar.on('close', function() {
-			if(L.Browser.mobile)
+			if(window.innerWidth <= 500)
 			{
 				setTimeout(function() {
-					optionsControl.addTo(map);
+					optionsControl.show();
 				}, 200);
 			}
 		});
-
-		L.DomEvent.disableClickPropagation(document.getElementById("locateButton"));
-		L.DomEvent.disableClickPropagation(document.getElementById("changeView"));
 				
 		map.on('locationfound', onLocationFound);
 		map.on('locationerror', locationError);
@@ -230,52 +215,6 @@
 		};
 	}
 	
-
-	function toggleFullScreen()
-	{
-		var elem = document.documentElement;
-		
-		if(fullScreen)
-		{
-			if (document.exitFullscreen) 
-			{
-				document.exitFullscreen();
-			} 
-			else if (document.mozCancelFullScreen) 
-			{
-				document.mozCancelFullScreen();
-			} 
-			else if (document.webkitExitFullscreen)
-			{
-				document.webkitExitFullscreen();
-			} 
-			else if (document.msExitFullscreen) 
-			{
-				document.msExitFullscreen();
-			}
-		}
-		else
-		{
-			if (elem.requestFullscreen) 
-			{
-				elem.requestFullscreen();
-			} 
-			else if (elem.mozRequestFullScreen) 
-			{
-				elem.mozRequestFullScreen();
-			} 
-			else if (elem.webkitRequestFullscreen) 
-			{
-				elem.webkitRequestFullscreen();
-			} 
-			else if (elem.msRequestFullscreen) 
-			{
-				elem.msRequestFullscreen();
-			}
-		}
-		
-		fullScreen = !fullScreen;
-	}
 	/* -------------------- Geolocation -------------------- */
 	
 	// Attempts to locate the user
@@ -961,6 +900,53 @@
 		}
 	}
 	
+	// Toggles between programmatic fullscreen (does not interact well with user-driven fullscreen)
+	function toggleFullScreen()
+	{
+		var elem = document.documentElement;
+		
+		if(fullScreen)
+		{
+			if (document.exitFullscreen) 
+			{
+				document.exitFullscreen();
+			} 
+			else if (document.mozCancelFullScreen) 
+			{
+				document.mozCancelFullScreen();
+			} 
+			else if (document.webkitExitFullscreen)
+			{
+				document.webkitExitFullscreen();
+			} 
+			else if (document.msExitFullscreen) 
+			{
+				document.msExitFullscreen();
+			}
+		}
+		else
+		{
+			if (elem.requestFullscreen) 
+			{
+				elem.requestFullscreen();
+			} 
+			else if (elem.mozRequestFullScreen) 
+			{
+				elem.mozRequestFullScreen();
+			} 
+			else if (elem.webkitRequestFullscreen) 
+			{
+				elem.webkitRequestFullscreen();
+			} 
+			else if (elem.msRequestFullscreen) 
+			{
+				elem.msRequestFullscreen();
+			}
+		}
+		
+		fullScreen = !fullScreen;
+	}
+
 	
 	/* -------------------- Directions -------------------- */
 	
