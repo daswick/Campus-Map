@@ -813,8 +813,8 @@
 			{
 				var icon = marker.options.icon;
 				marker.options.zIndexOffset = 100;
-				//icon.options.iconSize = [40, 40];
-				//icon.options.popupAnchor = [10, -10];
+				icon.options.iconSize = [40, 40];
+				icon.options.popupAnchor = [10, -10];
 				marker.setIcon(icon);
 				marker.openPopup();
 			}
