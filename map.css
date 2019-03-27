@@ -225,7 +225,10 @@ input[type="radio"]:checked:hover {
 /* Sizes the logo image in header */
 .logo-container {
 	margin: 15px;
-	height: 8vh;
+	height: 65%;
+}
+.nccu-logo {
+	height: 100%;
 	width: auto;
 }
 /* Creates fake link */
