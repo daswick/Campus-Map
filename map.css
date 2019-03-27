@@ -222,11 +222,12 @@ input[type="radio"]:checked:hover {
 .sidebar-button:hover {
 	background-color: #1F618D;
 }
-/* Sizes the logo image in header */
+/* Sizes the logo container in header */
 .logo-container {
 	margin: 15px;
 	height: 65%;
 }
+/* Sizes the logo image in header */
 .nccu-logo {
 	height: 100%;
 	width: auto;

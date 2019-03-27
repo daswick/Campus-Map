@@ -459,7 +459,9 @@
 						break;
 					case "food": locationType = "campus Dining";
 						break;
-					case "recreation": locationType = "campus Recreation";
+					case "recreation":
+					case "parking":
+						locationType = "campus " + locationType.charAt(0).toUpperCase() + locationType.slice(1);
 						break;
 					case "classroom": 
 					case "dorm":
