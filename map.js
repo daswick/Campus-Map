@@ -415,13 +415,17 @@
 	// Fills in list layer of sidebar with all location types
 	function populateList()
 	{
+		var divList = {};
+		
 		for(var i = 0; i < features.length; i++)
 		{
-			var divID = features[i][2] + "-section";
-			var tableID = features[i][2] + "-list";
-
-			if(!document.body.contains(document.getElementById(divID)))
+			if(!(features[i][2] in divList))
 			{
+				divList[features[i][2]] = [];
+				
+				var divID = features[i][2] + "-section";
+				var tableID = features[i][2] + "-list";
+				
 				var section = L.DomUtil.create('div', 'section');
 				section.id = divID;
 				
@@ -432,10 +436,8 @@
 				{
 					if(e.target.id.indexOf("check") == -1)
 					{
-						//Expand or collapse this panel
 						$(this).next().slideToggle('fast');
 						
-						//Hide the other panels
 						$(".section-list").not($(this).next()).slideUp('fast');
 					}
 				};
@@ -447,11 +449,11 @@
 				{
 					case "admin": locationType = "administration";
 						break;
-					case "interest": locationType = "point of Interest";
+					case "interest": locationType = "points of Interest";
 						break;
-					case "bathroom": locationType = "inclusive Bathroom";
+					case "bathroom": locationType = "inclusive Bathrooms";
 						break;
-					case "printer": locationType = "paperCut Printer";
+					case "printer": locationType = "paperCut Printers";
 						break;
 					case "library": locationType = "libraries";
 						break;
@@ -491,8 +493,20 @@
 				section.appendChild(tablediv);
 				document.getElementById("location-list").appendChild(section);
 			}
+
+			divList[features[i][2]].push("<div class='section-location' name='" + features[i][3] + "' onclick='openMarker(" + i + ");'>" + features[i][3] + "</div>");
+		}
+		
+		for(var typeKey in divList)
+		{
+			var typeList = divList[typeKey];
+			typeList.sort();
 			
-			document.getElementById(tableID).innerHTML +=  "<div class='section-location' onclick='openMarker(" + i + ");'>" + features[i][3] + "</div>";
+			for(var entry in typeList)
+			{
+				var tableID = typeKey + "-list";
+				document.getElementById(tableID).innerHTML += typeList[entry];
+			}
 		}
 	}
 		
