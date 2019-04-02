@@ -1,0 +1,264 @@
+<html>
+	<head>
+		<title>Edit Features</title>
+		<script src="features.js"></script>
+		<script>
+			function populateList()
+			{
+				var types = new Set();
+				var details = new Set();
+				
+				document.getElementById("list").innerHTML = "";
+				
+				for(var i = 0; i < features.length; i++)
+				{
+					var entryName = features[i][3];
+					if(features[i][2] === "hidden")
+					{
+						entryName += " (hidden)";
+					}
+					
+					types.add(features[i][2]);
+					
+					var entryID = "location" + i.toString();
+					
+					var listEntry = "<div id='" + entryID + "' class='listEntry' ondblclick='populateLocation(" + i + ");'>" + entryName + "</div>";
+					document.getElementById("list").innerHTML += listEntry;
+					
+					if(features[i].length > 4)
+					{
+						for(var j = 0; j < features[i][4].length; j++)
+						{
+							details.add(features[i][4][j][0]);
+						}
+					}
+				}
+				
+				types.add("hidden");
+				
+				document.getElementById("locationTypes").innerHTML += "<option>Please select a type</option>";
+				types.forEach(function(type) {
+					document.getElementById("locationTypes").innerHTML += "<option>" + type + "</option>";
+				});
+				
+				document.getElementById("locationDetails").innerHTML += "<option>Please select a detail</option>";
+				details.forEach(function(detail) {
+					document.getElementById("locationDetails").innerHTML += "<option>" + detail + "</option>";
+					document.getElementById("detailList").innerHTML += "<div id='detail" + detail + "'></div>";
+				});
+			}
+			
+			function populateDetail()
+			{
+				var dropdown = document.getElementById("locationDetails");
+				var index = dropdown.options.selectedIndex;
+				var detail = dropdown.options[index].text;
+
+				var detailsList = document.getElementById("detailList");
+				
+				for(var i = 0; i < detailsList.children.length; i++)
+				{
+					document.getElementById(detailsList.children[i].id).style.display = "none";
+				}
+				
+				if(index === 0)
+				{
+					return;
+				}
+				
+				var detailID = "detail" + dropdown.options[index].text;
+				
+				var detailText = "<div class='detailEntry'>";
+				
+				var feature = features[document.getElementById("locationIndex").value];
+				
+				if(feature.length > 4)
+				{
+					for(var j = 0; j < feature[4].length; j++)
+					{
+						if(feature[4][j][0] === detail)
+						{
+							for(var k = 1; k < feature[4][j].length; k++)
+							{
+								detailText += "<div class='detailText'>" + k.toString() + ": " + "<input type='text' value=\"" + feature[4][j][k] + "\"/></div>";
+							}
+						}
+					}
+				}
+					
+				detailText += "</div>";
+
+				document.getElementById(detailID).innerHTML = detailText;
+				document.getElementById(detailID).style.display = "block";
+			}
+			
+			function populateLocation(index)
+			{
+				var feature = features[index];
+				
+				document.getElementById("locationIndex").value = index;
+				document.getElementById("nameText").value = feature[3];
+				document.getElementById("latText").value = feature[0];
+				document.getElementById("lngText").value = feature[1];
+				
+				document.getElementById("locationDetails").options.selectedIndex = 0;
+				
+				var dropdown = document.getElementById("locationTypes");
+				for(var i = 0; i < dropdown.options.length; i++)
+				{
+					if(dropdown[i].value === feature[2])
+					{
+						dropdown.options.selectedIndex = i;
+						break;
+					}
+				}
+			}
+			
+			function clearLocation()
+			{
+				document.getElementById("nameText").value = "";
+				document.getElementById("latText").value = "";
+				document.getElementById("lngText").value = "";
+				document.getElementById("locationTypes").options.selectedIndex = 0;
+			}
+			
+			function addLocation()
+			{
+				document.getElementById("locationIndex").value = features.length;
+				clearLocation();
+			}
+			
+			function saveLocation()
+			{
+				var entryID = "location" + document.getElementById("locationIndex").value;
+				
+				var updatedName = document.getElementById("nameText").value;
+				var updatedLat = document.getElementById("latText").value;
+				var updatedLng = document.getElementById("lngText").value;
+				
+				if(updatedName.length < 3 || updatedLat.length < 3 || updatedLng.length < 3)
+				{
+					return;
+				}
+				
+				if(document.getElementById("locationTypes").options.selectedIndex === 0)
+				{
+					return;
+				}
+				
+				if(!document.contains(document.getElementById(entryID)))
+				{
+					var listEntry = "<div id='" + entryID + "' class='listEntry' ondblclick='populateLocation(" + document.getElementById("locationIndex").value + ");'>" + updatedName + "</div>";
+					document.getElementById("list").innerHTML += listEntry;
+				}
+				
+				document.getElementById(entryID).innerHTML = updatedName;
+			}
+			
+			function download() 
+			{
+				var filename = "features.js";
+				
+				var text = "Testing";
+				
+				var element = document.createElement('a');
+				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+				element.setAttribute('download', filename);
+
+				element.style.display = 'none';
+				document.body.appendChild(element);
+
+				element.click();
+
+				document.body.removeChild(element);
+			}
+		</script>
+		<style>
+			.headerContainer {
+				height: 10%;
+			}
+			.bodyContainer {
+				display: flex;
+				width: 100%;
+				justify-content: center;
+				height: 80%;
+			}
+			.locationlist {
+				width: 30%;
+				overflow: auto;
+			}
+			.listEntry {
+				font-size: 18px;
+				padding: 3px;
+			}
+			.listEntry:hover {
+				background: lightgray;
+			}
+			.locationEdit {
+				margin-left: 20px;
+				width: 30%;
+			}
+			.locationDetail {
+				display: flex;
+				margin-bottom: 15px;
+			}
+			.buttonsContainer {
+				height: 10%;
+				display: flex;
+				justify-content: center;
+				padding-top: 20px;
+			}
+			.myButton {
+				height: 60%;
+				padding: 8px;
+				margin-right: 20px;
+				font-size: 16px;
+			}
+		</style>
+	</head>
+	<body onload="populateList();">
+		<div class="headerContainer">
+		</div>
+		<div class="bodyContainer">
+			<div class="locationList">
+				<div id="list">
+				</div>
+			</div>
+			<div class="locationEdit">
+				<input type="hidden" id="locationIndex"/>
+				<div class="locationDetail">
+					<p>Name: 
+					</p>
+					<input id="nameText" type='text'/>
+				</div>
+				<div class="locationDetail">
+					<p>Latitude: 
+					</p>
+					<input id="latText" type='text'/>
+				</div>
+				<div class="locationDetail">
+					<p>Longitude:
+					</p>
+					<input id="lngText" type='text'/>					
+				</div>
+				<div class="locationDetail">
+					<p>Location type:
+					</p>
+					<select id="locationTypes"></select>
+				</div>
+				<div class="locationDetail">
+					<p>Location details:
+					</p>
+					<select id="locationDetails" onchange="populateDetail();"></select>
+				</div>
+				<div id="detailList">
+				</div>
+				<button onclick="saveLocation();">Save Location</button>
+			</div>
+		</div>
+		<div class="buttonsContainer">
+			<button class="myButton" onclick="addLocation();">Add New Location</button>
+			<button class="myButton" onclick="download();">Save to File</button>
+		</div>
+	</body>
+</html>
