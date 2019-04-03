@@ -3,10 +3,17 @@
 		<title>Edit Features</title>
 		<script src="features.js"></script>
 		<script>
+			var details;
+			
+			function disableModal()
+			{
+				document.getElementById("myModal").style.display = "none";
+			}
+			
 			function populateList()
 			{
 				var types = new Set();
-				var details = new Set();
+				details = new Set();
 				
 				document.getElementById("list").innerHTML = "";
 				
@@ -68,32 +75,44 @@
 				
 				var detailID = "detail" + dropdown.options[index].text;
 				
-				var detailText = "<div class='detailEntry'>";
-				
-				var feature = features[document.getElementById("locationIndex").value];
-				
-				if(feature.length > 4)
-				{
-					for(var j = 0; j < feature[4].length; j++)
-					{
-						if(feature[4][j][0] === detail)
-						{
-							for(var k = 1; k < feature[4][j].length; k++)
-							{
-								detailText += "<div class='detailText'>" + k.toString() + ": " + "<input type='text' value=\"" + feature[4][j][k] + "\"/></div>";
-							}
-						}
-					}
-				}
-					
-				detailText += "</div>";
-
-				document.getElementById(detailID).innerHTML = detailText;
 				document.getElementById(detailID).style.display = "block";
+			}
+			
+			function deleteRow(detailID, index)
+			{
+				var detailEntry = document.getElementById(detailID).children[0];
+				
+				for(var i = index; i < detailEntry.children.length - 1; i++)
+				{
+					var content = detailEntry.children[i].innerHTML;
+					
+					content = String.fromCharCode(content.charCodeAt(0) - 1) + content.slice(1);
+					
+					detailEntry.children[i].innerHTML = content;
+				}
+				
+				detailEntry.children[index].remove();
+			}
+			
+			function addEntryRow(detailID)
+			{
+				var detailEntry = document.getElementById(detailID).children[0];
+				
+				var newIndex = detailEntry.children.length - 1;
+				
+				var newRow = document.createElement('div');
+				newRow.className = "detailText";
+				newRow.innerHTML = (newIndex + 1) + ": <input class='detailTextBox' type='text'/><button onclick='deleteRow(\"" + detailID + "\", " + newIndex + ");'>X</button>";
+				
+				detailEntry.insertBefore(newRow, detailEntry.children[newIndex]);
+				
+				console.log(detailEntry);
 			}
 			
 			function populateLocation(index)
 			{
+				disableModal();
+				
 				var feature = features[index];
 				
 				document.getElementById("locationIndex").value = index;
@@ -112,6 +131,41 @@
 						break;
 					}
 				}
+				
+				details.forEach(function(detail) {
+					var detailID = "detail" + detail;
+					document.getElementById(detailID).innerHTML = "";
+					document.getElementById(detailID).style.display = "none";
+					
+					var addRow = "<div class='addEntry'>Add new entry?<button onclick='addEntryRow(\"" + detailID + "\");'>Add Row</button></div>";
+					
+					var detailText = "<div class='detailEntry'>";
+					
+					var detailAdded = false;
+					
+					if(feature.length > 4)
+					{
+						for(var j = 0; j < feature[4].length; j++)
+						{
+							if(feature[4][j][0] === detail)
+							{
+								detailAdded = true;
+								for(var k = 1; k < feature[4][j].length; k++)
+								{
+									detailText += "<div class='detailText'>" + k.toString() + ": " + "<input class='detailTextBox' type='text' value=\"" + feature[4][j][k] + "\"\><button onclick='deleteRow(\"" + detailID + "\", " + (k-1) + ");'>X</button></div>";
+								}
+								detailText += addRow + "</div>";
+								document.getElementById(detailID).innerHTML = detailText;
+								break;
+							}
+						}
+					}
+					
+					if(!detailAdded)
+					{
+						document.getElementById(detailID).innerHTML = addRow;
+					}
+				});
 			}
 			
 			function clearLocation()
@@ -120,10 +174,18 @@
 				document.getElementById("latText").value = "";
 				document.getElementById("lngText").value = "";
 				document.getElementById("locationTypes").options.selectedIndex = 0;
+				document.getElementById("locationDetails").options.selectedIndex = 0;
+				
+				details.forEach(function(detail) {
+					var detailID = "detail" + detail;
+					document.getElementById(detailID).innerHTML = "";
+					document.getElementById(detailID).style.display = "none";
+				});
 			}
 			
 			function addLocation()
 			{
+				disableModal();
 				document.getElementById("locationIndex").value = features.length;
 				clearLocation();
 			}
@@ -153,13 +215,49 @@
 				}
 				
 				document.getElementById(entryID).innerHTML = updatedName;
+				
+				details.forEach(function(detail) {
+					var detailID = "detail" + detail;
+					
+					var thisDetail = document.getElementById(detailID);
+					
+					if(thisDetail.children.length === 0)
+					{
+						continue;
+					}
+				
+					for(var i = 0; i < thisDetail.children[0].children.length; i++)
+					{
+						var detailChild = thisDetail.children[0].children[i];
+					
+						var childDropdown = detailChild.children[0];
+							
+						switch(childDropdown.options.selectedIndex)
+						{
+							case 0:
+								
+								break;
+							case 1:
+							
+								break;
+							case 2:
+							
+								break;
+						}
+					}
+				});
 			}
 			
 			function download() 
 			{
 				var filename = "features.js";
 				
-				var text = "Testing";
+				var text = "var features = [\n";
+				for(var i = 0; i < features.length; i++)
+				{
+					text += "\t" + JSON.stringify(features[i]) + "\n";
+				}
+				text += "];";
 				
 				var element = document.createElement('a');
 				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -174,16 +272,20 @@
 			}
 		</script>
 		<style>
+			body {
+				margin: 0;
+			}
 			.headerContainer {
-				height: 10%;
+				height: 9%;
 			}
 			.bodyContainer {
 				display: flex;
 				width: 100%;
 				justify-content: center;
-				height: 80%;
+				height: 79%;
 			}
 			.locationlist {
+				background: white;
 				width: 30%;
 				overflow: auto;
 			}
@@ -195,6 +297,7 @@
 				background: lightgray;
 			}
 			.locationEdit {
+				background: white;
 				margin-left: 20px;
 				width: 30%;
 			}
@@ -203,7 +306,7 @@
 				margin-bottom: 15px;
 			}
 			.buttonsContainer {
-				height: 10%;
+				height: 9%;
 				display: flex;
 				justify-content: center;
 				padding-top: 20px;
@@ -213,6 +316,29 @@
 				padding: 8px;
 				margin-right: 20px;
 				font-size: 16px;
+			}
+			.listModal {
+				z-index: 100;
+				width: 40%;
+				padding-top: 100px;
+				text-align: center;
+				height: 69%;
+				display: block;
+				position: fixed;
+				overflow: hidden;
+				font-size: 36px;
+				color: white;
+				background-color: rgba(0,0,0,0.5);
+			}
+			.detailTextBox {
+				padding: 3px;
+				width: 90%;
+			}
+			.detailText {
+				margin-bottom: 10px;
+			}
+			.addEntry {
+				margin-bottom: 10px;
 			}
 		</style>
 	</head>
@@ -225,6 +351,9 @@
 				</div>
 			</div>
 			<div class="locationEdit">
+				<div id="myModal" class="listModal">
+					Please select a location first
+				</div>
 				<input type="hidden" id="locationIndex"/>
 				<div class="locationDetail">
 					<p>Name: 
