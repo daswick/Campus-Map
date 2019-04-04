@@ -84,29 +84,26 @@
 				
 				for(var i = index; i < detailEntry.children.length - 1; i++)
 				{
-					var content = detailEntry.children[i].innerHTML;
+					var currentEntry = detailEntry.children[i];
+					var nextEntry = detailEntry.children[i + 1];
 					
-					content = String.fromCharCode(content.charCodeAt(0) - 1) + content.slice(1);
-					
-					detailEntry.children[i].innerHTML = content;
+					currentEntry.children[0].value = nextEntry.children[0].value;
 				}
 				
-				detailEntry.children[index].remove();
+				detailEntry.children[detailEntry.children.length - 2].remove();
 			}
 			
 			function addEntryRow(detailID)
 			{
-				var detailEntry = document.getElementById(detailID).children[0];
+				var thisDetail = document.getElementById(detailID).children[0];
 				
-				var newIndex = detailEntry.children.length - 1;
+				var newIndex = thisDetail.children.length - 1;
 				
 				var newRow = document.createElement('div');
 				newRow.className = "detailText";
-				newRow.innerHTML = (newIndex + 1) + ": <input class='detailTextBox' type='text'/><button onclick='deleteRow(\"" + detailID + "\", " + newIndex + ");'>X</button>";
-				
-				detailEntry.insertBefore(newRow, detailEntry.children[newIndex]);
-				
-				console.log(detailEntry);
+				newRow.innerHTML = (newIndex + 1) + ": <input class='detailTextBox' type='text'/><button class='clearEntry' onclick='deleteRow(\"" + detailID + "\", " + newIndex + ");'>X</button>";
+
+				thisDetail.insertBefore(newRow, thisDetail.children[newIndex]);
 			}
 			
 			function populateLocation(index)
@@ -141,30 +138,24 @@
 					
 					var detailText = "<div class='detailEntry'>";
 					
-					var detailAdded = false;
-					
 					if(feature.length > 4)
 					{
 						for(var j = 0; j < feature[4].length; j++)
 						{
 							if(feature[4][j][0] === detail)
 							{
-								detailAdded = true;
 								for(var k = 1; k < feature[4][j].length; k++)
 								{
-									detailText += "<div class='detailText'>" + k.toString() + ": " + "<input class='detailTextBox' type='text' value=\"" + feature[4][j][k] + "\"\><button onclick='deleteRow(\"" + detailID + "\", " + (k-1) + ");'>X</button></div>";
+									detailText += "<div class='detailText'>" + k.toString() + ": " + "<input class='detailTextBox' type='text' value=\"" + feature[4][j][k] + "\"\><button class='clearEntry' onclick='deleteRow(\"" + detailID + "\", " + (k-1) + ");'>X</button></div>";
 								}
-								detailText += addRow + "</div>";
-								document.getElementById(detailID).innerHTML = detailText;
 								break;
 							}
+
 						}
 					}
 					
-					if(!detailAdded)
-					{
-						document.getElementById(detailID).innerHTML = addRow;
-					}
+					detailText += addRow + "</div>";
+					document.getElementById(detailID).innerHTML = detailText;
 				});
 			}
 			
@@ -188,11 +179,25 @@
 				disableModal();
 				document.getElementById("locationIndex").value = features.length;
 				clearLocation();
+				
+				details.forEach(function(detail) {
+					var detailID = "detail" + detail;
+					document.getElementById(detailID).innerHTML = "";
+					document.getElementById(detailID).style.display = "none";
+					
+					var addRow = "<div class='addEntry'>Add new entry?<button onclick='addEntryRow(\"" + detailID + "\");'>Add Row</button></div>";
+					
+					var detailText = "<div class='detailEntry'>" + addRow + "</div>";
+					
+					document.getElementById(detailID).innerHTML = detailText;
+				});
+
 			}
 			
 			function saveLocation()
 			{
-				var entryID = "location" + document.getElementById("locationIndex").value;
+				var entryIndex = document.getElementById("locationIndex").value;
+				var entryID = "location" + entryIndex;
 				
 				var updatedName = document.getElementById("nameText").value;
 				var updatedLat = document.getElementById("latText").value;
@@ -203,49 +208,60 @@
 					return;
 				}
 				
-				if(document.getElementById("locationTypes").options.selectedIndex === 0)
+				var updatedTypeBox = document.getElementById("locationTypes");
+				
+				if(updatedTypeBox.options.selectedIndex === 0)
 				{
 					return;
 				}
 				
-				if(!document.contains(document.getElementById(entryID)))
-				{
-					var listEntry = "<div id='" + entryID + "' class='listEntry' ondblclick='populateLocation(" + document.getElementById("locationIndex").value + ");'>" + updatedName + "</div>";
-					document.getElementById("list").innerHTML += listEntry;
-				}
+				var updatedType = updatedTypeBox.options[updatedTypeBox.options.selectedIndex].text;
 				
-				document.getElementById(entryID).innerHTML = updatedName;
+				var updatedEntry = [Number(updatedLat), Number(updatedLng), updatedType, updatedName, []];
 				
 				details.forEach(function(detail) {
 					var detailID = "detail" + detail;
 					
 					var thisDetail = document.getElementById(detailID);
-					
-					if(thisDetail.children.length === 0)
-					{
-						continue;
-					}
 				
+					var entryDetail = [detail];
+					
 					for(var i = 0; i < thisDetail.children[0].children.length; i++)
 					{
 						var detailChild = thisDetail.children[0].children[i];
 					
-						var childDropdown = detailChild.children[0];
-							
-						switch(childDropdown.options.selectedIndex)
+						if(detailChild.classList.contains("addEntry"))
 						{
-							case 0:
-								
-								break;
-							case 1:
-							
-								break;
-							case 2:
-							
-								break;
+							continue;
 						}
+						
+						var detailText = detailChild.children[0].value;
+						
+						entryDetail.push(detailText);
+					}
+					
+					if(entryDetail.length > 1)
+					{
+						updatedEntry[4].push(entryDetail);
 					}
 				});
+				
+				if(updatedEntry[4].length === 0)
+				{
+					updatedEntry.pop();
+				}
+				
+				console.log(updatedEntry);
+				
+				if(!document.contains(document.getElementById(entryID)))
+				{
+					var listEntry = "<div id='" + entryID + "' class='listEntry' ondblclick='populateLocation(" + document.getElementById("locationIndex").value + ");'>" + updatedName + "</div>";
+					document.getElementById("list").innerHTML += listEntry;
+					features.push(updatedEntry);
+				}
+				
+				features[parseInt(entryIndex)] = updatedEntry;
+				document.getElementById(entryID).innerHTML = updatedName;
 			}
 			
 			function download() 
@@ -276,7 +292,10 @@
 				margin: 0;
 			}
 			.headerContainer {
+				padding-top: 3px;
 				height: 9%;
+				font-size: 16px;
+				text-align: center;
 			}
 			.bodyContainer {
 				display: flex;
@@ -332,7 +351,7 @@
 			}
 			.detailTextBox {
 				padding: 3px;
-				width: 90%;
+				width: 75%;
 			}
 			.detailText {
 				margin-bottom: 10px;
@@ -340,10 +359,16 @@
 			.addEntry {
 				margin-bottom: 10px;
 			}
+			.clearEntry {
+				width: 7%;
+				padding: 3px;
+			}
 		</style>
 	</head>
 	<body onload="populateList();">
 		<div class="headerContainer">
+			<p>Test</p>
+			<p>Test 2</p>
 		</div>
 		<div class="bodyContainer">
 			<div class="locationList">
