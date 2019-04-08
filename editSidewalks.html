@@ -9,9 +9,10 @@
 		var mapView;
 		var satView;
 		var showSat;
+		var lineGroup;
 		
 		var blueColor = ['aqua', 'blue'];
-		var redColor = 'red';
+		var redColor = ['crimson', 'red'];
 		
 		function initMap()
 		{
@@ -24,14 +25,6 @@
 		
 			map.removeControl(map.attributionControl);
 		
-			/*
-			mapView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA', {
-				maxZoom: 20,
-				attribution: 'Imagery © <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
-				id: 'mapbox.streets',
-			});
-			*/
-			
 			mapView = L.tileLayer('https://maps.heigit.org/openmapsurfer/tiles/roads/webmercator/{z}/{x}/{y}.png', {
 				maxZoom: 19,
 				attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -52,6 +45,8 @@
 		
 		function showEdges()
 		{
+			var polylines = [];
+			
 			for(var i = 0; i < edges.length; i++)
 			{
 				var sidewalk1 = sidewalks[edges[i][0]];
@@ -59,26 +54,39 @@
 			
 				var newline;
 				
-				var lineColor = (edges[i][2]) ? blueColor[0] : redColor;
+				var lineColor = (edges[i][2]) ? blueColor[0] : redColor[0];
 				
 				newline = L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]]], {color: lineColor, interactive: true, weight: 4});
 				
 				newline.on('click', function() {
 					var thisIndex = Number(this);
-					
-					console.log(thisIndex);
+					populateEdge(thisIndex);
 				}.bind(i));
 				
-				newline.addTo(map);
+				polylines.push(newline);
 			}
+			
+			lineGroup = L.layerGroup(polylines);
+			lineGroup.addTo(map);
+			setLineColor(1);
+		}
+		
+		function populateEdge(index)
+		{
+			document.getElementById('edgeLength').value = edges[index][3];
+			console.log("This edge is " + index);
 		}
 		
 		function swapTiles()
 		{
+			var newIndex = 1;
+			
 			if(showSat)
 			{
 				map.removeLayer(mapView);
 				map.addLayer(satView);
+				
+				newIndex = 0;
 			}
 			else
 			{
@@ -87,6 +95,50 @@
 			}
 			
 			showSat = !showSat;
+			
+			setLineColor(newIndex);
+		}
+		
+		function setLineColor(newIndex)
+		{
+			var oldIndex = 1 - newIndex;
+			
+			lineGroup.eachLayer(function(layer) {
+				if(layer.options.color === blueColor[oldIndex])
+				{
+					layer.setStyle({color: blueColor[newIndex]});
+				}
+				else if(layer.options.color === redColor[oldIndex])
+				{
+					layer.setStyle({color: redColor[newIndex]});
+				}
+			});
+		}
+		
+		function updateEdge()
+		{
+			var id = document.getElementById('edgeID').value;
+			
+			if(id.length === 0)
+			{
+				console.log(id);
+			}
+			else
+			{
+				id = parseInt(id);
+			}
+		}
+		
+		function estimateLength()
+		{
+			var id = document.getElementById('edgeID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+			
+			
 		}
 	</script>
 	
@@ -96,36 +148,62 @@
 		}
 		#map {
 			margin: 8px;
-			height: 80%;
+			margin-bottom: 0px;
+			height: 70%;
 			width: 99%;
 		}
 		#footer {
-			height: 18%;
+			border-top: 1px solid black;
+			height: 29%;
 			width: 100%;
 			display: flex;
 		}
 		.footerDiv {
+			padding-left: 10px;
 			width: 25%;
+			border-left: 1px solid black;
+			border-right: 1px solid black;
+		}
+		.shortBox {
+			width: 20%;
 		}
 	</style>
-	
 </head>
 <body onload="initMap();">
 	<div id="map">
 	</div>
 	<div id="footer">
 		<div class="footerDiv" id="div1">
+			<input id='sidewalkID' type='hidden'/>
 			<p>Add/Edit Sidewalk</p>
+			<p>Latitude: <input type='text' /> </p>
+			<p>Longitude: <input type='text' /> </p>
+			<button>Save</button>
+			<button>Delete</button>
 		</div>
 		<div class="footerDiv" id="div2">
+			<input id='edgeID' type='hidden'/>
 			<p>Add/Edit Edge</p>			
+			<p>Starting <input class='shortBox' type='number' />
+			Ending <input class='shortBox' type='number' /> </p>
+			<p>Length in seconds <input id='edgeLength' class='shortBox' type='number' /> <button>Estimate?</button></p>
+			<p>Accessible? <input type='checkbox' /> </p>
+			<button onclick='updateEdge();'>Save</button>
+			<button>Delete</button>
 		</div>
 		<div class="footerDiv" id="div3">
+			<input id='connectionID' type='hidden'/>
 			<p>Add/Edit Connection</p>
+			<p>Feature <input class='shortBox' type='number' /> 
+			Sidewalk <input class='shortBox' type='number' /> </p>
+			<p>Accessible? <input type='checkbox' /> </p>
+			<button>Save</button>
+			<button>Delete</button>
 		</div>
 		<div class="footerDiv" id="div4">
 			<p>Controls</p>
 			<button onclick="swapTiles();">Swap Tiles</button>
+			<button>Save to File</button>
 		</div>
 		
 	</div>
