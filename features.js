@@ -39,7 +39,7 @@
 			[35.975817, -78.899388, 'food', "Chick-Fil-A", [['website', "<a href='https://nccudining.sodexomyway.com/dining-near-me/chick-fil-a' target='_blank'>Chick-Fil-A at Sodexo</a>"]]],
 			[35.972624, -78.900034, 'food', "Eagle's Nest", [['website', "<a href='https://nccudining.sodexomyway.com/dining-near-me/eagles-nest' target='_blank'>Eagle's Nest at Sodexo</a>"]]],
 			[35.975557, -78.903383, 'food', "Jazzman's", [['website', "<a href='https://nccudining.sodexomyway.com/dining-near-me/jazzmans-cafe-and-bakery' target='_blank'>Jazzman's at Sodexo</a>"]]],
-			[35.971739, -78.895114, 'food', "Legal Eagle Cafe"],
+			[35.971739, -78.895114, 'food', "Legal Eagle Cafe", [['website', "<a href='http://law.nccu.edu/bull-city-legal-eagle-cafe/' target='_blank'>Legal Eagle Cafe</a>"]]],
 			[35.976128, -78.899138, 'food', "Pearson Cafeteria", [['website', "<a href='https://nccudining.sodexomyway.com/dining-near-me/pearson-dining-hall' target='_blank'>Sodexo Dining Hall</a>"]]],
 			[35.974150, -78.898738, 'food', "Starbucks", [['website', "<a href='https://nccudining.sodexomyway.com/dining-near-me/shepard-library-cafe' target='_blank'>Starbucks at Sodexo</a>"]]],
 			[35.975967, -78.898783, 'food', "Subway", [['website', "<a href='https://nccudining.sodexomyway.com/dining-near-me/subway' target='_blank'>Subway at Sodexo</a>"]]],
