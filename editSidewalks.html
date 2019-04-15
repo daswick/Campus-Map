@@ -57,7 +57,7 @@
 				var lineColor = (edges[i][2]) ? blueColor[0] : redColor[0];
 				
 				newline = L.polyline([[sidewalk1[0], sidewalk1[1]], [sidewalk2[0], sidewalk2[1]]], {color: lineColor, interactive: true, weight: 4});
-				
+				newline.edgeIndex = i;
 				newline.on('click', function() {
 					var thisIndex = Number(this);
 					populateEdge(thisIndex);
@@ -71,10 +71,34 @@
 			setLineColor(1);
 		}
 		
+		function degreesToRadians(degrees) 
+		{
+			return degrees * Math.PI / 180;
+		}
+		
+		function getDistance(pos1, pos2)
+		{
+			var earthRadiusFeet = 6371 * 1000 * 3.28084;
+
+			var dLat = degreesToRadians(pos2[0]-pos1[0]);
+			var dLon = degreesToRadians(pos2[1]-pos1[1]);
+
+			var tlat1 = degreesToRadians(pos1[0]);
+			var tlat2 = degreesToRadians(pos2[0]);
+			var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(tlat1) * Math.cos(tlat2); 
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+			
+			return earthRadiusFeet * c;
+		}
+		
 		function populateEdge(index)
 		{
+			console.log(lineGroup.getLayers().length);
+			document.getElementById('edgeID').value = index;
 			document.getElementById('edgeLength').value = edges[index][3];
-			console.log("This edge is " + index);
+			document.getElementById('edgeStart').value = edges[index][0];
+			document.getElementById('edgeEnd').value = edges[index][1];
+			document.getElementById('edgeAccess').checked = edges[index][2];
 		}
 		
 		function swapTiles()
@@ -138,7 +162,51 @@
 				return;
 			}
 			
+			var startIndex = document.getElementById("edgeStart").value;
+			var endIndex = document.getElementById("edgeEnd").value;
 			
+			if(startIndex.length === 0 || endIndex.length === 0)
+			{
+				return;
+			}
+			
+			var distance = getDistance(sidewalks[edges[id][0]], sidewalks[edges[id][1]]) / 1000.0;
+			
+			var x1 = distance * 5.5687;
+			var x2 = (edges[id][2]) ? 0 : distance * 1.3085;
+			
+			var z = x1 + x2;
+			z = Math.floor(z * 60);
+			
+			document.getElementById("edgeLength").value = z;
+		}
+		
+		function deleteEdge()
+		{
+			var id = document.getElementById('edgeID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+			
+			lineGroup.eachLayer(function(layer) {
+				if(layer.edgeIndex == id)
+				{
+					var result = confirm("Are you sure you want to delete this edge?");
+					
+					if(result == true)
+					{
+						map.removeLayer(layer);
+						document.getElementById('edgeID').value = "";
+						document.getElementById('edgeLength').value = "";
+						document.getElementById('edgeStart').value = "";
+						document.getElementById('edgeEnd').value = "";
+						document.getElementById('edgeAccess').checked = false;
+						edges.splice(id, 1);
+					}
+				}
+			});
 		}
 	</script>
 	
@@ -184,12 +252,12 @@
 		<div class="footerDiv" id="div2">
 			<input id='edgeID' type='hidden'/>
 			<p>Add/Edit Edge</p>			
-			<p>Starting <input class='shortBox' type='number' />
-			Ending <input class='shortBox' type='number' /> </p>
-			<p>Length in seconds <input id='edgeLength' class='shortBox' type='number' /> <button>Estimate?</button></p>
-			<p>Accessible? <input type='checkbox' /> </p>
+			<p>Starting <input class='shortBox' id='edgeStart' type='number' />
+			Ending <input class='shortBox' id='edgeEnd' type='number' /> </p>
+			<p>Length in seconds <input id='edgeLength' class='shortBox' type='number' /> <button onclick='estimateLength();'>Estimate?</button></p>
+			<p>Accessible? <input id='edgeAccess' type='checkbox' /> </p>
 			<button onclick='updateEdge();'>Save</button>
-			<button>Delete</button>
+			<button onclick='deleteEdge();'>Delete</button>
 		</div>
 		<div class="footerDiv" id="div3">
 			<input id='connectionID' type='hidden'/>
