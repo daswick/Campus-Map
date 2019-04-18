@@ -5,6 +5,10 @@
 	<script src="sidewalks.js"></script>
 	<script src="features.js"></script>
 	
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
 	<script>
 		var map;
 		var mapView;
@@ -14,9 +18,11 @@
 		var connectGroup;
 		var sidewalkGroup;
 		var colorIndex;
+		var newSidewalk;
 		
 		var blueColor = ['aqua', 'blue'];
 		var redColor = ['crimson', 'red'];
+		var sidewalkColor = [['black', 'dimgray'], ['red', 'green']];
 		
 		function initMap()
 		{
@@ -29,11 +35,11 @@
 		
 			map.removeControl(map.attributionControl);
 		
-			mapView = L.tileLayer('https://maps.heigit.org/openmapsurfer/tiles/roads/webmercator/{z}/{x}/{y}.png', {
+			mapView = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				maxZoom: 19,
-				attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 			});
-
+			
 			satView = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 				maxZoom: 20,
 				attribution: 'Imagery © <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
@@ -68,6 +74,7 @@
 			
 				for(var i = 0; i < edges.length; i++)
 				{
+					var thisEdge = edges[i];
 					var sidewalk1 = sidewalks[edges[i][0]];
 					var sidewalk2 = sidewalks[edges[i][1]];
 			
@@ -127,6 +134,7 @@
 				setConnectColor(colorIndex);
 			}
 		}
+		
 		function degreesToRadians(degrees) 
 		{
 			return degrees * Math.PI / 180;
@@ -145,6 +153,89 @@
 			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 			
 			return earthRadiusFeet * c;
+		}
+		
+		function updateNewSidewalk()
+		{
+			var bounds = [[35.963, -78.915], [35.983, -78.885]];
+			
+			var lat = document.getElementById("add-sidewalk-lat").value;
+			var lng = document.getElementById("add-sidewalk-lng").value;
+			
+			if(lat.length < 3 || lng.length < 3)
+			{
+				return;
+			}
+			
+			if(lat < bounds[0][0] || lat > bounds[1][0] || lng < bounds[0][1] || lng > bounds[1][0])
+			{
+				return;
+			}
+			
+			if(newSidewalk !== undefined)
+			{
+				map.removeLayer(newSidewalk);
+			}
+			
+			newSidewalk = L.circleMarker([lat, lng], {radius: 15, weight: 4, fillColor: 'dimgray', fillOpacity: 1.0, color: 'black'});
+			newSidewalk.addTo(map);
+		}
+		
+		function addSidewalk()
+		{
+			$(function() {
+				$("#add-sidewalk").dialog({
+					dialogClass: "no-close",
+					draggable: true,
+					buttons: {
+						"Save": function() {
+							setTimeout(function() { $( "#add-sidewalk" ).dialog( "close" ); }, 1);
+							saveNewSidewalk();
+							if(newSidewalk !== undefined)
+							{
+								map.removeLayer(newSidewalk);
+							}
+						},
+						"Cancel": function() {
+							setTimeout(function() { $( "#add-sidewalk" ).dialog( "close" ); }, 1);
+							if(newSidewalk !== undefined)
+							{
+								map.removeLayer(newSidewalk);
+							}							
+						}
+					}
+				});
+				
+				$( "#add-sidewalk" ).dialog("moveToTop");
+			});
+		}
+		
+		function saveNewSidewalk()
+		{
+			if(newSidewalk === undefined)
+			{
+				return;
+			}
+			
+			var latlng = newSidewalk.getLatLng();
+			var newId = sidewalks.length;
+			
+			sidewalks.push([latlng.lat, latlng.lng]);
+			
+			var marker = L.circleMarker(latlng, {radius: 8, color: '#7a00cc'});
+			marker.bindPopup(" " + newId);
+			marker.addTo(map);
+			sidewalkGroup.addLayer(marker);
+			
+			map.removeLayer(newSidewalk);
+			newSidewalk = undefined;
+		}
+		
+		function populateSidewalk(index)
+		{
+			document.getElementById('sidewalkID').value = index;
+			document.getElementById('sidewalklat').value = sidewalks[index][0];
+			document.getElementById('sidewalklng').value = sidewalks[index][1];			
 		}
 		
 		function populateConnection(index)
@@ -282,10 +373,65 @@
 			
 					var marker = L.circleMarker([sidewalk[0], sidewalk[1]], {radius: 8, color: '#7a00cc'});
 					marker.bindPopup(" " + i);
+					marker.on('click', function() {
+						var id = Number(this);
+						populateSidewalk(id);
+					}.bind(i));
 					marker.addTo(map);
 					sidewalkGroup.addLayer(marker);
 				}			
 			}
+		}
+		
+		function deleteSidewalk()
+		{
+			var id = document.getElementById("sidewalkID").value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+			
+			var result = confirm("Are you sure you want to delete this sidewalk?");
+			
+			if(result == false)
+			{
+				return;
+			}
+			
+			sidewalks.splice(id, 1);
+			
+			edges = edges.filter(function(edge) {
+				return (edge[0] != id) && (edge[1] != id);
+			});
+			
+			for(var i = 0; i < edges.length; i++)
+			{
+				if(edges[i][0] > id)
+				{
+					edges[i][0] = edges[i][0] - 1;
+				}
+				if(edges[i][1] > id)
+				{
+					edges[i][1] = edges[i][1] - 1;
+				}
+			}
+			
+			connections = connections.filter(function(connection) {
+				return connection[0] != id;
+			});
+			
+			for(var i = 0; i < connections.length; i++)
+			{
+				if(connections[i][0] > id)
+				{
+					connections[i][0] = connections[i][0] - 1;
+				}
+			}
+
+			document.getElementById('sidewalkID').value = "";
+			document.getElementById('sidewalklat').value = "";
+			document.getElementById('sidewalklng').value = "";	
 		}
 		
 		function deleteEdge()
@@ -314,6 +460,70 @@
 					}
 				}
 			});
+		}
+		
+		function deleteConnection()
+		{
+			var id = document.getElementById('connectionID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+			
+			connectGroup.eachLayer(function(layer) {
+				if(layer.connectIndex == id)
+				{
+					var result = confirm("Are you sure you want to delete this connection?");
+					
+					if(result == true)
+					{
+						map.removeLayer(layer);
+						document.getElementById('connectionID').value = "";
+						document.getElementById('connectStart').value = "";
+						document.getElementById('connectEnd').value = "";
+						document.getElementById('connectAccess').checked = false;
+						connections.splice(id, 1);
+					}
+				}
+			});
+		}
+		
+		function download() 
+		{
+			var filename = "sidewalks.js";
+				
+			var text = "var sidewalks = [\n";
+			for(var i = 0; i < sidewalks.length; i++)
+			{
+				text += "\t" + JSON.stringify(sidewalks[i]) + ",\n";
+			}
+			text += "];\n\n";
+			
+			text += "var edges = [\n";
+			for(var i = 0; i < edges.length; i++)
+			{
+				text += "\t" + JSON.stringify(edges[i]) + ",\n";
+			}
+			text += "];\n\n";
+			
+			text += "var connections = [\n";
+			for(var i = 0; i < connections.length; i++)
+			{
+				text += "\t" + JSON.stringify(connections[i]) + ",\n";
+			}
+			text += "];";
+			
+			var element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			element.setAttribute('download', filename);
+
+			element.style.display = 'none';
+			document.body.appendChild(element);
+
+			element.click();
+
+			document.body.removeChild(element);
 		}
 	</script>
 	
@@ -352,19 +562,43 @@
 		#edgeLength {
 			width: 25%;
 		}
+		.dialog-source {
+			display: none;
+		}
+		.ui-dialog {
+			z-index: 1000 !important;
+			background: gainsboro;
+			border: 2px solid black !important;
+		}
+		.ui-dialog-titlebar {
+			background: silver;
+		}
+		.ui-dialog-buttonpane {
+			background: gainsboro;
+		}
+		.shortenedText {
+			width: 60%;
+		}
 	</style>
 </head>
 <body onload="initMap();">
+	<div class="dialog-source" id="add-sidewalk" title="Add new sidewalk">
+		<p>Latitude: <input class="shortenedText" oninput="updateNewSidewalk();" id="add-sidewalk-lat" type='text' /> </p>
+		<p>Longitude: <input class="shortenedText" oninput="updateNewSidewalk();" id="add-sidewalk-lng" type='text' /> </p>
+	</div>
+	<div class="dialog-source" id="add-edge" title="Add new edge">
+		
+	</div>
 	<div id="map">
 	</div>
 	<div id="footer">
 		<div class="footerDiv" id="div1">
 			<input id='sidewalkID' type='hidden'/>
 			<p class='footerDivHeader'>Edit Sidewalk</p>
-			<p>Latitude: <input type='text' /> </p>
-			<p>Longitude: <input type='text' /> </p>
+			<p>Latitude: <input type='text' id='sidewalklat' /> </p>
+			<p>Longitude: <input type='text' id='sidewalklng' /> </p>
 			<button class='buttonColumn'>Save</button>
-			<button class='buttonColumn'>Delete</button>
+			<button class='buttonColumn' onclick="deleteSidewalk();">Delete</button>
 		</div>
 		<div class="footerDiv" id="div2">
 			<input id='edgeID' type='hidden'/>
@@ -383,18 +617,18 @@
 			<p>Sidewalk <input id='connectEnd' type='number' /> </p>
 			<p>Accessible? <input id='connectAccess' type='checkbox' /> </p>
 			<button class='buttonColumn'>Save</button>
-			<button class='buttonColumn'>Delete</button>
+			<button class='buttonColumn' onclick='deleteConnection();'>Delete</button>
 		</div>
 		<div class="footerDiv" id="div4">
 			<p class='footerDivHeader'>Controls</p>
 			<button class='buttonColumn' onclick='toggleSidewalks();'>Toggle sidewalks</button>
-			<button class='buttonColumn'>Add sidewalk</button>
+			<button class='buttonColumn' onclick='addSidewalk();'>Add sidewalk</button>
 			<button class='buttonColumn' onclick='toggleEdges();'>Toggle edges</button>
 			<button class='buttonColumn'>Add edge</button>
 			<button class='buttonColumn' onclick='toggleConnections();'>Toggle connections</button>
 			<button class='buttonColumn'>Add connection</button>
 			<button class='buttonColumn' onclick="swapTiles();">Swap Tiles</button>
-			<button class='buttonColumn'>Save to File</button>
+			<button class='buttonColumn' onclick="download();">Save to File</button>
 		</div>		
 	</div>
 </body>

@@ -205,6 +205,15 @@
 			
 			if(keyCode === 13)
 			{
+				if(document.getElementById("textField").value === "Iron Maiden")
+				{
+					L.tileLayer('https://{s}.tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey={apikey}', {
+						apikey: 'db5ae1f5778a448ca662554581f283c5',
+						maxZoom: 22,
+						minZoom: 12
+					}).addTo(map);
+				}
+			
 				if(document.getElementById("suggestions").firstChild)
 				{
 					document.getElementById("suggestions").children[0].click();
@@ -422,6 +431,12 @@
 			if(!(features[i][2] in divList))
 			{
 				divList[features[i][2]] = [];
+				var locationType = features[i][2];
+				
+				if(locationType === "hidden")
+				{
+					continue;
+				}
 				
 				var divID = features[i][2] + "-section";
 				var tableID = features[i][2] + "-list";
@@ -443,7 +458,6 @@
 				};
 				
 				var sectionTitle = L.DomUtil.create('span', 'section-title');
-				var locationType = features[i][2];
 				
 				switch(locationType)
 				{
