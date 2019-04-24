@@ -19,6 +19,8 @@
 		var sidewalkGroup;
 		var colorIndex;
 		var newSidewalk;
+		var newEdge;
+		var newConnect;
 		
 		var blueColor = ['aqua', 'blue'];
 		var redColor = ['crimson', 'red'];
@@ -56,6 +58,392 @@
 			
 			toggleEdges();
 			toggleConnections();
+			
+			var addConnectDropdown = document.getElementById('add-connect-feat');
+			for(var i = 0; i < features.length; i++)
+			{
+				var option = document.createElement("option");
+				option.text = features[i][3];
+				addConnectDropdown.add(option);
+			}
+
+			var connectDropdown = document.getElementById('connectFeat');
+			for(var i = 0; i < features.length; i++)
+			{
+				var option = document.createElement("option");
+				option.text = features[i][3];
+				connectDropdown.add(option);
+			}
+		}
+
+		function swapTiles()
+		{
+			colorIndex = 1;
+			
+			if(showSat)
+			{
+				map.removeLayer(mapView);
+				map.addLayer(satView);
+				
+				colorIndex = 0;
+			}
+			else
+			{
+				map.removeLayer(satView);
+				map.addLayer(mapView);
+			}
+			
+			showSat = !showSat;
+			
+			setEdgeColor(colorIndex);
+			setConnectColor(colorIndex);
+		}
+		
+		function setEdgeColor(newIndex)
+		{
+			var oldIndex = 1 - newIndex;
+			
+			edgeGroup.eachLayer(function(layer) {
+				if(layer.options.color === blueColor[oldIndex])
+				{
+					layer.setStyle({color: blueColor[newIndex]});
+				}
+				else if(layer.options.color === redColor[oldIndex])
+				{
+					layer.setStyle({color: redColor[newIndex]});
+				}
+			});
+		}
+		
+		function setConnectColor(newIndex)
+		{
+			var oldIndex = 1 - newIndex;
+			
+			connectGroup.eachLayer(function(layer) {
+				if(layer.options.color === blueColor[oldIndex])
+				{
+					layer.setStyle({color: blueColor[newIndex]});
+				}
+				else if(layer.options.color === redColor[oldIndex])
+				{
+					layer.setStyle({color: redColor[newIndex]});
+				}
+			});
+		}
+		
+		/* Update existing layer */
+		function updateSidewalk()
+		{
+			var id = document.getElementById('sidewalkID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+			
+			var lat = document.getElementById('sidewalklat').value;
+			var lng = document.getElementById('sidewalklng').value;	
+			
+			sidewalks[id] = [lat, lng];
+		}
+		
+		function updateEdge()
+		{
+			var id = document.getElementById('edgeID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+
+			var startIndex = document.getElementById("edgeStart").value;
+			var endIndex = document.getElementById("edgeEnd").value;
+			var edgeAccess = document.getElementById('edgeAccess').checked;
+			var edgeLength = document.getElementById("edgeLength").value;
+			
+			edges[id] = [startIndex, endIndex, edgeAccess, edgeLength];
+		}
+		
+		function updateConnection()
+		{
+			var id = document.getElementById('connectionID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+			
+			var feat = document.getElementById('connectFeat').selectedIndex;
+			var side = document.getElementById('connectSide').value;
+			var access = document.getElementById('connectAccess').checked;
+			
+			connections[id] = [side, feat, access];
+		}
+		
+		/* Calculate edge length */
+		function degreesToRadians(degrees) 
+		{
+			return degrees * Math.PI / 180;
+		}
+		
+		function getDistance(pos1, pos2)
+		{
+			var earthRadiusFeet = 6371 * 1000 * 3.28084;
+
+			var dLat = degreesToRadians(pos2[0]-pos1[0]);
+			var dLon = degreesToRadians(pos2[1]-pos1[1]);
+
+			var tlat1 = degreesToRadians(pos1[0]);
+			var tlat2 = degreesToRadians(pos2[0]);
+			var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(tlat1) * Math.cos(tlat2); 
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+			
+			return earthRadiusFeet * c;
+		}
+		
+		function estimateLength(startIndex, endIndex, accessible)
+		{
+			var distance = getDistance(sidewalks[edges[startIndex][0]], sidewalks[edges[endIndex][1]]) / 1000.0;
+			
+			var x1 = distance * 5.5687;
+			var x2 = accessible ? 0 : distance * 1.3085;
+			
+			var z = x1 + x2;
+			z = Math.floor(z * 60);
+			
+			return z;
+		}
+		
+		function estimateOldEdge()
+		{
+			var id = document.getElementById('edgeID').value;
+			
+			if(id.length === 0)
+			{
+				return;
+			}
+
+			var startIndex = document.getElementById("edgeStart").value;
+			var endIndex = document.getElementById("edgeEnd").value;
+			var access = document.getElementById("edgeAccess").checked;
+			
+			if(startIndex.length === 0 || endIndex.length === 0)
+			{
+				return;
+			}
+			
+			var z = estimateLength(startIndex, endIndex, access);
+
+			document.getElementById("edgeLength").value = z;
+		}
+		
+		function estimateNewEdge()
+		{
+			var startIndex = document.getElementById("add-edge-start").value;
+			var endIndex = document.getElementById("add-edge-end").value;
+			var access = document.getElementById("add-edge-access").checked;
+			
+			if(startIndex.length === 0 || endIndex.length === 0)
+			{
+				return;
+			}
+			
+			var z = estimateLength(startIndex, endIndex, access);
+			
+			document.getElementById("add-edge-length").value = z;
+		}
+		
+		/* Update new layer */
+		function updateNewSidewalk()
+		{
+			var bounds = [[35.963, -78.915], [35.983, -78.885]];
+			
+			var lat = document.getElementById("add-sidewalk-lat").value;
+			var lng = document.getElementById("add-sidewalk-lng").value;
+			
+			if(lat.length < 3 || lng.length < 3)
+			{
+				return;
+			}
+			
+			if(lat < bounds[0][0] || lat > bounds[1][0] || lng < bounds[0][1] || lng > bounds[1][0])
+			{
+				return;
+			}
+			
+			if(newSidewalk !== undefined)
+			{
+				map.removeLayer(newSidewalk);
+			}
+			
+			newSidewalk = L.circleMarker([lat, lng], {radius: 15, weight: 4, fillColor: 'dimgray', fillOpacity: 1.0, color: 'black'});
+			newSidewalk.addTo(map);
+		}
+
+		function updateNewEdge()
+		{
+			var startIndex = document.getElementById("add-edge-start").value;
+			var endIndex = document.getElementById("add-edge-end").value;
+			var access = document.getElementById("add-edge-access").checked;
+			
+			if(startIndex.length == 0 || startIndex < 0 || startIndex > sidewalks.length)
+			{
+				return;
+			}
+			
+			if(endIndex.length == 0 || endIndex < 0 || endIndex > sidewalks.length)
+			{
+				return;
+			}
+			
+			if(newEdge !== undefined)
+			{
+				map.removeLayer(newEdge);
+			}
+			
+			newEdge = L.polyline([[sidewalks[startIndex][0], sidewalks[startIndex][1]], [sidewalks[endIndex][0], sidewalks[endIndex][1]]], {weight: 8, color: 'deepskyblue'});
+			newEdge.addTo(map);
+		}
+		
+		function updateNewConnect()
+		{
+			var feat = document.getElementById('add-connect-feat').selectedIndex;
+			var side = document.getElementById('add-connect-side').value;
+			
+			if(feat.length == 0 || feat < 0 || feat > features.length)
+			{
+				return;
+			}
+			
+			if(side.length == 0 || side < 0 || side > sidewalks.length)
+			{
+				return;
+			}
+			
+			if(newConnect !== undefined)
+			{
+				map.removeLayer(newConnect);
+			}
+			
+			newConnect = L.polyline([[features[feat][0], features[feat][1]], [sidewalks[side][0], sidewalks[side][1]]], {weight: 8, color: 'deepskyblue'});
+			newConnect.addTo(map);
+		}
+		
+		/* Save new layer */
+		function saveNewSidewalk()
+		{
+			if(newSidewalk === undefined)
+			{
+				return;
+			}
+			
+			var latlng = newSidewalk.getLatLng();
+			var newId = sidewalks.length;
+			
+			sidewalks.push([latlng.lat, latlng.lng]);
+			
+			var marker = L.circleMarker(latlng, {radius: 8, color: '#7a00cc'});
+			marker.bindPopup(" " + newId);
+			marker.addTo(map);
+			sidewalkGroup.addLayer(marker);
+			
+			map.removeLayer(newSidewalk);
+			newSidewalk = undefined;
+		}
+
+		function saveNewEdge()
+		{
+			if(newEdge === undefined)
+			{
+				return;
+			}
+			
+			var i = edges.length;
+
+			var startIndex = document.getElementById("add-edge-start").value;
+			var endIndex = document.getElementById("add-edge-end").value;
+			var access = document.getElementById("add-edge-access").checked;
+			var length = document.getElementById("add-edge-length").value;
+			
+			edges.push([startIndex, endIndex, access, length]);
+			
+			var newline;
+				
+			var lineColor = (edges[i][2]) ? blueColor[0] : redColor[0];
+				
+			newline = L.polyline([[sidewalks[startIndex][0], sidewalks[startIndex][1]], [sidewalks[endIndex][0], sidewalks[endIndex][1]]], {color: lineColor, interactive: true, weight: 4});
+			newline.edgeIndex = i;
+			newline.on('click', function() {
+				var thisIndex = Number(this);
+				populateEdge(thisIndex);
+			}.bind(i));
+			
+			newline.addTo(map);
+			edgeGroup.addLayer(newline);
+			
+			map.removeLayer(newEdge);
+			newEdge = undefined;
+		}
+		
+		function saveNewConnect()
+		{
+			if(newConnect === undefined)
+			{
+				return;
+			}
+			
+			var i = connections.length;
+
+			var sidewalkIndex = document.getElementById("add-connect-side").value;
+			var locationIndex = document.getElementById("add-connect-feat").selectedIndex;
+			var access = document.getElementById("add-connect-access").checked;
+		
+			connections.push([sidewalkIndex, locationIndex, access]);
+			
+			var sidewalk = sidewalks[sidewalkIndex];
+			var location = features[locationIndex];
+
+			var lineColor = access ? blueColor[0] : redColor[0];
+			var newline = L.polyline([[sidewalk[0], sidewalk[1]], [location[0], location[1]]], {color: lineColor, interactive: true, weight: 4}).addTo(map);	
+			newline.connectIndex = i;
+			newline.on('click', function() {
+				var thisIndex = Number(this);
+				populateConnection(thisIndex);
+			}.bind(i));
+			
+			newline.addTo(map);
+			connectGroup.addLayer(newline);
+			
+			map.removeLayer(newConnect);
+		}
+		
+		/* Toggle layers */
+		function toggleSidewalks()
+		{
+			if(sidewalkGroup.getLayers().length > 1)
+			{
+				sidewalkGroup.eachLayer(function(layer) {
+					map.removeLayer(layer);
+				});
+				
+				sidewalkGroup = new L.layerGroup();
+			}
+			else
+			{
+				for(var i = 0; i < sidewalks.length; i++)
+				{
+					var sidewalk = sidewalks[i];
+			
+					var marker = L.circleMarker([sidewalk[0], sidewalk[1]], {radius: 8, color: '#7a00cc'});
+					marker.bindPopup(" " + i);
+					marker.on('click', function() {
+						var id = Number(this);
+						populateSidewalk(id);
+					}.bind(i));
+					marker.addTo(map);
+					sidewalkGroup.addLayer(marker);
+				}			
+			}
 		}
 		
 		function toggleEdges()
@@ -134,55 +522,14 @@
 				setConnectColor(colorIndex);
 			}
 		}
-		
-		function degreesToRadians(degrees) 
-		{
-			return degrees * Math.PI / 180;
-		}
-		
-		function getDistance(pos1, pos2)
-		{
-			var earthRadiusFeet = 6371 * 1000 * 3.28084;
 
-			var dLat = degreesToRadians(pos2[0]-pos1[0]);
-			var dLon = degreesToRadians(pos2[1]-pos1[1]);
-
-			var tlat1 = degreesToRadians(pos1[0]);
-			var tlat2 = degreesToRadians(pos2[0]);
-			var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(tlat1) * Math.cos(tlat2); 
-			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-			
-			return earthRadiusFeet * c;
-		}
-		
-		function updateNewSidewalk()
-		{
-			var bounds = [[35.963, -78.915], [35.983, -78.885]];
-			
-			var lat = document.getElementById("add-sidewalk-lat").value;
-			var lng = document.getElementById("add-sidewalk-lng").value;
-			
-			if(lat.length < 3 || lng.length < 3)
-			{
-				return;
-			}
-			
-			if(lat < bounds[0][0] || lat > bounds[1][0] || lng < bounds[0][1] || lng > bounds[1][0])
-			{
-				return;
-			}
-			
-			if(newSidewalk !== undefined)
-			{
-				map.removeLayer(newSidewalk);
-			}
-			
-			newSidewalk = L.circleMarker([lat, lng], {radius: 15, weight: 4, fillColor: 'dimgray', fillOpacity: 1.0, color: 'black'});
-			newSidewalk.addTo(map);
-		}
-		
+		/* Popup for new layer */
 		function addSidewalk()
 		{
+			document.getElementById("add-sidewalk-lat").value = 35.97;
+			document.getElementById("add-sidewalk-lng").value = -78.9;
+			updateNewSidewalk();
+			
 			$(function() {
 				$("#add-sidewalk").dialog({
 					dialogClass: "no-close",
@@ -210,42 +557,72 @@
 			});
 		}
 		
-		function saveNewSidewalk()
+		function addEdge()
 		{
-			if(newSidewalk === undefined)
-			{
-				return;
-			}
-			
-			var latlng = newSidewalk.getLatLng();
-			var newId = sidewalks.length;
-			
-			sidewalks.push([latlng.lat, latlng.lng]);
-			
-			var marker = L.circleMarker(latlng, {radius: 8, color: '#7a00cc'});
-			marker.bindPopup(" " + newId);
-			marker.addTo(map);
-			sidewalkGroup.addLayer(marker);
-			
-			map.removeLayer(newSidewalk);
-			newSidewalk = undefined;
+			$(function() {
+				$("#add-edge").dialog({
+					dialogClass: "no-close",
+					draggable: true,
+					buttons: {
+						"Save": function() {
+							setTimeout(function() { $( "#add-edge" ).dialog( "close" ); }, 1);
+							saveNewEdge();
+							if(newSidewalk !== undefined)
+							{
+								map.removeLayer(newEdge);
+							}
+						},
+						"Cancel": function() {
+							setTimeout(function() { $( "#add-edge" ).dialog( "close" ); }, 1);
+							if(newSidewalk !== undefined)
+							{
+								map.removeLayer(newEdge);
+							}
+						}
+					}
+				});
+				
+				$( "#add-edge" ).dialog("moveToTop");
+			});			
 		}
 		
+		function addConnection()
+		{			
+			$(function() {
+				$("#add-connect").dialog({
+					dialogClass: "no-close",
+					draggable: true,
+					buttons: {
+						"Save": function() {
+							setTimeout(function() { $( "#add-connect" ).dialog( "close" ); }, 1);
+							saveNewConnect();
+							if(newSidewalk !== undefined)
+							{
+								map.removeLayer(newSidewalk);
+							}
+						},
+						"Cancel": function() {
+							setTimeout(function() { $( "#add-connect" ).dialog( "close" ); }, 1);
+							if(newSidewalk !== undefined)
+							{
+								map.removeLayer(newSidewalk);
+							}
+						}
+					}
+				});
+				
+				$( "#add-connect" ).dialog("moveToTop");
+			});
+		}
+		
+		/* Load layer information */
 		function populateSidewalk(index)
 		{
 			document.getElementById('sidewalkID').value = index;
 			document.getElementById('sidewalklat').value = sidewalks[index][0];
 			document.getElementById('sidewalklng').value = sidewalks[index][1];			
 		}
-		
-		function populateConnection(index)
-		{
-			document.getElementById('connectionID').value = index;
-			document.getElementById('connectStart').value = connections[index][0];
-			document.getElementById('connectEnd').value = connections[index][1];
-			document.getElementById('connectAccess').checked = connections[index][2];
-		}
-		
+
 		function populateEdge(index)
 		{
 			document.getElementById('edgeID').value = index;
@@ -255,134 +632,15 @@
 			document.getElementById('edgeAccess').checked = edges[index][2];
 		}
 		
-		function swapTiles()
+		function populateConnection(index)
 		{
-			colorIndex = 1;
-			
-			if(showSat)
-			{
-				map.removeLayer(mapView);
-				map.addLayer(satView);
-				
-				colorIndex = 0;
-			}
-			else
-			{
-				map.removeLayer(satView);
-				map.addLayer(mapView);
-			}
-			
-			showSat = !showSat;
-			
-			setEdgeColor(colorIndex);
-			setConnectColor(colorIndex);
+			document.getElementById('connectionID').value = index;
+			document.getElementById('connectFeat').selectedIndex = connections[index][1];
+			document.getElementById('connectSide').value = connections[index][0];
+			document.getElementById('connectAccess').checked = connections[index][2];
 		}
 		
-		function setEdgeColor(newIndex)
-		{
-			var oldIndex = 1 - newIndex;
-			
-			edgeGroup.eachLayer(function(layer) {
-				if(layer.options.color === blueColor[oldIndex])
-				{
-					layer.setStyle({color: blueColor[newIndex]});
-				}
-				else if(layer.options.color === redColor[oldIndex])
-				{
-					layer.setStyle({color: redColor[newIndex]});
-				}
-			});
-		}
-		
-		function setConnectColor(newIndex)
-		{
-			var oldIndex = 1 - newIndex;
-			
-			connectGroup.eachLayer(function(layer) {
-				if(layer.options.color === blueColor[oldIndex])
-				{
-					layer.setStyle({color: blueColor[newIndex]});
-				}
-				else if(layer.options.color === redColor[oldIndex])
-				{
-					layer.setStyle({color: redColor[newIndex]});
-				}
-			});
-		}
-		
-		function updateEdge()
-		{
-			var id = document.getElementById('edgeID').value;
-			
-			if(id.length === 0)
-			{
-				return;
-			}
-
-			var startIndex = document.getElementById("edgeStart").value;
-			var endIndex = document.getElementById("edgeEnd").value;
-			var edgeAccess = document.getElementById('edgeAccess').checked;
-			var edgeLength = document.getElementById("edgeLength").value;
-			
-			edges[id] = [startIndex, endIndex, edgeAccess, edgeLength];
-		}
-		
-		function estimateLength()
-		{
-			var id = document.getElementById('edgeID').value;
-			
-			if(id.length === 0)
-			{
-				return;
-			}
-			
-			var startIndex = document.getElementById("edgeStart").value;
-			var endIndex = document.getElementById("edgeEnd").value;
-			
-			if(startIndex.length === 0 || endIndex.length === 0)
-			{
-				return;
-			}
-			
-			var distance = getDistance(sidewalks[edges[id][0]], sidewalks[edges[id][1]]) / 1000.0;
-			
-			var x1 = distance * 5.5687;
-			var x2 = (edges[id][2]) ? 0 : distance * 1.3085;
-			
-			var z = x1 + x2;
-			z = Math.floor(z * 60);
-			
-			document.getElementById("edgeLength").value = z;
-		}
-		
-		function toggleSidewalks()
-		{
-			if(sidewalkGroup.getLayers().length > 1)
-			{
-				sidewalkGroup.eachLayer(function(layer) {
-					map.removeLayer(layer);
-				});
-				
-				sidewalkGroup = new L.layerGroup();
-			}
-			else
-			{
-				for(var i = 0; i < sidewalks.length; i++)
-				{
-					var sidewalk = sidewalks[i];
-			
-					var marker = L.circleMarker([sidewalk[0], sidewalk[1]], {radius: 8, color: '#7a00cc'});
-					marker.bindPopup(" " + i);
-					marker.on('click', function() {
-						var id = Number(this);
-						populateSidewalk(id);
-					}.bind(i));
-					marker.addTo(map);
-					sidewalkGroup.addLayer(marker);
-				}			
-			}
-		}
-		
+		/* Delete layer */
 		function deleteSidewalk()
 		{
 			var id = document.getElementById("sidewalkID").value;
@@ -489,6 +747,7 @@
 			});
 		}
 		
+		/* Save all changes */
 		function download() 
 		{
 			var filename = "sidewalks.js";
@@ -559,7 +818,7 @@
 			font-size: 20px;
 			margin-top: 8px;
 		}
-		#edgeLength {
+		.edgeLength {
 			width: 25%;
 		}
 		.dialog-source {
@@ -587,7 +846,15 @@
 		<p>Longitude: <input class="shortenedText" oninput="updateNewSidewalk();" id="add-sidewalk-lng" type='text' /> </p>
 	</div>
 	<div class="dialog-source" id="add-edge" title="Add new edge">
-		
+		<p>Start index <input class="shortenedText" id='add-edge-start' oninput="updateNewEdge();" type='number' /> </p>
+		<p>End index <input class="shortenedText" id='add-edge-end' oninput="updateNewEdge();" type='number' /> </p>
+		<p>Length (seconds) <input class="edgeLength" id='add-edge-length' oninput="updateNewEdge();" type='number' /> <button onclick='estimateNewEdge();'>?</button></p>
+		<p>Accessible? <input id='add-edge-access' type='checkbox' /> </p>
+	</div>
+	<div class="dialog-source" id="add-connect" title="Add new connection">
+		<p>Feature <select class="shortenedText"  id='add-connect-feat' onchange="updateNewConnect();"></select></p>
+		<p>Sidewalk <input id='add-connect-side' oninput="updateNewConnect();" type='number' /> </p>
+		<p>Accessible? <input id='add-connect-access' type='checkbox' /> </p>
 	</div>
 	<div id="map">
 	</div>
@@ -605,7 +872,7 @@
 			<p class='footerDivHeader'>Edit Edge</p>			
 			<p>Starting <input id='edgeStart' type='number' /></p>
 			<p>Ending <input  id='edgeEnd' type='number' /> </p>
-			<p>Length in seconds <input id='edgeLength' type='number' /> <button onclick='estimateLength();'>Estimate?</button></p>
+			<p>Length in seconds <input id='edgeLength' class="edgeLength" type='number' /> <button onclick='estimateOldEdge();'>Estimate?</button></p>
 			<p>Accessible? <input id='edgeAccess' type='checkbox' /> </p>
 			<button class='buttonColumn' onclick='updateEdge();'>Save</button>
 			<button class='buttonColumn' onclick='deleteEdge();'>Delete</button>
@@ -613,8 +880,8 @@
 		<div class="footerDiv" id="div3">
 			<input id='connectionID' type='hidden'/>
 			<p class='footerDivHeader'>Edit Connection</p>
-			<p>Feature <input id='connectStart' type='number' /></p>
-			<p>Sidewalk <input id='connectEnd' type='number' /> </p>
+			<p>Feature <select class="shortenedText" id='connectFeat'></select></p>
+			<p>Sidewalk <input id='connectSide' type='number' /> </p>
 			<p>Accessible? <input id='connectAccess' type='checkbox' /> </p>
 			<button class='buttonColumn'>Save</button>
 			<button class='buttonColumn' onclick='deleteConnection();'>Delete</button>
@@ -624,9 +891,9 @@
 			<button class='buttonColumn' onclick='toggleSidewalks();'>Toggle sidewalks</button>
 			<button class='buttonColumn' onclick='addSidewalk();'>Add sidewalk</button>
 			<button class='buttonColumn' onclick='toggleEdges();'>Toggle edges</button>
-			<button class='buttonColumn'>Add edge</button>
+			<button class='buttonColumn' onclick='addEdge();'>Add edge</button>
 			<button class='buttonColumn' onclick='toggleConnections();'>Toggle connections</button>
-			<button class='buttonColumn'>Add connection</button>
+			<button class='buttonColumn' onclick="addConnection();">Add connection</button>
 			<button class='buttonColumn' onclick="swapTiles();">Swap Tiles</button>
 			<button class='buttonColumn' onclick="download();">Save to File</button>
 		</div>		
