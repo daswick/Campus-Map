@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>NCCU Campus Map</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link rel="icon" href="images/favicon-32x32.png">
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
+	<script src="features.js"></script>
+	<script src="map.js"></script>
+	<script src="sidewalks.js"></script>
+	<link rel="stylesheet" type="text/css" href="map.css">
+	
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
+	<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+
+	<script src="https://daswick.github.io/Leaflet.Sidebar/src/sidebar.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet.Sidebar/src/sidebar.css">
+	<link rel="stylesheet" type="text/css" href="https://daswick.github.io/Leaflet.Sidebar/src/sidebar-fancy.css">
+	
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		html, body, #map {
+			height: 100%;
+			width: 100vw;
+		}
+	</style>
+</head>
+<body onload="initMap();" id="bs-override">
+	<div class="dialog" id="confirm-location" title="Confirm Location">
+		<p autofocus>Is this location correct?</p>
+	</div>
+	<div class="dialog" id="error-message" title="Error">
+		<p autofocus id="errorMsg"></p>
+	</div>
+	<div id="map"></div>
+	<div id="sidebar">
+		<!-- List all locations -->
+		<div id="layer-0" class="sidebar-source">
+			<div class="sidebar-header">
+				<a class='logo-container' href="http://www.nccu.edu" target="_blank">
+					<img class='nccu-logo' src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<div class="search">
+					<input type="text" id="textField" class='search-bar' placeholder="Search..." oninput="hashText('textField', 'suggestions', 5, 'openMarker');" class="searchbar">
+					<input type="button" id="clearTextField" class="clear-search" onclick="clearSearch();" value="X"><br>
+				</div>
+				<p class='search-results' id="suggestions"></p>
+				<div id="location-list">
+					<h1>Locations</h1>
+				</div>
+				<div class='buttons'>
+					<button class='sidebar-button' onclick='shareMap();'>Share</button>
+					<button class='sidebar-button' onclick='clearList();'>Clear</button>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<span class="fake-footer-link" onclick="sidebar.showLayer(5);">About the map</span> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- Location information -->
+		<div id="layer-1" class="sidebar-source" parent="0">
+			<div class="sidebar-header">
+				<a class='logo-container' href="http://www.nccu.edu" target="_blank">
+					<img class='nccu-logo' src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<h2 id='location-title'></h2>
+				<div id='image-block'>
+				</div>
+				<div id='location-content'>
+				</div>
+				<div class='buttons'>
+					<button class='sidebar-button' id='share-location'>Share <img src='images/getLink.svg'/></button>
+					<button class='sidebar-button' id='directions-button'>Directions <img src='images/direction.svg'/></button>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<span class="fake-footer-link" onclick="sidebar.showLayer(5);">About the map</span> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- Directions layer -->
+		<div id="layer-2" class="sidebar-source" parent="1">
+			<div class="sidebar-header">
+				<a class='logo-container' href="http://www.nccu.edu" target="_blank">
+					<img class='nccu-logo' src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<div class='direction-header'>
+					<h2>Directions to:</h2>
+					<p id='direction-title'></p>
+				</div>
+				<div class='direction-options'>
+					<p>Choose your starting point:</p>
+					<div id='direction-location' class='direction-option'><input id="location-option" type='radio' name='direction-image'><img class='direction-image' src='images/locate.svg'/>Your Location</div>
+					<div id='direction-building' class='direction-option'><input id="building-option" type='radio' name='direction-image'><img class='direction-image' src='images/inside-ico.svg'/><input placeholder='Enter a Location' id="locationBox" class='direction-search' oninput="hashText('locationBox', 'locations', 3, 'findBuilding');" type='text'/></div>
+					<p class="search-results" id="locations"></p>
+					<div class='direction-option'><input id="accessBox" type='checkbox'/><p style='margin-left: 10px'>Only use accessible routes?</p></div>
+				</div>
+				<div class='buttons'>
+					<button class='sidebar-button' id='direction-button'>Route <img src='images/start-ico.svg'/></button>
+				</div>
+				<div id='directions-time'>
+				</div>
+				<div id='directions-info'>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<span class="fake-footer-link" onclick="sidebar.showLayer(5);">About the map</span> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- Share Location layer -->
+		<div id="layer-3" class="sidebar-source" parent="1">
+			<div class="sidebar-header">
+				<a class='logo-container' href="http://www.nccu.edu" target="_blank">
+					<img class='nccu-logo' src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<div class='link-header'>
+					<h2>Share location:</h2>
+					<p id='link-title'></p>
+				</div>
+				<div class='link-content'>
+					<h3>Link to location</h3>
+					<p>Share this location by copying the URL below</p>
+					<textarea readonly id='location-url' class='copy-url' name='text'></textarea>
+					<button class='copy-button' onclick='copyToClipboard("location-url");'>Copy link to clipboard</button>
+					
+					<h3>Embed this location</h3>
+					<p>Embed a map of this location to your site by copying the embed code below</p>
+					<textarea readonly id='location-embed' class='copy-map' name='text'></textarea>
+					<button class='copy-button' onclick='copyToClipboard("location-embed");'>Copy HTML to clipboard</button>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<span class="fake-footer-link" onclick="sidebar.showLayer(5);">About the map</span> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- Share Map layer -->
+		<div id="layer-4" class="sidebar-source" parent="0">
+			<div class="sidebar-header">
+				<a class='logo-container' href="http://www.nccu.edu" target="_blank">
+					<img class='nccu-logo' src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<div class='link-header'>
+					<h2>Share map</h2>
+				</div>
+				<div class='link-content'>
+					<h3>Link to map</h3>
+					<p>Share this map by copying the URL below</p>
+					<textarea readonly id='map-url' class='copy-url' type='text'></textarea>
+					<button class='copy-button' onclick='copyToClipboard("map-url");'>Copy link to clipboard</button>
+					
+					<h3>Embed this map</h3>
+					<p>Embed this map to your site by copying the embed code below</p>
+					<textarea readonly id='map-embed' class='copy-map' type='text'></textarea>
+					<button class='copy-button' onclick='copyToClipboard("map-embed");'>Copy HTML to clipboard</button>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<span class="fake-footer-link" onclick="sidebar.showLayer(5);">About the map</span> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+		<!-- About the Map layer -->
+		<div id="layer-5" class="sidebar-source" parent="0">
+			<div class="sidebar-header">
+				<a class='logo-container' href="http://www.nccu.edu" target="_blank">
+					<img class='nccu-logo' src="images/NCCU-horz-logo.png" alt="North Carolina Central University Logo"/>
+				</a>
+			</div>
+			<div class="sidebar-content">
+				<p class="about-header">The new North Carolina Central University online campus map provides students, faculty, visitors, and alumni with easy to use tools and services to make navigation of the NCCU campus easier.</p>
+				<p class="about-content">The NCCU campus map provides a list of locations on campus that any user may be looking for. People who are new to the campus can search for the administrative buildings, visitors can find the parking lots they need for events, and long-time students can find the hidden gems of NCCU. The complete list of locations provided are administrative buildings, classrooms, dorms, food, points of interest, recreation and athletics, libraries, services, parking lots, printers, and inclusive bathrooms. Each building in these categories have the following information (when applicable): images, website, contact information, and a list of offices inside. Each printer and inclusive bathroom come with their location, and each parking lot includes the type of spots available (i.e. residential, reserved, commuter, etc.) and the number of handicap spots in the lot.</p>
+				<p class="about-content">When on the page for a location, the user can get directions to this location. You can choose between directions from your location (provided your location is on – desktops seem to have issue with location accuracy) or a specific building on campus. You can also opt to use only handicap-accessible routes, which are provided by the project manager that walked the campus to ensure the information was accurate.</p>
+				<p class="about-content">If you want to share the map with a location or list of locations (e.g. for an event on campus), the map provides the ability to share and embed. Each location has a share button that will give you the link and embed code for that specific location. The overall map also has a share button to allow for sharing of multiple locations (or even location categories).</p>
+				<p class="about-content">The map was created with <a href="https://www.mapbox.com/" target="_blank">Leaflet</a> using imagery from <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>, and was developed by the NCCU Web Services Team from summer 2018 to spring 2019. If you have any feedback, comments, or concerns, please contact us through <a href="http://helpdesk.nccu.edu/" target="_blank">helpdesk</a>.</p>
+			</div>
+			<div class="sidebar-footer">
+				<div class="links">
+					<span class="fake-footer-link" onclick="sidebar.showLayer(5);">About the map</span> | 
+					<a href="http://helpdesk.nccu.edu" target="_blank">Feedback</a> | 
+					<a href="http://www.nccu.edu/formsdocs/proxy.cfm?file_id=393" target="_blank">PDF Map</a>
+				</div>
+				&copy; 2019 North Carolina Central University
+			</div>
+		</div>
+	</div>
+</body>
+</html>
